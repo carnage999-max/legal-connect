@@ -4,7 +4,10 @@ export default function PrivacyPage(): React.ReactNode {
       <header className="border-b border-lcborder">
         <div className="site-container py-6">
           <nav className="flex items-center justify-between">
-            <a href="/" className="font-bold text-2xl">Legal Connect</a>
+            <a href="/" className="inline-flex items-center gap-2 font-bold text-2xl hover:opacity-80 transition">
+              <img src="/logo.png" alt="Legal Connect" className="h-8 w-8" />
+              <span>Legal Connect</span>
+            </a>
             <a href="/" className="text-lctextsecondary hover:text-lctextprimary transition">← Back</a>
           </nav>
         </div>

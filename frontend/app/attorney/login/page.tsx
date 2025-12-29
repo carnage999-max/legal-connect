@@ -25,7 +25,10 @@ export default function AttorneyLoginPage(): React.ReactNode {
     <div className="min-h-screen bg-lcbgattorney text-lctextattorney">
       <header className="border-b border-lcborderattorney">
         <div className="max-w-6xl mx-auto px-6 py-6">
-          <div className="font-bold text-2xl">Legal Connect</div>
+          <Link href="/" className="inline-flex items-center gap-2 font-bold text-2xl hover:opacity-80 transition">
+            <img src="/logo.png" alt="Legal Connect" className="h-8 w-8" />
+            <span>Legal Connect</span>
+          </Link>
           <p className="text-lctextattorneysecondary text-sm mt-1">Attorney Portal</p>
         </div>
       </header>

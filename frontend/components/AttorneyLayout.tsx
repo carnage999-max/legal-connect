@@ -28,7 +28,10 @@ export function AttorneyLayout({ children }: { children: ReactNode }): React.Rea
     <div className="flex min-h-screen bg-lcbgattorney text-lctextattorney">
       {/* Side Navigation */}
       <aside className="w-64 bg-lcbgattorney-secondary border-r border-lcborder-attorney p-6">
-        <div className="font-semibold text-lg mb-8">Legal Connect</div>
+        <Link href="/" className="flex items-center gap-2 font-semibold text-lg mb-8 hover:opacity-80 transition">
+          <img src="/logo.png" alt="Legal Connect" className="h-6 w-6" />
+          <span>Legal Connect</span>
+        </Link>
         <nav className="space-y-2">
           {navItems.map(item => (
             <Link

@@ -22,7 +22,10 @@ export function ClientLayout({ children }: { children: ReactNode }): React.React
       {/* Top Navigation */}
       <header className="border-b border-lcborder">
         <div className="site-container flex items-center justify-between h-16">
-          <div className="font-semibold text-lg">Legal Connect</div>
+          <Link href="/" className="flex items-center gap-2 font-semibold text-lg hover:opacity-80 transition">
+            <img src="/logo.png" alt="Legal Connect" className="h-6 w-6" />
+            <span>Legal Connect</span>
+          </Link>
           <nav className="flex items-center gap-8">
             {navTabs.map(tab => (
               <button

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { apiPost } from '../lib/api';
-import { FileText, Briefcase, Users, Shield, AlertCircle, Loader, CheckCircle2 } from 'lucide-react';
+import { FileText, Briefcase, Users, Shield, AlertCircle, Loader, CheckCircle2, Check, Circle } from 'lucide-react';
 
 type MatterType = 'civil' | 'criminal' | 'family' | 'contract' | 'other';
 type Step = 1 | 2 | 3 | 4 | 5;
@@ -128,7 +128,10 @@ export function IntakeWizard(): React.ReactNode {
     <div className="min-h-screen bg-white text-lctextprimary">
       <header className="site-container pt-6">
         <nav className="flex items-center justify-between">
-          <div className="font-semibold">Legal Connect</div>
+          <a href="/" className="inline-flex items-center gap-2 font-semibold hover:opacity-80 transition">
+            <img src="/logo.png" alt="Legal Connect" className="h-6 w-6" />
+            <span>Legal Connect</span>
+          </a>
           <a href="/" className="text-lctextsecondary">← Back to Home</a>
         </nav>
       </header>
@@ -141,18 +144,18 @@ export function IntakeWizard(): React.ReactNode {
               {[1, 2, 3, 4, 5].map((s) => (
                 <div key={s} className="flex flex-col items-center flex-1">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition ${
-                      s <= step
-                        ? 'bg-lcaccent-client text-white'
-                        : 'bg-lcborder text-lctextsecondary'
-                    }`}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition`}
+                    style={{
+                      backgroundColor: s < step ? '#065F46' : s === step ? '#065F46' : '#E5E7EB',
+                      color: s < step ? 'white' : s === step ? 'white' : '#4B5563'
+                    }}
                   >
-                    {s < step ? '✓' : s}
+                    {s < step ? <Check size={20} /> : s === step ? <Circle size={20} /> : s}
                   </div>
                   <p className={`text-xs mt-2 text-center ${s === step ? 'font-semibold text-lctextprimary' : 'text-lctextsecondary'}`}>
                     {['Matter', 'Describe', 'Parties', 'Conflict', 'Match'][s - 1]}
                   </p>
-                  {s < 5 && <div className={`h-0.5 flex-1 mx-2 mt-6 ${s < step ? 'bg-lcaccent-client' : 'bg-lcborder'}`} />}
+                  {s < 5 && <div className="h-0.5 flex-1 mx-2 mt-6" style={{ backgroundColor: s < step ? '#065F46' : '#E5E7EB' }} />}
                 </div>
               ))}
             </div>
@@ -180,8 +183,8 @@ export function IntakeWizard(): React.ReactNode {
                   {matterTypes.map(mt => (
                     <label key={mt.value} className={`flex items-center cursor-pointer p-4 border-2 rounded-lg transition ${
                       formData.matterType === mt.value
-                        ? 'border-lcaccent-client bg-blue-50'
-                        : 'border-lcborder hover:border-lcaccent-client hover:bg-gray-50'
+                        ? 'border-lcaccentclient bg-blue-50'
+                        : 'border-lcborder hover:border-lcaccentclient hover:bg-gray-50'
                     }`}>
                       <input
                         type="radio"
@@ -209,7 +212,7 @@ export function IntakeWizard(): React.ReactNode {
                   placeholder="Describe your situation, timeline, and what you're hoping to achieve..."
                   rows={8}
                   maxLength={5000}
-                  className="w-full border border-lcborder rounded-lg p-4 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent-client font-base resize-none" 
+                  className="w-full border border-lcborder rounded-lg p-4 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient font-base resize-none" 
                   style={{ outlineColor: '#065F46' }}
                 />
                 <div className="flex items-center justify-between mt-3">
@@ -236,7 +239,7 @@ export function IntakeWizard(): React.ReactNode {
                             setFormData({ ...formData, parties: newParties });
                           }}
                           placeholder={`Party ${i + 1} (optional)`}
-                          className="flex-1 border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent-client" 
+                          className="flex-1 border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient" 
                           style={{ outlineColor: '#065F46' }}
                         />
                         {i > 0 && (
@@ -252,7 +255,7 @@ export function IntakeWizard(): React.ReactNode {
                   </div>
                   <button
                     onClick={() => setFormData({ ...formData, parties: [...formData.parties, ''] })}
-                    className="mt-3 px-4 py-2 text-lcaccent-client bg-blue-50 rounded-lg font-medium hover:bg-blue-100 transition text-sm"
+                    className="mt-3 px-4 py-2 text-lcaccentclient bg-blue-50 rounded-lg font-medium hover:bg-blue-100 transition text-sm"
                   >
                     + Add Another Party
                   </button>
@@ -263,7 +266,7 @@ export function IntakeWizard(): React.ReactNode {
                   <select
                     value={formData.jurisdiction}
                     onChange={(e) => setFormData({ ...formData, jurisdiction: e.target.value })}
-                    className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent-client" 
+                    className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient" 
                     style={{ outlineColor: '#065F46' }}
                   >
                     <option value="">Select a state or jurisdiction...</option>
@@ -283,7 +286,7 @@ export function IntakeWizard(): React.ReactNode {
                     value={formData.clientRole}
                     onChange={(e) => setFormData({ ...formData, clientRole: e.target.value })}
                     placeholder="e.g., Plaintiff, Defendant, Complainant, Parent..."
-                    className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent-client" 
+                    className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient" 
                     style={{ outlineColor: '#065F46' }}
                   />
                 </div>
@@ -333,18 +336,18 @@ export function IntakeWizard(): React.ReactNode {
                 ) : availableAttorneys.length > 0 ? (
                   <div className="grid gap-4">
                     {availableAttorneys.map((atty: any) => (
-                      <div key={atty.id} className="p-6 border-2 border-lcborder rounded-lg hover:border-lcaccent-client hover:shadow-md transition cursor-pointer bg-white">
+                      <div key={atty.id} className="p-6 border-2 border-lcborder rounded-lg hover:border-lcaccentclient hover:shadow-md transition cursor-pointer bg-white">
                         <div className="flex items-start justify-between mb-3">
                           <div>
                             <p className="font-semibold text-lg text-lctextprimary">{atty.name || 'Attorney'}</p>
                             <p className="text-lctextsecondary text-sm">{atty.practice_area || 'General Practice'}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-semibold text-lcaccent-client">{atty.experience_years || 'N/A'} yrs</p>
+                            <p className="font-semibold text-lcaccentclient">{atty.experience_years || 'N/A'} yrs</p>
                             <p className="text-xs text-lctextsecondary">Experience</p>
                           </div>
                         </div>
-                        <button className="w-full mt-4 py-2 px-4 bg-lcaccent-client text-white rounded-lg font-medium hover:opacity-90 transition">
+                        <button className="w-full mt-4 py-2 px-4 bg-lcaccentclient text-white rounded-lg font-medium hover:opacity-90 transition">
                           Select Attorney
                         </button>
                       </div>
@@ -371,7 +374,19 @@ export function IntakeWizard(): React.ReactNode {
             </button>
             <button
               onClick={step === 5 ? handleSubmitMatter : nextStep}
-              className="px-8 py-3 bg-lcaccent-client text-white rounded-lg font-semibold hover:opacity-90 transition" 
+              style={{
+                backgroundColor: '#065F46',
+                color: 'white',
+                padding: '12px 32px',
+                borderRadius: '8px',
+                border: 'none',
+                fontWeight: '600',
+                cursor: 'pointer',
+                opacity: 1,
+                transition: 'opacity 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
               {step === 5 ? (submitted ? '✓ Submitted' : 'Submit & Match') : 'Next →'}
             </button>

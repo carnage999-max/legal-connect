@@ -29,7 +29,7 @@ export default function Home(): React.ReactNode {
             </div>
             <div className="relative h-96 lg:h-full min-h-96">
               <Image
-                src="/window.svg"
+                src="/logo.png"
                 alt="Legal Connect Interface"
                 fill
                 className="object-contain"
