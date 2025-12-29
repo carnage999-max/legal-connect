@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { apiPost } from '../lib/api';
+import { apiPost, apiGet } from '../lib/api';
 import { FileText, Briefcase, Users, Shield, AlertCircle, Loader, CheckCircle2, Check, Circle } from 'lucide-react';
 
 type MatterType = 'civil' | 'criminal' | 'family' | 'contract' | 'other';
@@ -30,6 +30,7 @@ export function IntakeWizard(): React.ReactNode {
   });
   const [conflictLoading, setConflictLoading] = useState(false);
   const [conflictResult, setConflictResult] = useState<ConflictCheckResult | null>(null);
+  const [currentMatterId, setCurrentMatterId] = useState<string | null>(null);
   const [availableAttorneys, setAvailableAttorneys] = useState<any[]>([]);
   const [attorneysLoading, setAttorneysLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -51,19 +52,38 @@ export function IntakeWizard(): React.ReactNode {
     { value: 'other', label: 'Other' },
   ];
 
+  async function createDraftMatterIfMissing() {
+    if (currentMatterId) return currentMatterId;
+    try {
+      const matterData = await apiPost('/api/v1/matters/', {
+        title: '',
+        matter_type: formData.matterType,
+        description: formData.description,
+        jurisdiction: formData.jurisdiction,
+        parties: formData.parties.filter(p => p).map(name => ({ name }))
+      });
+      const id = matterData?.id;
+      setCurrentMatterId(id || null);
+      return id;
+    } catch (e) {
+      console.error('Error creating draft matter', e);
+      return null;
+    }
+  }
+
   async function handleConflictCheck() {
     setConflictLoading(true);
     setConflictResult(null);
     try {
+      const matterId = await createDraftMatterIfMissing();
+      if (!matterId) throw new Error('Could not create matter');
       const result = await apiPost('/api/v1/conflicts/check/', {
-        matter_type: formData.matterType,
-        description: formData.description,
-        parties: formData.parties.filter(p => p),
-        jurisdiction: formData.jurisdiction,
+        matter_id: matterId,
       });
       setConflictResult(result);
     } catch (e: any) {
       setConflictResult({ hasConflict: true, reason: 'Error checking conflicts' });
+      console.error('Conflict check failed', e);
     } finally {
       setConflictLoading(false);
     }
@@ -73,9 +93,9 @@ export function IntakeWizard(): React.ReactNode {
     setAttorneysLoading(true);
     setAvailableAttorneys([]);
     try {
-      const result = await apiPost('/api/v1/conflicts/matter/available-attorneys/', {
-        matter_id: '',
-      });
+      const matterId = currentMatterId || (await createDraftMatterIfMissing());
+      if (!matterId) throw new Error('Missing matter id');
+      const result = await apiGet(`/api/v1/conflicts/matter/${matterId}/available-attorneys/`);
       setAvailableAttorneys(result.attorneys || []);
     } catch (e: any) {
       console.error('Error fetching attorneys', e);
@@ -87,14 +107,28 @@ export function IntakeWizard(): React.ReactNode {
   async function handleSubmitMatter() {
     setSubmitted(true);
     try {
-      const matterData = await apiPost('/api/v1/matters/', {
-        matter_type: formData.matterType,
-        description: formData.description,
-        jurisdiction: formData.jurisdiction,
-      });
-      console.log('Matter created:', matterData);
+      // If a draft exists, attempt to submit it; otherwise create one
+      if (currentMatterId) {
+        try {
+          await apiPost(`/api/v1/matters/${currentMatterId}/submit/`);
+          console.log('Matter submitted:', currentMatterId);
+        } catch (err) {
+          // Submission may require authentication; keep the draft and log
+          console.warn('Submit failed (possibly unauthenticated). Draft saved as', currentMatterId);
+        }
+      } else {
+        const matterData = await apiPost('/api/v1/matters/', {
+          title: '',
+          matter_type: formData.matterType,
+          description: formData.description,
+          jurisdiction: formData.jurisdiction,
+          parties: formData.parties.filter(p => p).map(name => ({ name }))
+        });
+        setCurrentMatterId(matterData?.id || null);
+        console.log('Matter created:', matterData);
+      }
     } catch (e: any) {
-      console.error('Error creating matter', e);
+      console.error('Error creating/submitting matter', e);
     }
   }
 
@@ -317,6 +351,8 @@ export function IntakeWizard(): React.ReactNode {
                         <div className="flex items-center justify-center gap-2 mb-2">
                           <CheckCircle2 size={28} className="text-green-800" />
                           <p className="text-2xl font-semibold text-green-800">All Clear</p>
+                        </div>
+                       
                         </div>
                         <p className="text-green-700">No conflicts found. Let's find you an attorney!</p>
                       </>

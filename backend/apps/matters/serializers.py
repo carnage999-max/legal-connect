@@ -112,6 +112,7 @@ class MatterCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Matter
         fields = [
+            'id',
             'title', 'matter_type', 'description', 'client_role',
             'jurisdiction', 'jurisdiction_details', 'practice_area',
             'incident_date', 'statute_of_limitations',
@@ -121,7 +122,19 @@ class MatterCreateSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         parties_data = validated_data.pop('parties', [])
-        validated_data['client'] = self.context['request'].user
+
+        # Set client if available (authenticated user), otherwise leave null for public intake
+        request_user = self.context['request'].user if 'request' in self.context else None
+        if request_user and getattr(request_user, 'is_authenticated', False):
+            validated_data['client'] = request_user
+
+        # Ensure title exists for model constraints
+        if not validated_data.get('title'):
+            # Build a sensible short title from matter type / description
+            mt = validated_data.get('matter_type') or 'Matter'
+            desc = (validated_data.get('description') or '').strip().split('\n')[0][:60]
+            validated_data['title'] = f"{mt.capitalize()}: {desc or 'Intake'}"
+
         validated_data['status'] = Matter.MatterStatus.DRAFT
 
         matter = Matter.objects.create(**validated_data)

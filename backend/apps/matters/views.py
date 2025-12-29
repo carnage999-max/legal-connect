@@ -20,11 +20,17 @@ from apps.attorneys.views import IsAttorney, IsClient
 class MatterListCreateView(generics.ListCreateAPIView):
     """List matters for current user or create a new matter."""
 
-    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'description']
     ordering_fields = ['created_at', 'status', 'next_action_date']
     ordering = ['-created_at']
+
+    def get_permissions(self):
+        # Allow unauthenticated POST for public intake
+        if self.request.method == 'POST':
+            return []
+        # Require authentication for GET/LIST
+        return [permissions.IsAuthenticated()]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

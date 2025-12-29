@@ -49,7 +49,9 @@ class Matter(models.Model):
     client = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='matters'
+        related_name='matters',
+        null=True,  # Allow client to be nullable
+        blank=True
     )
 
     # Attorney assignment
@@ -134,7 +136,8 @@ class Matter(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.title} - {self.client.full_name}"
+        client_name = self.client.full_name if self.client else 'Anonymous'
+        return f"{self.title} - {client_name}"
 
     @property
     def is_active(self):

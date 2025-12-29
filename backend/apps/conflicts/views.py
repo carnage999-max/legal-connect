@@ -89,7 +89,12 @@ class AttorneyClientRecordDeleteView(generics.DestroyAPIView):
 class ConflictCheckRequestView(APIView):
     """Request a conflict check for a matter."""
 
-    permission_classes = [IsClient]
+    def get_permissions(self):
+        # Allow unauthenticated POST for public intake
+        if self.request.method == 'POST':
+            return []
+        # Default to client-only for other methods
+        return [IsClient()]
 
     def post(self, request):
         from apps.matters.models import Matter
@@ -99,8 +104,8 @@ class ConflictCheckRequestView(APIView):
 
         matter = Matter.objects.get(pk=serializer.validated_data['matter_id'])
 
-        # Verify user owns this matter
-        if matter.client != request.user:
+        # For authenticated users, verify they own the matter
+        if request.user.is_authenticated and matter.client != request.user:
             return Response(
                 {'detail': 'You do not have permission to request a conflict check for this matter.'},
                 status=status.HTTP_403_FORBIDDEN
@@ -109,7 +114,7 @@ class ConflictCheckRequestView(APIView):
         # Perform conflict check
         conflict_check = ConflictCheckService.perform_conflict_check(
             matter=matter,
-            requested_by=request.user
+            requested_by=request.user if request.user.is_authenticated else None
         )
 
         return Response(ConflictCheckSerializer(conflict_check).data)
@@ -129,26 +134,28 @@ class ConflictCheckResultView(generics.RetrieveAPIView):
 
 
 class MatterAvailableAttorneysView(APIView):
-    """Get available attorneys for a matter after conflict check."""
+    """Get available attorneys for a matter after conflict check.
 
-    permission_classes = [IsClient]
+    For public intake we allow unauthenticated access for anonymous matters (client is null).
+    For matters with an owner we preserve the client-only access check.
+    """
+
+    permission_classes = []
 
     def get(self, request, matter_id):
         from apps.matters.models import Matter
 
         try:
-            matter = Matter.objects.get(pk=matter_id, client=request.user)
+            matter = Matter.objects.get(pk=matter_id)
         except Matter.DoesNotExist:
-            return Response(
-                {'detail': 'Matter not found.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({'detail': 'Matter not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # If the matter is owned by a client, make sure the requester is that client
+        if matter.client and (not request.user.is_authenticated or matter.client != request.user):
+            return Response({'detail': 'Matter not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         if not matter.conflict_check_completed:
-            return Response(
-                {'detail': 'Conflict check not completed for this matter.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'detail': 'Conflict check not completed for this matter.'}, status=status.HTTP_400_BAD_REQUEST)
 
         attorneys = ConflictCheckService.get_available_attorneys(matter)
 
