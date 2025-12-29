@@ -1,0 +1,41 @@
+{% extends "email/base.html" %}
+{% block title %}Signature Requested - Legal Connect{% endblock %}
+
+{% block content %}
+<h2>Your Signature is Requested</h2>
+
+<p>Hello {{ user.first_name|default:"there" }},</p>
+
+<p>You have been requested to sign a document:</p>
+
+<div class="code-box" style="text-align: left;">
+    <p style="margin: 0 0 8px 0;"><strong>Document:</strong> {{ document.title }}</p>
+    <p style="margin: 0 0 8px 0;"><strong>Requested by:</strong> {{ requester_name }}</p>
+    <p style="margin: 0;"><strong>Expires:</strong> {{ expiry_date }}</p>
+</div>
+
+<div style="text-align: center;">
+    <a href="{{ sign_url }}" class="button">Review & Sign Document</a>
+</div>
+
+<div class="warning-box">
+    <strong>Important:</strong> Please review the document carefully before signing. Your electronic signature is legally binding.
+</div>
+
+<div class="divider"></div>
+
+<div class="info-box">
+    <strong>How e-signatures work:</strong>
+    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+        <li>Review the document in full before signing</li>
+        <li>Click the signature areas to add your signature</li>
+        <li>Your signature is encrypted and timestamped</li>
+        <li>You'll receive a signed copy for your records</li>
+    </ul>
+</div>
+
+<p>If you have questions about this document, please contact the requester before signing.</p>
+
+<p>Best regards,</p>
+<p><strong>The Legal Connect Team</strong></p>
+{% endblock %}

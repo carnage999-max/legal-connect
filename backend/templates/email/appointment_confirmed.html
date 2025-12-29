@@ -1,0 +1,44 @@
+{% extends "email/base.html" %}
+{% block title %}Appointment Confirmed - Legal Connect{% endblock %}
+
+{% block content %}
+<h2>Appointment Confirmed</h2>
+
+<p>Hello {{ user.first_name|default:"there" }},</p>
+
+<p>Your appointment has been confirmed. Here are the details:</p>
+
+<div class="code-box" style="text-align: left;">
+    <p style="margin: 0 0 8px 0;"><strong>Date:</strong> {{ appointment.date }}</p>
+    <p style="margin: 0 0 8px 0;"><strong>Time:</strong> {{ appointment.start_time }} - {{ appointment.end_time }}</p>
+    <p style="margin: 0 0 8px 0;"><strong>Attorney:</strong> {{ appointment.attorney_name }}</p>
+    <p style="margin: 0 0 8px 0;"><strong>Type:</strong> {{ appointment.appointment_type }}</p>
+    {% if appointment.location %}
+    <p style="margin: 0;"><strong>Location:</strong> {{ appointment.location }}</p>
+    {% endif %}
+    {% if appointment.video_link %}
+    <p style="margin: 0;"><strong>Video Link:</strong> <a href="{{ appointment.video_link }}">Join Meeting</a></p>
+    {% endif %}
+</div>
+
+<div style="text-align: center;">
+    <a href="{{ appointment_url }}" class="button">View Appointment Details</a>
+</div>
+
+<div class="info-box">
+    <strong>Prepare for your appointment:</strong>
+    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+        <li>Gather any relevant documents</li>
+        <li>Prepare a list of questions</li>
+        <li>Test your video/audio if it's a virtual meeting</li>
+        <li>Be ready 5 minutes before the scheduled time</li>
+    </ul>
+</div>
+
+<div class="divider"></div>
+
+<p>Need to reschedule? You can modify your appointment up to 24 hours before the scheduled time.</p>
+
+<p>Best regards,</p>
+<p><strong>The Legal Connect Team</strong></p>
+{% endblock %}

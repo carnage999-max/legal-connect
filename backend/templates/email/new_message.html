@@ -1,0 +1,28 @@
+{% extends "email/base.html" %}
+{% block title %}New Message - Legal Connect{% endblock %}
+
+{% block content %}
+<h2>You Have a New Message</h2>
+
+<p>Hello {{ user.first_name|default:"there" }},</p>
+
+<p>You've received a new message from <strong>{{ sender_name }}</strong>.</p>
+
+<div class="code-box" style="text-align: left; background-color: #f9fafb;">
+    <p style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280;">{{ message_time }}</p>
+    <p style="margin: 0; color: #333;">{{ message_preview }}</p>
+</div>
+
+<div style="text-align: center;">
+    <a href="{{ conversation_url }}" class="button">View Full Conversation</a>
+</div>
+
+<div class="divider"></div>
+
+<div class="info-box">
+    <strong>Quick tip:</strong> You can reply directly from the Legal Connect app for faster communication with your legal team.
+</div>
+
+<p>Best regards,</p>
+<p><strong>The Legal Connect Team</strong></p>
+{% endblock %}

@@ -1,0 +1,8 @@
+.claude/
+.vscode/
+.DS_Store
+node_modules/
+*.txt
+*.docx
+*_*.md
+nul

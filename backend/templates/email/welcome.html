@@ -1,0 +1,44 @@
+{% extends "email/base.html" %}
+{% block title %}Welcome to Legal Connect{% endblock %}
+
+{% block content %}
+<h2>Welcome to Legal Connect!</h2>
+
+<p>Hello {{ user.first_name|default:"there" }},</p>
+
+<p>Thank you for joining Legal Connect! We're excited to have you on board. Our platform connects clients with qualified attorneys, making legal help accessible and straightforward.</p>
+
+<div class="info-box">
+    <strong>What you can do now:</strong>
+    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+        <li>Complete your profile to get personalized recommendations</li>
+        <li>Browse our network of verified attorneys</li>
+        <li>Submit a new legal matter for consultation</li>
+        <li>Schedule appointments with legal professionals</li>
+    </ul>
+</div>
+
+<div style="text-align: center;">
+    <a href="{{ dashboard_url }}" class="button">Go to Your Dashboard</a>
+</div>
+
+<div class="divider"></div>
+
+<h3 style="color: #1a365d;">Getting Started</h3>
+
+<p><strong>1. Complete Your Profile</strong><br>
+Add your contact information and preferences to help us serve you better.</p>
+
+<p><strong>2. Describe Your Legal Need</strong><br>
+Use our smart intake wizard to describe your legal situation. We'll help match you with the right attorney.</p>
+
+<p><strong>3. Connect & Communicate</strong><br>
+Message attorneys securely, share documents, and schedule consultations all in one place.</p>
+
+<div class="divider"></div>
+
+<p>If you have any questions, our support team is here to help. Just reply to this email or visit our help center.</p>
+
+<p>Welcome aboard!</p>
+<p><strong>The Legal Connect Team</strong></p>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "email/base.html" %}
+{% block title %}Payment Received - Legal Connect{% endblock %}
+
+{% block content %}
+<h2>Payment Received</h2>
+
+<p>Hello {{ user.first_name|default:"there" }},</p>
+
+<p>We've received your payment. Thank you!</p>
+
+<div class="code-box" style="text-align: left;">
+    <p style="margin: 0 0 8px 0;"><strong>Amount:</strong> ${{ payment.amount }}</p>
+    <p style="margin: 0 0 8px 0;"><strong>Date:</strong> {{ payment.date }}</p>
+    <p style="margin: 0 0 8px 0;"><strong>Payment Method:</strong> {{ payment.method }}</p>
+    <p style="margin: 0 0 8px 0;"><strong>Transaction ID:</strong> {{ payment.transaction_id }}</p>
+    {% if payment.matter_title %}
+    <p style="margin: 0;"><strong>Matter:</strong> {{ payment.matter_title }}</p>
+    {% endif %}
+</div>
+
+<div style="text-align: center;">
+    <a href="{{ receipt_url }}" class="button">View Receipt</a>
+</div>
+
+<div class="divider"></div>
+
+<p>A copy of your receipt has been saved to your account for your records.</p>
+
+<p>If you have any questions about this payment, please contact our support team.</p>
+
+<p>Thank you for using Legal Connect!</p>
+<p><strong>The Legal Connect Team</strong></p>
+{% endblock %}
