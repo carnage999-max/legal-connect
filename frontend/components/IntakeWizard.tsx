@@ -55,8 +55,12 @@ export function IntakeWizard(): React.ReactNode {
   async function createDraftMatterIfMissing() {
     if (currentMatterId) return currentMatterId;
     try {
+      // Generate a title from matter type and description if not provided
+      const descSnippet = (formData.description || '').trim().split('\n')[0].substring(0, 50);
+      const generatedTitle = `${formData.matterType || 'Matter'}: ${descSnippet || 'Intake'}`;
+      
       const matterData = await apiPost('/api/v1/matters/', {
-        title: '',
+        title: generatedTitle,
         matter_type: formData.matterType,
         description: formData.description,
         jurisdiction: formData.jurisdiction,
@@ -117,8 +121,11 @@ export function IntakeWizard(): React.ReactNode {
           console.warn('Submit failed (possibly unauthenticated). Draft saved as', currentMatterId);
         }
       } else {
+        const descSnippet = (formData.description || '').trim().split('\n')[0].substring(0, 50);
+        const generatedTitle = `${formData.matterType || 'Matter'}: ${descSnippet || 'Intake'}`;
+        
         const matterData = await apiPost('/api/v1/matters/', {
-          title: '',
+          title: generatedTitle,
           matter_type: formData.matterType,
           description: formData.description,
           jurisdiction: formData.jurisdiction,
