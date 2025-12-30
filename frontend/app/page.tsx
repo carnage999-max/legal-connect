@@ -1,16 +1,38 @@
 'use client';
 import { Shield, CheckCircle2, Lock, AlertCircle, Clock, Eye, FileText } from 'lucide-react';
 import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function Home(): React.ReactNode {
+  const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   return (
     <div className="min-h-screen bg-white text-lctextprimary">
       <header className="site-container pt-8 pb-4 border-b border-lcborder">
         <nav className="flex items-center justify-between">
-          <div className="font-bold text-2xl">Legal Connect</div>
+          <Link href="/" className="font-bold text-2xl hover:opacity-80 transition">Legal Connect</Link>
           <div className="flex items-center gap-6">
-            <a href="/login" className="text-sm font-medium text-lctextsecondary hover:text-lctextprimary transition">Client Login</a>
-            <a href="/attorney/login" className="text-sm font-medium text-lctextsecondary hover:text-lctextprimary transition">Attorney Login</a>
+            {mounted && user ? (
+              <>
+                {user.user_type === 'attorney' ? (
+                  <Link href="/app/attorney/dashboard" className="text-sm font-medium text-lcaccent-attorney hover:opacity-80 transition">Attorney Dashboard</Link>
+                ) : (
+                  <Link href="/app/client/dashboard" className="text-sm font-medium text-lcaccent-client hover:opacity-80 transition">Client Dashboard</Link>
+                )}
+              </>
+            ) : (
+              <>
+                <a href="/login" className="text-sm font-medium text-lctextsecondary hover:text-lctextprimary transition">Client Login</a>
+                <a href="/signup" className="text-sm font-medium text-lctextsecondary hover:text-lctextprimary transition">Client Signup</a>
+                <a href="/attorney/login" className="text-sm font-medium text-lctextsecondary hover:text-lctextprimary transition">Attorney Login</a>
+              </>
+            )}
           </div>
         </nav>
       </header>

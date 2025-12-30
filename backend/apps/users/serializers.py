@@ -53,16 +53,24 @@ class CustomRegisterSerializer(RegisterSerializer):
 
     @transaction.atomic
     def save(self, request):
-        user = super().save(request)
-        user.first_name = self.validated_data.get('first_name')
-        user.last_name = self.validated_data.get('last_name')
-        user.phone_number = self.validated_data.get('phone_number', '')
+        try:
+            user = super().save(request)
+        except Exception as e:
+            raise serializers.ValidationError(f"Registration failed: {str(e)}")
+        
+        user.first_name = self.validated_data.get('first_name', '')
+        user.last_name = self.validated_data.get('last_name', '')
         user.user_type = self.validated_data.get('user_type', 'client')
+        
+        # Only set phone_number if the field exists
+        if hasattr(user, 'phone_number'):
+            user.phone_number = self.validated_data.get('phone_number', '')
+        
         user.save()
 
         # Create client profile if user is a client
         if user.user_type == 'client':
-            ClientProfile.objects.create(user=user)
+            ClientProfile.objects.get_or_create(user=user)
 
         return user
 

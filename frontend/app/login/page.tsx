@@ -1,18 +1,28 @@
 "use client";
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 
-export default function ClientLoginPage(): React.ReactNode {
+const LoginComponent = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, loading } = useAuth();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [tokenExpired, setTokenExpired] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('expired') === 'true') {
+      setTokenExpired(true);
+    }
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setTokenExpired(false);
     try {
       await login(formData.username, formData.password);
       router.push('/app/client/dashboard');
@@ -38,6 +48,7 @@ export default function ClientLoginPage(): React.ReactNode {
           <p className="text-lg text-lctextsecondary mb-8">Access your matters, messages, and payments securely.</p>
 
         <form onSubmit={handleSubmit} className="space-y-5 mb-8">
+          {tokenExpired && <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700 text-sm font-medium">Your session has expired. Please log in again.</div>}
           {error && <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm font-medium">{error}</div>}
 
           <div>
@@ -67,7 +78,8 @@ export default function ClientLoginPage(): React.ReactNode {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-lcaccent-client text-white rounded-md py-3 font-semibold hover:opacity-90 disabled:opacity-50 transition"
+            style={{ backgroundColor: '#065F46' }}
+            className="w-full text-white rounded-md py-3 font-semibold hover:opacity-90 disabled:opacity-50 transition"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
@@ -88,4 +100,6 @@ export default function ClientLoginPage(): React.ReactNode {
       </div>
     </div>
   );
-}
+};
+
+export default dynamic(() => Promise.resolve(LoginComponent), { ssr: false });

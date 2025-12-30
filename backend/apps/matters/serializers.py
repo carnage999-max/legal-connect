@@ -172,10 +172,8 @@ class MatterSubmitSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "Only draft matters can be submitted."
             )
-        if not matter.parties.exists():
-            raise serializers.ValidationError(
-                "At least one party must be added before submission."
-            )
+        # For public intake, allow submission without parties
+        # Parties are optional for anonymous/public intakes
         return data
 
     def update(self, instance, validated_data):
@@ -183,13 +181,25 @@ class MatterSubmitSerializer(serializers.Serializer):
         instance.submitted_at = timezone.now()
         instance.save()
 
-        MatterStatusHistory.objects.create(
-            matter=instance,
-            from_status=Matter.MatterStatus.DRAFT,
-            to_status=Matter.MatterStatus.PENDING,
-            changed_by=self.context['request'].user,
-            notes='Matter submitted for review'
-        )
+        # Only create status history if user is authenticated
+        request_user = self.context.get('request').user if self.context.get('request') else None
+        if request_user and request_user.is_authenticated:
+            MatterStatusHistory.objects.create(
+                matter=instance,
+                from_status=Matter.MatterStatus.DRAFT,
+                to_status=Matter.MatterStatus.PENDING,
+                changed_by=request_user,
+                notes='Matter submitted for review'
+            )
+        else:
+            # For anonymous submissions, create without changed_by
+            MatterStatusHistory.objects.create(
+                matter=instance,
+                from_status=Matter.MatterStatus.DRAFT,
+                to_status=Matter.MatterStatus.PENDING,
+                changed_by=None,
+                notes='Anonymous intake submission'
+            )
 
         return instance
 

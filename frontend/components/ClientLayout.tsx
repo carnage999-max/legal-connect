@@ -1,13 +1,23 @@
 "use client";
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { Menu, X } from 'lucide-react';
 
-const navTabs = ['Dashboard', 'New Matter', 'Messages', 'Documents', 'Payments', 'Account'];
+const navTabs = [
+  { name: 'Dashboard', href: '/app/client/dashboard' },
+  { name: 'New Matter', href: '/intake' },
+  { name: 'Messages', href: '/app/client/messages' },
+  { name: 'Documents', href: '/app/client/documents' },
+  { name: 'Payments', href: '/app/client/payments' },
+  { name: 'Account', href: '/app/client/account' }
+];
 
 export function ClientLayout({ children }: { children: ReactNode }): React.ReactNode {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = React.useState('Dashboard');
+  const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   if (!user) {
     return (
@@ -17,37 +27,79 @@ export function ClientLayout({ children }: { children: ReactNode }): React.React
     );
   }
 
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href);
+
   return (
     <div className="min-h-screen bg-white text-lctextprimary">
       {/* Top Navigation */}
-      <header className="border-b border-lcborder">
+      <header className="border-b border-lcborder sticky top-0 z-50 bg-white">
         <div className="site-container flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2 font-semibold text-lg hover:opacity-80 transition">
             <img src="/logo.png" alt="Legal Connect" className="h-6 w-6" />
-            <span>Legal Connect</span>
+            <span className="inline sm:inline">Legal Connect</span>
           </Link>
-          <nav className="flex items-center gap-8">
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-6">
             {navTabs.map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`text-sm font-medium transition-colors ${
-                  activeTab === tab
-                    ? 'text-lcaccent-client border-b-2 border-lc-accent-client'
-                    : 'text-lctextsecondary hover:text-lctextprimary'
+              <Link
+                key={tab.href}
+                href={tab.href}
+                className={`text-sm font-medium transition-colors py-2 border-b-2 ${
+                  isActive(tab.href)
+                    ? 'text-lcaccentclient border-lcaccentclient'
+                    : 'text-lctextsecondary hover:text-lctextprimary border-transparent'
                 }`}
               >
-                {tab}
-              </button>
+                {tab.name}
+              </Link>
             ))}
           </nav>
+
+          {/* Desktop Logout */}
           <button
             onClick={logout}
-            className="text-sm text-lctextsecondary hover:text-lctextprimary"
+            className="hidden md:block text-sm text-lctextsecondary hover:text-lctextprimary"
           >
             Logout
           </button>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-lcborder bg-white">
+            <nav className="site-container py-4 flex flex-col gap-3">
+              {navTabs.map(tab => (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`text-sm font-medium transition-colors py-2 px-3 rounded-lg ${
+                    isActive(tab.href)
+                      ? 'bg-blue-50 text-lcaccentclient'
+                      : 'text-lctextsecondary hover:bg-gray-50'
+                  }`}
+                >
+                  {tab.name}
+                </Link>
+              ))}
+              <button
+                onClick={() => { logout(); setMobileMenuOpen(false); }}
+                className="text-sm text-lctextsecondary hover:text-lctextprimary text-left py-2 px-3"
+              >
+                Logout
+              </button>
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}

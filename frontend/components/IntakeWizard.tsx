@@ -66,8 +66,8 @@ export function IntakeWizard(): React.ReactNode {
         parties: formData.parties.filter(p => p).map(name => ({ name }))
       };
       
-      // Only include jurisdiction if it has a value
-      if (formData.jurisdiction) {
+      // Only include jurisdiction if it's a UUID (not a state code)
+      if (formData.jurisdiction && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(formData.jurisdiction)) {
         payload.jurisdiction = formData.jurisdiction;
       }
       
@@ -139,8 +139,8 @@ export function IntakeWizard(): React.ReactNode {
           parties: formData.parties.filter(p => p).map(name => ({ name }))
         };
         
-        // Only include jurisdiction if it has a value
-        if (formData.jurisdiction) {
+        // Only include jurisdiction if it's a UUID (not a state code)
+        if (formData.jurisdiction && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(formData.jurisdiction)) {
           payload.jurisdiction = formData.jurisdiction;
         }
         
@@ -153,7 +153,7 @@ export function IntakeWizard(): React.ReactNode {
     }
   }
 
-  function nextStep() {
+  async function nextStep() {
     if (step === 1 && !formData.matterType) {
       setErrors({ matterType: 'Please select a matter type' });
       return;
@@ -167,11 +167,24 @@ export function IntakeWizard(): React.ReactNode {
       return;
     }
     setErrors({});
+    
+    // For step 3, run conflict check and wait for it before moving on
     if (step === 3) {
-      handleConflictCheck();
+      await handleConflictCheck();
     } else if (step === 4 && !conflictResult?.hasConflict) {
-      handleFetchAttorneys();
+      // For step 4, fetch attorneys
+      await handleFetchAttorneys();
     }
+    
+    // Only advance if we completed the async operations successfully
+    if (step === 3 && conflictResult?.hasConflict) {
+      // Don't advance if there's a conflict
+      return;
+    }
+    if (step === 4 && availableAttorneys.length === 0) {
+      // Allow advance even if no attorneys (show "no attorneys available" message)
+    }
+    
     if (step < 5) setStep((step + 1) as Step);
   }
 

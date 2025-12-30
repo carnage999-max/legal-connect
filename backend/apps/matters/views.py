@@ -85,15 +85,22 @@ class MatterDetailView(generics.RetrieveUpdateDestroyAPIView):
 class MatterSubmitView(APIView):
     """Submit a matter for review and conflict checking."""
 
-    permission_classes = [IsClient]
+    permission_classes = []
 
     def post(self, request, pk):
         try:
-            matter = Matter.objects.get(pk=pk, client=request.user)
+            matter = Matter.objects.get(pk=pk)
         except Matter.DoesNotExist:
             return Response(
                 {'detail': 'Matter not found.'},
                 status=status.HTTP_404_NOT_FOUND
+            )
+
+        # If matter has a client, verify ownership
+        if matter.client and (not request.user.is_authenticated or matter.client != request.user):
+            return Response(
+                {'detail': 'You do not have permission to submit this matter.'},
+                status=status.HTTP_403_FORBIDDEN
             )
 
         serializer = MatterSubmitSerializer(

@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import { AttorneyLayout } from '@/components/AttorneyLayout';
 import { Inbox, Calendar, Scale } from 'lucide-react';
 import { apiGet } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 
 type Matter = { id: number; title: string; client: string; status: string };
 
 export default function AttorneyDashboardPage(): React.ReactNode {
+  const { user } = useAuth();
   const [matters, setMatters] = useState<Matter[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [stats, setStats] = useState({ referrals: 0, active: 0, earnings: 0 });
@@ -14,9 +16,12 @@ export default function AttorneyDashboardPage(): React.ReactNode {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!user) return; // Don't load until user is available
+
     async function loadDashboard() {
       try {
         setLoading(true);
+        setError('');
         const [mattersRes, appointmentsRes] = await Promise.all([
           apiGet('/api/v1/matters/'),
           apiGet('/api/v1/scheduling/appointments/')
@@ -29,14 +34,14 @@ export default function AttorneyDashboardPage(): React.ReactNode {
         const active = mattersList.filter((m: any) => m.status === 'active').length;
         setStats({ referrals: mattersList.length, active, earnings: 0 });
       } catch (e: any) {
-        setError('Failed to load dashboard');
+        setError(e?.status === 401 ? 'Please log in again to access your dashboard.' : 'Failed to load dashboard');
         console.error(e);
       } finally {
         setLoading(false);
       }
     }
     loadDashboard();
-  }, []);
+  }, [user]);
 
   return (
     <AttorneyLayout>

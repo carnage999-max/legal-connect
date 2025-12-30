@@ -3,11 +3,13 @@ import { useEffect, useState } from 'react';
 import { ClientLayout } from '@/components/ClientLayout';
 import { FileText, Calendar, Mail } from 'lucide-react';
 import { apiGet } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 
 type Matter = { id: number; title: string; status: string };
 type Appointment = { id: number; date: string; attorney: string };
 
 export default function ClientDashboardPage(): React.ReactNode {
+  const { user } = useAuth();
   const [matters, setMatters] = useState<Matter[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -15,9 +17,12 @@ export default function ClientDashboardPage(): React.ReactNode {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!user) return; // Don't load until user is available
+
     async function loadDashboard() {
       try {
         setLoading(true);
+        setError('');
         const [mattersRes, appointmentsRes] = await Promise.all([
           apiGet('/api/v1/matters/'),
           apiGet('/api/v1/scheduling/appointments/')
@@ -26,14 +31,14 @@ export default function ClientDashboardPage(): React.ReactNode {
         setAppointments(appointmentsRes?.results || []);
         setUnreadCount(appointmentsRes?.unread_count || 0);
       } catch (e: any) {
-        setError('Failed to load dashboard');
+        setError(e?.status === 401 ? 'Please log in again to access your dashboard.' : 'Failed to load dashboard');
         console.error(e);
       } finally {
         setLoading(false);
       }
     }
     loadDashboard();
-  }, []);
+  }, [user]);
 
   return (
     <ClientLayout>
