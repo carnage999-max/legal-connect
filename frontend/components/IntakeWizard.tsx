@@ -352,8 +352,6 @@ export function IntakeWizard(): React.ReactNode {
                           <CheckCircle2 size={28} className="text-green-800" />
                           <p className="text-2xl font-semibold text-green-800">All Clear</p>
                         </div>
-                       
-                        </div>
                         <p className="text-green-700">No conflicts found. Let's find you an attorney!</p>
                       </>
                     )}
