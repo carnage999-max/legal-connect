@@ -59,18 +59,26 @@ export function IntakeWizard(): React.ReactNode {
       const descSnippet = (formData.description || '').trim().split('\n')[0].substring(0, 50);
       const generatedTitle = `${formData.matterType || 'Matter'}: ${descSnippet || 'Intake'}`;
       
-      const matterData = await apiPost('/api/v1/matters/', {
+      const payload: any = {
         title: generatedTitle,
         matter_type: formData.matterType,
         description: formData.description,
-        jurisdiction: formData.jurisdiction,
         parties: formData.parties.filter(p => p).map(name => ({ name }))
-      });
+      };
+      
+      // Only include jurisdiction if it has a value
+      if (formData.jurisdiction) {
+        payload.jurisdiction = formData.jurisdiction;
+      }
+      
+      console.log('Creating matter with payload:', payload);
+      
+      const matterData = await apiPost('/api/v1/matters/', payload);
       const id = matterData?.id;
       setCurrentMatterId(id || null);
       return id;
-    } catch (e) {
-      console.error('Error creating draft matter', e);
+    } catch (e: any) {
+      console.error('Error creating draft matter', e, e?.data);
       return null;
     }
   }
@@ -124,13 +132,19 @@ export function IntakeWizard(): React.ReactNode {
         const descSnippet = (formData.description || '').trim().split('\n')[0].substring(0, 50);
         const generatedTitle = `${formData.matterType || 'Matter'}: ${descSnippet || 'Intake'}`;
         
-        const matterData = await apiPost('/api/v1/matters/', {
+        const payload: any = {
           title: generatedTitle,
           matter_type: formData.matterType,
           description: formData.description,
-          jurisdiction: formData.jurisdiction,
           parties: formData.parties.filter(p => p).map(name => ({ name }))
-        });
+        };
+        
+        // Only include jurisdiction if it has a value
+        if (formData.jurisdiction) {
+          payload.jurisdiction = formData.jurisdiction;
+        }
+        
+        const matterData = await apiPost('/api/v1/matters/', payload);
         setCurrentMatterId(matterData?.id || null);
         console.log('Matter created:', matterData);
       }
