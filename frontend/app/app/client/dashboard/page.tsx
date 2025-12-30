@@ -92,7 +92,7 @@ export default function ClientDashboardPage(): React.ReactNode {
                       <h3 className="font-semibold text-lg">{m.title}</h3>
                       <p className="text-lctextsecondary text-sm">Status: {m.status}</p>
                     </div>
-                    <a href={`/matters/${m.id}`} className="px-4 py-2 border border-lcborder rounded-lg hover:bg-gray-50 transition">
+                    <a href={`/app/client/matters/${m.id}`} className="px-4 py-2 border border-lcborder rounded-lg hover:bg-gray-50 transition">
                       View
                     </a>
                   </div>

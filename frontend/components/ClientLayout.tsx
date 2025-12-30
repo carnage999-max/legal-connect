@@ -7,6 +7,7 @@ import { Menu, X } from 'lucide-react';
 
 const navTabs = [
   { name: 'Dashboard', href: '/app/client/dashboard' },
+  { name: 'My Matters', href: '/app/client/matters' },
   { name: 'New Matter', href: '/intake' },
   { name: 'Messages', href: '/app/client/messages' },
   { name: 'Documents', href: '/app/client/documents' },
