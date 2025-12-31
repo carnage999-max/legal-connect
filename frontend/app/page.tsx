@@ -46,7 +46,19 @@ export default function Home(): React.ReactNode {
               <p className="text-xl text-lctextsecondary mb-8 leading-relaxed">Describe your legal issue once. Our system runs automated conflict screening, matches available attorneys in real time, and starts secure communication immediately.</p>
               <div className="flex items-center gap-4">
                 <a className="btn-primary inline-block" href="/intake">Start Legal Intake</a>
-                <a className="btn-ghost inline-block" href="/attorneys/apply">For Attorneys</a>
+                <a style={{
+                  color: '#312E81',
+                  backgroundColor: '#E0E7FF',
+                  borderRadius: '6px',
+                  padding: '12px 20px',
+                  fontWeight: '600',
+                  textDecoration: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  transition: 'background-color 0.2s'
+                }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#D1D5F7'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#E0E7FF'} href="/attorneys/apply">For Attorneys</a>
               </div>
             </div>
             <div className="relative h-96 lg:h-full min-h-96">
@@ -133,16 +145,6 @@ export default function Home(): React.ReactNode {
           </div>
         </section>
       </main>
-
-      <footer className="site-container border-t border-lcborder mt-12">
-        <div className="flex flex-col md:flex-row items-center justify-between py-8">
-          <div className="text-sm text-lctextsecondary">© {new Date().getFullYear()} Legal Connect. All rights reserved.</div>
-          <div className="flex items-center gap-6 text-sm text-lctextsecondary mt-4 md:mt-0">
-            <a href="/privacy" className="hover:text-lctextprimary transition">Privacy Policy</a>
-            <a href="/terms" className="hover:text-lctextprimary transition">Terms of Service</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

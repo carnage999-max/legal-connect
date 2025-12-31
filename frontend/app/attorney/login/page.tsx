@@ -68,7 +68,20 @@ export default function AttorneyLoginPage(): React.ReactNode {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-lcaccentattorney text-white rounded-md py-3 font-semibold hover:opacity-90 disabled:opacity-50 transition"
+              style={{
+                backgroundColor: '#6366F1',
+                color: 'white',
+                padding: '12px 16px',
+                borderRadius: '6px',
+                border: 'none',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+                width: '100%',
+                transition: 'opacity 0.2s'
+              }}
+              onMouseEnter={(e) => !loading && (e.currentTarget.style.opacity = '0.9')}
+              onMouseLeave={(e) => !loading && (e.currentTarget.style.opacity = '1')}
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
