@@ -4,6 +4,7 @@ import { AttorneyLayout } from '@/components/AttorneyLayout';
 import { Inbox, Calendar, Scale } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { DashboardLoadingSkeleton } from '@/components/DashboardLoadingSkeleton';
 
 type Matter = { id: number; title: string; client: string; status: string };
 
@@ -45,7 +46,10 @@ export default function AttorneyDashboardPage(): React.ReactNode {
 
   return (
     <AttorneyLayout>
-      <div>
+      {loading ? (
+        <DashboardLoadingSkeleton />
+      ) : (
+        <div>
         <div className="mb-12">
           <h1 className="text-4xl font-bold mb-2">Your Dashboard</h1>
           <p className="text-lg text-lctextattorneysecondary">Manage referrals, cases, and appointments.</p>
@@ -155,7 +159,8 @@ export default function AttorneyDashboardPage(): React.ReactNode {
             </div>
           )}
         </section>
-      </div>
+        </div>
+      )}
     </AttorneyLayout>
   );
 }

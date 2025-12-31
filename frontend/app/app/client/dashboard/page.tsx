@@ -4,6 +4,7 @@ import { ClientLayout } from '@/components/ClientLayout';
 import { FileText, Calendar, Mail } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { DashboardLoadingSkeleton } from '@/components/DashboardLoadingSkeleton';
 
 type Matter = { id: number; title: string; status: string };
 type Appointment = { id: number; date: string; attorney: string };
@@ -42,7 +43,10 @@ export default function ClientDashboardPage(): React.ReactNode {
 
   return (
     <ClientLayout>
-      <div>
+      {loading ? (
+        <DashboardLoadingSkeleton />
+      ) : (
+        <div>
         <div className="mb-8 md:mb-12">
           <h1 className="text-2xl md:text-4xl font-bold mb-2">Welcome back</h1>
           <p className="text-base md:text-lg text-lctextsecondary">Manage your legal matters and appointments in one place.</p>
@@ -139,7 +143,8 @@ export default function ClientDashboardPage(): React.ReactNode {
             <p className="text-lctextsecondary text-sm md:text-base">Messages, documents, and updates will appear here.</p>
           </div>
         </section>
-      </div>
+        </div>
+      )}
     </ClientLayout>
   );
 }
