@@ -31,20 +31,29 @@ body {
 }
 
 .btn-primary {
-  background-color: var(--accent);
+  background: linear-gradient(135deg, #065F46 0%, #047857 100%);
   color: white;
-  border-radius: 6px;
-  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  padding: 0.875rem 1.5rem;
   font-weight: 600;
+  font-size: 1rem;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   text-decoration: none;
   border: none;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(6, 95, 70, 0.2);
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(6, 95, 70, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-ghost {
