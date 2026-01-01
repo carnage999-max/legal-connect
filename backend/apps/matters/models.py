@@ -15,12 +15,18 @@ class Matter(models.Model):
         CORPORATE = 'corporate', _('Corporate')
         IMMIGRATION = 'immigration', _('Immigration')
         REAL_ESTATE = 'real_estate', _('Real Estate')
+        PROBATE = 'probate', _('Probate')
         INTELLECTUAL_PROPERTY = 'ip', _('Intellectual Property')
         EMPLOYMENT = 'employment', _('Employment')
         BANKRUPTCY = 'bankruptcy', _('Bankruptcy')
         TAX = 'tax', _('Tax')
         PERSONAL_INJURY = 'personal_injury', _('Personal Injury')
         OTHER = 'other', _('Other')
+
+    class JurisdictionType(models.TextChoices):
+        STATE = 'state', _('State')
+        FEDERAL = 'federal', _('Federal')
+        INTERNATIONAL = 'international', _('International')
 
     class MatterStatus(models.TextChoices):
         DRAFT = 'draft', _('Draft')
@@ -77,6 +83,17 @@ class Matter(models.Model):
     )
 
     # Jurisdiction
+    jurisdiction_type = models.CharField(
+        max_length=15,
+        choices=JurisdictionType.choices,
+        default=JurisdictionType.STATE,
+        help_text="Type of jurisdiction: State, Federal, or International"
+    )
+    jurisdiction_state = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="US state code or name (e.g., 'CA', 'New York') when jurisdiction_type is State"
+    )
     jurisdiction = models.ForeignKey(
         'attorneys.Jurisdiction',
         on_delete=models.SET_NULL,

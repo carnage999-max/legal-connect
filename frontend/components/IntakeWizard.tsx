@@ -87,7 +87,8 @@ export function IntakeWizard(): React.ReactNode {
         matter_type: formData.matterType,
         description: formData.description,
         parties: formData.parties.filter(p => p).map(name => ({ name })),
-        jurisdiction: formData.jurisdictionType === 'state' ? formData.jurisdictionState : formData.jurisdictionType,
+        jurisdiction_type: formData.jurisdictionType,
+        jurisdiction_state: formData.jurisdictionState,
         client_role: formData.clientRole
       };
       
@@ -157,7 +158,8 @@ export function IntakeWizard(): React.ReactNode {
           matter_type: formData.matterType,
           description: formData.description,
           parties: formData.parties.filter(p => p).map(name => ({ name })),
-          jurisdiction: formData.jurisdictionType === 'state' ? formData.jurisdictionState : formData.jurisdictionType,
+          jurisdiction_type: formData.jurisdictionType,
+          jurisdiction_state: formData.jurisdictionState,
           client_role: formData.clientRole
         };
         

@@ -93,6 +93,7 @@ class MatterDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'matter_type', 'description', 'client_role',
             'client_name', 'client_email', 'attorney',
+            'jurisdiction_type', 'jurisdiction_state',
             'jurisdiction', 'jurisdiction_details', 'practice_area',
             'status', 'status_notes',
             'incident_date', 'statute_of_limitations',
@@ -114,6 +115,7 @@ class MatterCreateSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'title', 'matter_type', 'description', 'client_role',
+            'jurisdiction_type', 'jurisdiction_state',
             'jurisdiction', 'jurisdiction_details', 'practice_area',
             'incident_date', 'statute_of_limitations',
             'parties'
@@ -156,6 +158,7 @@ class MatterUpdateSerializer(serializers.ModelSerializer):
         model = Matter
         fields = [
             'title', 'description', 'client_role',
+            'jurisdiction_type', 'jurisdiction_state',
             'jurisdiction', 'jurisdiction_details', 'practice_area',
             'incident_date', 'statute_of_limitations',
             'next_action_date', 'next_action_description',
