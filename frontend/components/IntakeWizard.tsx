@@ -3,15 +3,18 @@ import React, { useState } from 'react';
 import { apiPost, apiGet } from '../lib/api';
 import { FileText, Briefcase, Users, Shield, AlertCircle, Loader, CheckCircle2, Check, Circle } from 'lucide-react';
 
-type MatterType = 'civil' | 'criminal' | 'family' | 'contract' | 'other';
+type MatterType = 'civil' | 'criminal' | 'family' | 'contract' | 'real_estate' | 'probate' | 'other';
+type JurisdictionType = 'state' | 'federal' | 'international' | '';
+type ClientRole = 'plaintiff' | 'defendant' | 'witness' | 'third_party' | '';
 type Step = 1 | 2 | 3 | 4 | 5;
 
 interface FormData {
   matterType: MatterType | '';
   description: string;
   parties: string[];
-  jurisdiction: string;
-  clientRole: string;
+  jurisdictionType: JurisdictionType;
+  jurisdictionState: string;
+  clientRole: ClientRole;
 }
 
 interface ConflictCheckResult {
@@ -25,7 +28,8 @@ export function IntakeWizard(): React.ReactNode {
     matterType: '',
     description: '',
     parties: [''],
-    jurisdiction: '',
+    jurisdictionType: '',
+    jurisdictionState: '',
     clientRole: '',
   });
   const [conflictLoading, setConflictLoading] = useState(false);
@@ -49,7 +53,26 @@ export function IntakeWizard(): React.ReactNode {
     { value: 'criminal', label: 'Criminal' },
     { value: 'family', label: 'Family' },
     { value: 'contract', label: 'Contract' },
+    { value: 'real_estate', label: 'Real Estate' },
+    { value: 'probate', label: 'Probate' },
     { value: 'other', label: 'Other' },
+  ];
+
+  const usStates = [
+    'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
+    'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky',
+    'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi',
+    'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico',
+    'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
+    'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+    'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+  ];
+
+  const clientRoles: Array<{ value: ClientRole; label: string }> = [
+    { value: 'plaintiff', label: 'Plaintiff' },
+    { value: 'defendant', label: 'Defendant' },
+    { value: 'witness', label: 'Witness' },
+    { value: 'third_party', label: 'Third Party' },
   ];
 
   async function createDraftMatterIfMissing() {
@@ -63,13 +86,10 @@ export function IntakeWizard(): React.ReactNode {
         title: generatedTitle,
         matter_type: formData.matterType,
         description: formData.description,
-        parties: formData.parties.filter(p => p).map(name => ({ name }))
+        parties: formData.parties.filter(p => p).map(name => ({ name })),
+        jurisdiction: formData.jurisdictionType === 'state' ? formData.jurisdictionState : formData.jurisdictionType,
+        client_role: formData.clientRole
       };
-      
-      // Only include jurisdiction if it's a UUID (not a state code)
-      if (formData.jurisdiction && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(formData.jurisdiction)) {
-        payload.jurisdiction = formData.jurisdiction;
-      }
       
       console.log('Creating matter with payload:', payload);
       
@@ -136,13 +156,10 @@ export function IntakeWizard(): React.ReactNode {
           title: generatedTitle,
           matter_type: formData.matterType,
           description: formData.description,
-          parties: formData.parties.filter(p => p).map(name => ({ name }))
+          parties: formData.parties.filter(p => p).map(name => ({ name })),
+          jurisdiction: formData.jurisdictionType === 'state' ? formData.jurisdictionState : formData.jurisdictionType,
+          client_role: formData.clientRole
         };
-        
-        // Only include jurisdiction if it's a UUID (not a state code)
-        if (formData.jurisdiction && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(formData.jurisdiction)) {
-          payload.jurisdiction = formData.jurisdiction;
-        }
         
         const matterData = await apiPost('/api/v1/matters/', payload);
         setCurrentMatterId(matterData?.id || null);
@@ -162,8 +179,16 @@ export function IntakeWizard(): React.ReactNode {
       setErrors({ description: 'Please provide at least 10 characters' });
       return;
     }
-    if (step === 3 && !formData.jurisdiction) {
-      setErrors({ jurisdiction: 'Please select jurisdiction' });
+    if (step === 3 && !formData.jurisdictionType) {
+      setErrors({ jurisdictionType: 'Please select a jurisdiction type' });
+      return;
+    }
+    if (step === 3 && formData.jurisdictionType === 'state' && !formData.jurisdictionState) {
+      setErrors({ jurisdictionState: 'Please select a state' });
+      return;
+    }
+    if (step === 3 && !formData.clientRole) {
+      setErrors({ clientRole: 'Please select your role' });
       return;
     }
     setErrors({});
@@ -330,33 +355,61 @@ export function IntakeWizard(): React.ReactNode {
                 </div>
 
                 <div className="border-t border-lcborder pt-6">
-                  <label className="block text-lg font-semibold mb-4">What's your jurisdiction?</label>
-                  <select
-                    value={formData.jurisdiction}
-                    onChange={(e) => setFormData({ ...formData, jurisdiction: e.target.value })}
-                    className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient" 
-                    style={{ outlineColor: '#065F46' }}
-                  >
-                    <option value="">Select a state or jurisdiction...</option>
-                    <option value="CA">California</option>
-                    <option value="NY">New York</option>
-                    <option value="TX">Texas</option>
-                    <option value="FL">Florida</option>
-                    <option value="OTHER">Other</option>
-                  </select>
-                  {errors.jurisdiction && <p className="text-red-600 mt-2 font-medium">✗ {errors.jurisdiction}</p>}
+                  <label className="block text-lg font-semibold mb-4">What's your jurisdiction type?</label>
+                  <div className="space-y-3">
+                    {['state', 'federal', 'international'].map((type) => (
+                      <label key={type} className={`flex items-center cursor-pointer p-4 border-2 rounded-lg transition ${
+                        formData.jurisdictionType === type
+                          ? 'border-lcaccentclient bg-blue-50'
+                          : 'border-lcborder hover:border-lcaccentclient hover:bg-gray-50'
+                      }`}>
+                        <input
+                          type="radio"
+                          name="jurisdictionType"
+                          value={type}
+                          checked={formData.jurisdictionType === type as JurisdictionType}
+                          onChange={(e) => setFormData({ ...formData, jurisdictionType: e.target.value as JurisdictionType, jurisdictionState: '' })}
+                          className="mr-3 w-5 h-5"
+                        />
+                        <span className="font-medium text-lctextprimary capitalize">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {errors.jurisdictionType && <p className="text-red-600 mt-2 font-medium">✗ {errors.jurisdictionType}</p>}
                 </div>
+
+                {formData.jurisdictionType === 'state' && (
+                  <div className="border-t border-lcborder pt-6">
+                    <label className="block text-lg font-semibold mb-4">Which state?</label>
+                    <select
+                      value={formData.jurisdictionState}
+                      onChange={(e) => setFormData({ ...formData, jurisdictionState: e.target.value })}
+                      className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient" 
+                      style={{ outlineColor: '#065F46' }}
+                    >
+                      <option value="">Select a state...</option>
+                      {usStates.map((state) => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
+                    {errors.jurisdictionState && <p className="text-red-600 mt-2 font-medium">✗ {errors.jurisdictionState}</p>}
+                  </div>
+                )}
 
                 <div className="border-t border-lcborder pt-6">
                   <label className="block text-lg font-semibold mb-4">What's your role in this matter?</label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.clientRole}
-                    onChange={(e) => setFormData({ ...formData, clientRole: e.target.value })}
-                    placeholder="e.g., Plaintiff, Defendant, Complainant, Parent..."
+                    onChange={(e) => setFormData({ ...formData, clientRole: e.target.value as ClientRole })}
                     className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient" 
                     style={{ outlineColor: '#065F46' }}
-                  />
+                  >
+                    <option value="">Select your role...</option>
+                    {clientRoles.map((role) => (
+                      <option key={role.value} value={role.value}>{role.label}</option>
+                    ))}
+                  </select>
+                  {errors.clientRole && <p className="text-red-600 mt-2 font-medium">✗ {errors.clientRole}</p>}
                 </div>
               </div>
             )}
