@@ -21,7 +21,7 @@ export default function Home(): React.ReactNode {
           <nav className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition">
               <img src="/logo.png" alt="Legal Connect" className="h-8 w-8" />
-              <span className="font-bold text-xl bg-gradient-to-r from-lcaccent-client to-lcaccent-attorney bg-clip-text text-transparent">Legal Connect</span>
+              <span className="font-bold text-xl" style={{ color: '#065F46' }}>Legal Connect</span>
             </Link>
             <div className="hidden md:flex items-center gap-6">
               {mounted && user ? (
@@ -58,11 +58,11 @@ export default function Home(): React.ReactNode {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Logo prominent on mobile */}
             <div className="flex lg:hidden justify-center mb-4">
-              <img src="/logo.png" alt="Legal Connect" className="h-20 w-20" />
+              <img src="/logo.png" alt="Legal Connect" className="h-32 w-32" />
             </div>
             
             <div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight font-bold mb-6 bg-gradient-to-r from-lcaccent-client via-lcaccent to-lcaccent-attorney bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight font-bold mb-6" style={{ color: '#111827' }}>
                 Legal help when you need it.
               </h1>
               <p className="text-lg md:text-xl text-lctextsecondary mb-8 leading-relaxed">
