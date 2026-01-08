@@ -2,7 +2,11 @@
 .vscode/
 .DS_Store
 node_modules/
-*.txt
+*_*.txt
 *.docx
 *_*.md
 nul
+.env.frontend
+.env.backend
+.env.production
+.env.local

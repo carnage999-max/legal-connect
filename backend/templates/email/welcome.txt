@@ -1,0 +1,36 @@
+Welcome to Legal Connect!
+
+Hello {{ user.first_name|default:"there" }},
+
+Thank you for joining Legal Connect! We're excited to have you on board. Our platform connects clients with qualified attorneys, making legal help accessible and straightforward.
+
+What you can do now:
+- Complete your profile to get personalized recommendations
+- Browse our network of verified attorneys
+- Submit a new legal matter for consultation
+- Schedule appointments with legal professionals
+
+Go to your dashboard: {{ dashboard_url }}
+
+---
+
+GETTING STARTED
+
+1. Complete Your Profile
+Add your contact information and preferences to help us serve you better.
+
+2. Describe Your Legal Need
+Use our smart intake wizard to describe your legal situation. We'll help match you with the right attorney.
+
+3. Connect & Communicate
+Message attorneys securely, share documents, and schedule consultations all in one place.
+
+---
+
+If you have any questions, our support team is here to help. Just reply to this email or visit our help center.
+
+Welcome aboard!
+The Legal Connect Team
+
+---
+Legal Connect - Connecting You With Legal Excellence
