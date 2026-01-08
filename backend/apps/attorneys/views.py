@@ -138,6 +138,31 @@ class AttorneyAvailabilityListView(generics.ListCreateAPIView):
         attorney_profile = AttorneyProfile.objects.get(user=self.request.user)
         serializer.save(attorney=attorney_profile)
 
+    def create(self, request, *args, **kwargs):
+        # Handle bulk update via { slots: [...] } format from mobile app
+        if 'slots' in request.data:
+            attorney_profile = AttorneyProfile.objects.get(user=request.user)
+
+            # Clear existing slots and create new ones
+            AttorneyAvailability.objects.filter(attorney=attorney_profile).delete()
+
+            created_slots = []
+            for slot_data in request.data['slots']:
+                slot = AttorneyAvailability.objects.create(
+                    attorney=attorney_profile,
+                    day_of_week=slot_data['day_of_week'],
+                    start_time=slot_data['start_time'],
+                    end_time=slot_data['end_time'],
+                    is_active=slot_data.get('is_available', True)
+                )
+                created_slots.append(slot)
+
+            serializer = self.get_serializer(created_slots, many=True)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        # Standard single slot creation
+        return super().create(request, *args, **kwargs)
+
 
 class AttorneyAvailabilityDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Manage individual availability slots."""
@@ -224,6 +249,57 @@ class AttorneyDashboardView(APIView):
             'total_reviews': profile.total_reviews,
             'verification_status': profile.verification_status,
             'is_accepting_clients': profile.is_accepting_clients
+        })
+
+
+class AttorneyClientsView(APIView):
+    """List clients for the authenticated attorney."""
+
+    permission_classes = [IsAttorney]
+
+    def get(self, request):
+        from apps.matters.models import Matter
+        from apps.users.models import User
+
+        try:
+            profile = AttorneyProfile.objects.get(user=request.user)
+        except AttorneyProfile.DoesNotExist:
+            return Response(
+                {'detail': 'Attorney profile not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Get unique clients from matters assigned to this attorney
+        client_ids = Matter.objects.filter(
+            attorney=profile
+        ).exclude(client__isnull=True).values_list('client_id', flat=True).distinct()
+
+        clients = User.objects.filter(id__in=client_ids).order_by('first_name', 'last_name')
+
+        # Build client data with matter counts
+        results = []
+        for client in clients:
+            client_matters = Matter.objects.filter(attorney=profile, client=client)
+            active_count = client_matters.filter(status__in=['open', 'in_progress', 'pending']).count()
+            total_count = client_matters.count()
+            last_matter = client_matters.order_by('-updated_at').first()
+
+            results.append({
+                'id': str(client.id),
+                'user': {
+                    'first_name': client.first_name,
+                    'last_name': client.last_name,
+                    'email': client.email,
+                    'avatar': client.avatar.url if client.avatar else None,
+                },
+                'active_matters_count': active_count,
+                'total_matters_count': total_count,
+                'last_activity': last_matter.updated_at.isoformat() if last_matter else None,
+            })
+
+        return Response({
+            'count': len(results),
+            'results': results
         })
 
 

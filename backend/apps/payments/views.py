@@ -323,3 +323,107 @@ class InvoiceDetailView(generics.RetrieveAPIView):
         if user.user_type == 'attorney':
             return Invoice.objects.filter(attorney__user=user)
         return Invoice.objects.filter(client=user)
+
+
+class PayoutListView(APIView):
+    """List payouts (completed payments) for attorneys."""
+
+    permission_classes = [IsAttorney]
+
+    def get(self, request):
+        from apps.attorneys.models import AttorneyProfile
+
+        try:
+            profile = AttorneyProfile.objects.get(user=request.user)
+        except AttorneyProfile.DoesNotExist:
+            return Response(
+                {'detail': 'Attorney profile not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Get all completed payments where this attorney is the recipient
+        payments = Payment.objects.filter(
+            recipient=profile,
+            status=Payment.PaymentStatus.COMPLETED
+        ).select_related('payer', 'matter').order_by('-completed_at')
+
+        results = []
+        for payment in payments:
+            results.append({
+                'id': str(payment.id),
+                'amount': str(payment.net_amount),
+                'gross_amount': str(payment.amount),
+                'platform_fee': str(payment.platform_fee),
+                'payment_type': payment.payment_type,
+                'status': payment.status,
+                'description': payment.description,
+                'payer_name': f"{payment.payer.first_name} {payment.payer.last_name}" if payment.payer else 'Unknown',
+                'matter_title': payment.matter.title if payment.matter else None,
+                'created_at': payment.created_at.isoformat(),
+                'completed_at': payment.completed_at.isoformat() if payment.completed_at else None,
+            })
+
+        return Response({
+            'count': len(results),
+            'results': results
+        })
+
+
+class EarningsSummaryView(APIView):
+    """Get earnings summary for attorneys."""
+
+    permission_classes = [IsAttorney]
+
+    def get(self, request):
+        from apps.attorneys.models import AttorneyProfile
+        from django.db.models import Sum
+        from datetime import datetime
+        from dateutil.relativedelta import relativedelta
+
+        try:
+            profile = AttorneyProfile.objects.get(user=request.user)
+        except AttorneyProfile.DoesNotExist:
+            return Response(
+                {'detail': 'Attorney profile not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        now = timezone.now()
+        this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        last_month_start = (this_month_start - relativedelta(months=1))
+        last_month_end = this_month_start
+
+        # Total earnings (completed payments)
+        total_earned = Payment.objects.filter(
+            recipient=profile,
+            status=Payment.PaymentStatus.COMPLETED
+        ).aggregate(total=Sum('net_amount'))['total'] or 0
+
+        # Pending payouts (in escrow, not released)
+        pending_payout = Payment.objects.filter(
+            recipient=profile,
+            status=Payment.PaymentStatus.COMPLETED,
+            in_escrow=True
+        ).aggregate(total=Sum('net_amount'))['total'] or 0
+
+        # This month's earnings
+        this_month = Payment.objects.filter(
+            recipient=profile,
+            status=Payment.PaymentStatus.COMPLETED,
+            completed_at__gte=this_month_start
+        ).aggregate(total=Sum('net_amount'))['total'] or 0
+
+        # Last month's earnings
+        last_month = Payment.objects.filter(
+            recipient=profile,
+            status=Payment.PaymentStatus.COMPLETED,
+            completed_at__gte=last_month_start,
+            completed_at__lt=last_month_end
+        ).aggregate(total=Sum('net_amount'))['total'] or 0
+
+        return Response({
+            'total_earned': float(total_earned),
+            'pending_payout': float(pending_payout),
+            'this_month': float(this_month),
+            'last_month': float(last_month),
+        })

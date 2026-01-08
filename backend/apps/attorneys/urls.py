@@ -15,6 +15,7 @@ urlpatterns = [
     path('profile/', views.AttorneyProfileView.as_view(), name='profile'),
     path('onboarding/', views.AttorneyOnboardingView.as_view(), name='onboarding'),
     path('dashboard/', views.AttorneyDashboardView.as_view(), name='dashboard'),
+    path('clients/', views.AttorneyClientsView.as_view(), name='clients'),
 
     # Availability management
     path('availability/', views.AttorneyAvailabilityListView.as_view(), name='availability-list'),

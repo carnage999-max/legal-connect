@@ -27,4 +27,8 @@ urlpatterns = [
     path('invoices/', views.InvoiceListView.as_view(), name='invoice-list'),
     path('invoices/create/', views.InvoiceCreateView.as_view(), name='invoice-create'),
     path('invoices/<uuid:pk>/', views.InvoiceDetailView.as_view(), name='invoice-detail'),
+
+    # Payouts (for attorneys)
+    path('payouts/', views.PayoutListView.as_view(), name='payout-list'),
+    path('earnings-summary/', views.EarningsSummaryView.as_view(), name='earnings-summary'),
 ]

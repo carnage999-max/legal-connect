@@ -1,7 +1,7 @@
 from rest_framework import generics, status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.contrib.auth import get_user_model
 
 from .models import ClientProfile, AuditLog
@@ -19,7 +19,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     """Get or update current user's profile."""
 
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:

@@ -295,7 +295,162 @@ class AttorneyNewRequestsView(generics.ListAPIView):
     permission_classes = [IsAttorney]
 
     def get_queryset(self):
+        status_filter = self.request.query_params.get('status', 'pending')
+
+        if status_filter == 'accepted':
+            statuses = [Matter.MatterStatus.OPEN, Matter.MatterStatus.IN_PROGRESS]
+        elif status_filter == 'declined':
+            statuses = [Matter.MatterStatus.CANCELLED]
+        else:  # pending
+            statuses = [Matter.MatterStatus.PENDING]
+
         return Matter.objects.filter(
             attorney__user=self.request.user,
-            status=Matter.MatterStatus.PENDING
+            status__in=statuses
         ).select_related('client', 'practice_area')
+
+
+class AttorneyRespondToMatterView(APIView):
+    """Attorney accepts or declines a matter request."""
+
+    permission_classes = [IsAttorney]
+
+    def post(self, request, pk):
+        from apps.attorneys.models import AttorneyProfile
+
+        try:
+            attorney_profile = AttorneyProfile.objects.get(user=request.user)
+        except AttorneyProfile.DoesNotExist:
+            return Response(
+                {'detail': 'Attorney profile not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            matter = Matter.objects.get(
+                pk=pk,
+                attorney=attorney_profile,
+                status=Matter.MatterStatus.PENDING
+            )
+        except Matter.DoesNotExist:
+            return Response(
+                {'detail': 'Matter not found or not pending.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        action = request.data.get('action')
+        reason = request.data.get('reason', '')
+
+        if action == 'accept':
+            matter.status = Matter.MatterStatus.OPEN
+            matter.save()
+
+            # Create status history
+            MatterStatusHistory.objects.create(
+                matter=matter,
+                old_status=Matter.MatterStatus.PENDING,
+                new_status=Matter.MatterStatus.OPEN,
+                changed_by=request.user,
+                notes='Attorney accepted the matter.'
+            )
+
+            return Response({
+                'detail': 'Matter accepted successfully.',
+                'matter': MatterDetailSerializer(matter).data
+            })
+
+        elif action == 'decline':
+            # Remove attorney from matter, set back to matching
+            matter.attorney = None
+            matter.status = Matter.MatterStatus.MATCHING
+            matter.save()
+
+            # Create status history
+            MatterStatusHistory.objects.create(
+                matter=matter,
+                old_status=Matter.MatterStatus.PENDING,
+                new_status=Matter.MatterStatus.MATCHING,
+                changed_by=request.user,
+                notes=f'Attorney declined. Reason: {reason}' if reason else 'Attorney declined.'
+            )
+
+            return Response({
+                'detail': 'Matter declined. It will be returned to matching.',
+                'matter': MatterDetailSerializer(matter).data
+            })
+
+        else:
+            return Response(
+                {'detail': 'Invalid action. Use "accept" or "decline".'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class ClientSelectAttorneyView(APIView):
+    """Client selects an attorney for their matter from matching results."""
+
+    permission_classes = [IsClient]
+
+    def post(self, request, pk):
+        from apps.attorneys.models import AttorneyProfile
+
+        try:
+            matter = Matter.objects.get(
+                pk=pk,
+                client=request.user,
+                status=Matter.MatterStatus.MATCHING
+            )
+        except Matter.DoesNotExist:
+            return Response(
+                {'detail': 'Matter not found or not in matching status.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        attorney_id = request.data.get('attorney_id')
+        if not attorney_id:
+            return Response(
+                {'detail': 'attorney_id is required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            attorney = AttorneyProfile.objects.get(user_id=attorney_id)
+        except AttorneyProfile.DoesNotExist:
+            return Response(
+                {'detail': 'Attorney not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Verify attorney was not excluded by conflict check
+        from apps.conflicts.models import ConflictCheck
+        latest_check = ConflictCheck.objects.filter(
+            matter=matter,
+            status=ConflictCheck.CheckStatus.COMPLETED
+        ).order_by('-completed_at').first()
+
+        if latest_check and attorney in latest_check.excluded_attorneys.all():
+            return Response(
+                {'detail': 'This attorney has a conflict with your matter.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Assign attorney and set to pending (waiting for attorney acceptance)
+        matter.attorney = attorney
+        matter.status = Matter.MatterStatus.PENDING
+        matter.save()
+
+        # Create status history
+        MatterStatusHistory.objects.create(
+            matter=matter,
+            old_status=Matter.MatterStatus.MATCHING,
+            new_status=Matter.MatterStatus.PENDING,
+            changed_by=request.user,
+            notes=f'Client selected attorney: {attorney.user.full_name}'
+        )
+
+        # TODO: Send notification to attorney about new matter request
+
+        return Response({
+            'detail': 'Attorney selected. Waiting for attorney to accept.',
+            'matter': MatterDetailSerializer(matter).data
+        })
