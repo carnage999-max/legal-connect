@@ -3,7 +3,7 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "env": {
-    "NEXT_PUBLIC_API_BASE_URL": "http://54.224.190.122",
+    "NEXT_PUBLIC_API_BASE_URL": "/api/proxy",
     "NEXT_PUBLIC_DOMAIN": "www.legalconnectapp.com",
     "NEXT_PUBLIC_FRONTEND_URL": "https://www.legalconnectapp.com",
     "NEXT_PUBLIC_APP_NAME": "Legal Connect",
