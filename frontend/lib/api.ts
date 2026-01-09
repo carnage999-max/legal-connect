@@ -1,9 +1,9 @@
 /* Simple fetch-based API client for Legal Connect frontend
-   Uses Vercel serverless proxy (/api/proxy) to backend.
+   Calls backend API at api.legalconnectapp.com directly.
    Handles token expiry and auto-logout on 401 responses.
 */
 
-const API_BASE = '/api/proxy';
+const API_BASE = 'https://api.legalconnectapp.com';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
