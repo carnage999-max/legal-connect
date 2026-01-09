@@ -1,0 +1,22 @@
+[Unit]
+Description=Gunicorn Legal Connect Application
+After=network.target
+
+[Service]
+Type=notify
+User=ubuntu
+WorkingDirectory=/home/ubuntu/legal-connect/backend
+ExecStart=/home/ubuntu/legal-connect/backend/venv/bin/gunicorn \
+    --workers 2 \
+    --worker-class sync \
+    --max-requests 1000 \
+    --timeout 30 \
+    --bind 127.0.0.1:8000 \
+    --log-level info \
+    legal_connect.wsgi:application
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = 'http://www.legalconnectapp.com';
+const BACKEND_URL = 'http://api.legalconnectapp.com';
 
 export async function POST(request: NextRequest) {
   const pathname = request.nextUrl.pathname.replace('/api/proxy', '');
