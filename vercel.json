@@ -1,0 +1,16 @@
+{
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/.next",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_API_BASE_URL": "http://54.224.190.122",
+    "NEXT_PUBLIC_DOMAIN": "www.legalconnectapp.com",
+    "NEXT_PUBLIC_FRONTEND_URL": "https://www.legalconnectapp.com",
+    "NEXT_PUBLIC_APP_NAME": "Legal Connect",
+    "NEXT_PUBLIC_ENABLE_INTAKE_FORM": "true",
+    "NEXT_PUBLIC_ENABLE_MESSAGING": "true",
+    "NEXT_PUBLIC_ENABLE_DOCUMENT_UPLOAD": "true",
+    "NEXT_PUBLIC_ENABLE_PAYMENT_PROCESSING": "true",
+    "NEXT_PUBLIC_ENABLE_SCHEDULING": "true"
+  }
+}
