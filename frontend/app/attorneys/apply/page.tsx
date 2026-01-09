@@ -78,7 +78,7 @@ export default function AttorneysApplyPage(): React.ReactNode {
               <h1 className="text-5xl font-bold mb-4">Join Our Attorney Network</h1>
               <p className="text-2xl text-lctextsecondary mb-8">Get quality referrals while we handle the intake and matching.</p>
             </div>
-            <div className="hidden lg:flex justify-center">
+            <div className="flex justify-center">
               <Image
                 src="/law-firm-building.png"
                 alt="Law Firm Building"

@@ -137,7 +137,7 @@ export default function Home(): React.ReactNode {
                 <h2 className="text-5xl md:text-6xl font-bold mb-6">Why We Started Legal Connect</h2>
                 <p className="text-xl text-lctextsecondary max-w-2xl">The legal system wasn't designed with your needs in mind</p>
               </div>
-              <div className="hidden lg:flex justify-center">
+              <div className="flex justify-center">
                 <Image
                   src="/law-firm-building.png"
                   alt="Law Firm Building"
@@ -205,7 +205,7 @@ export default function Home(): React.ReactNode {
             <p className="text-xl text-lctextsecondary max-w-2xl mx-auto">See how we're revolutionizing access to legal services</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
-            <div className="hidden lg:flex lg:col-span-1 justify-center items-center">
+            <div className="flex lg:col-span-1 justify-center items-center">
               <Image
                 src="/scales-of-justice.png"
                 alt="Scales of Justice"
@@ -286,7 +286,7 @@ export default function Home(): React.ReactNode {
               <p className="text-xl text-lctextsecondary max-w-2xl mx-auto">Your data protection is our top priority</p>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div className="hidden lg:flex justify-center">
+              <div className="flex justify-center">
                 <Image
                   src="/lady-justice-statue.png"
                   alt="Lady Justice"

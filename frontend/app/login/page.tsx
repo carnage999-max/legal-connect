@@ -45,7 +45,7 @@ const LoginComponent = () => {
       
       <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full max-w-5xl">
-          <div className="hidden lg:flex justify-center">
+          <div className="flex justify-center">
             <Image
               src="/lady-justice-statue.png"
               alt="Lady Justice"
