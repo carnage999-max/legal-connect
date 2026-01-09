@@ -46,7 +46,10 @@ async function request(path: string, options: RequestInit = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  // If path doesn't start with /api/proxy, prepend it
+  const fullPath = path.startsWith('/api/proxy') ? path : `${API_BASE}${path}`;
+  
+  const res = await fetch(fullPath, {
     ...options,
     headers,
   });
