@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
 const LoginComponent = () => {
@@ -43,9 +44,20 @@ const LoginComponent = () => {
       </header>
       
       <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <h1 className="text-4xl font-semibold mb-3">Welcome back</h1>
-          <p className="text-lg text-lctextsecondary mb-8">Access your matters, messages, and payments securely.</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full max-w-5xl">
+          <div className="hidden lg:flex justify-center">
+            <Image
+              src="/lady-justice-statue.png"
+              alt="Lady Justice"
+              width={350}
+              height={350}
+              className="rounded-lg shadow-lg"
+              priority={false}
+            />
+          </div>
+          <div className="w-full max-w-md">
+            <h1 className="text-4xl font-semibold mb-3">Welcome back</h1>
+            <p className="text-lg text-lctextsecondary mb-8">Access your matters, messages, and payments securely.</p>
 
         <form onSubmit={handleSubmit} className="space-y-5 mb-8">
           {tokenExpired && <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700 text-sm font-medium">Your session has expired. Please log in again.</div>}

@@ -132,9 +132,21 @@ export default function Home(): React.ReactNode {
         {/* Why We Started This - The Problem Section */}
         <section className="bg-gradient-to-r from-slate-50 to-blue-50 border-y border-lcborder py-20 md:py-32">
           <div className="site-container">
-            <div className="text-center mb-12">
-              <h2 className="text-5xl md:text-6xl font-bold mb-6">Why We Started Legal Connect</h2>
-              <p className="text-xl text-lctextsecondary max-w-2xl mx-auto">The legal system wasn't designed with your needs in mind</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12">
+              <div>
+                <h2 className="text-5xl md:text-6xl font-bold mb-6">Why We Started Legal Connect</h2>
+                <p className="text-xl text-lctextsecondary max-w-2xl">The legal system wasn't designed with your needs in mind</p>
+              </div>
+              <div className="hidden lg:flex justify-center">
+                <Image
+                  src="/law-firm-building.png"
+                  alt="Law Firm Building"
+                  width={400}
+                  height={300}
+                  className="rounded-lg shadow-lg"
+                  priority={false}
+                />
+              </div>
             </div>
             <div className="max-w-3xl mx-auto">
               <div className="space-y-6 text-lg text-lctextsecondary leading-relaxed font-light">
@@ -192,60 +204,76 @@ export default function Home(): React.ReactNode {
             <h2 className="text-5xl md:text-6xl font-bold mb-6">Why Legal Connect Is Different</h2>
             <p className="text-xl text-lctextsecondary max-w-2xl mx-auto">See how we're revolutionizing access to legal services</p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div className="bg-red-50/50 border border-red-200/50 rounded-2xl p-10 backdrop-blur-sm">
-              <h3 className="text-3xl font-bold mb-8 text-red-900 flex items-center gap-3">
-                <span className="text-4xl">❌</span> Traditional Referral Systems
-              </h3>
-              <ul className="space-y-5 text-red-800">
-                <li className="flex gap-4 items-start">
-                  <span className="text-red-500 flex-shrink-0 mt-1 font-bold">•</span>
-                  <span className="font-medium">Manual intake processes that waste your time</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <span className="text-red-500 flex-shrink-0 mt-1 font-bold">•</span>
-                  <span className="font-medium">Inconsistent conflict checks with no transparency</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <span className="text-red-500 flex-shrink-0 mt-1 font-bold">•</span>
-                  <span className="font-medium">Long wait times and endless follow-ups</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <span className="text-red-500 flex-shrink-0 mt-1 font-bold">•</span>
-                  <span className="font-medium">Opaque referral delivery with no guarantees</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <span className="text-red-500 flex-shrink-0 mt-1 font-bold">•</span>
-                  <span className="font-medium">Pay fees regardless of results</span>
-                </li>
-              </ul>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
+            <div className="hidden lg:flex lg:col-span-1 justify-center items-center">
+              <Image
+                src="/scales-of-justice.png"
+                alt="Scales of Justice"
+                width={300}
+                height={300}
+                className="rounded-lg shadow-lg"
+                priority={false}
+              />
             </div>
-            <div className="bg-green-50/50 border border-green-200/50 rounded-2xl p-10 backdrop-blur-sm">
-              <h3 className="text-3xl font-bold mb-8 text-green-900 flex items-center gap-3">
-                <span className="text-4xl">✓</span> Legal Connect
-              </h3>
-              <ul className="space-y-5 text-green-800">
-                <li className="flex gap-4 items-start">
-                  <CheckCircle2 size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="font-medium">Automated conflict screening in seconds</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <CheckCircle2 size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="font-medium">Transparent matching with real-time results</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <CheckCircle2 size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="font-medium">Fast secure messaging that actually works</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <CheckCircle2 size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="font-medium">You stay in control of your data</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <CheckCircle2 size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="font-medium">Direct access to qualified attorneys</span>
-                </li>
-              </ul>
+            <div className="lg:col-span-2 space-y-6">
+              <div>
+                <h3 className="text-2xl font-bold mb-4 flex items-center gap-3">
+                  <span className="text-3xl">❌</span> Traditional Referral Systems
+                </h3>
+                <div className="bg-red-50/50 border border-red-200/50 rounded-2xl p-10 backdrop-blur-sm">
+                  <ul className="space-y-5 text-red-800">
+                    <li className="flex gap-4 items-start">
+                      <span className="text-red-500 flex-shrink-0 mt-1 font-bold">•</span>
+                      <span className="font-medium">Manual intake processes that waste your time</span>
+                    </li>
+                    <li className="flex gap-4 items-start">
+                      <span className="text-red-500 flex-shrink-0 mt-1 font-bold">•</span>
+                      <span className="font-medium">Inconsistent conflict checks with no transparency</span>
+                    </li>
+                    <li className="flex gap-4 items-start">
+                      <span className="text-red-500 flex-shrink-0 mt-1 font-bold">•</span>
+                      <span className="font-medium">Long wait times and endless follow-ups</span>
+                    </li>
+                    <li className="flex gap-4 items-start">
+                      <span className="text-red-500 flex-shrink-0 mt-1 font-bold">•</span>
+                      <span className="font-medium">Opaque referral delivery with no guarantees</span>
+                    </li>
+                    <li className="flex gap-4 items-start">
+                      <span className="text-red-500 flex-shrink-0 mt-1 font-bold">•</span>
+                      <span className="font-medium">Pay fees regardless of results</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-4 flex items-center gap-3">
+                  <span className="text-3xl">✓</span> Legal Connect
+                </h3>
+                <div className="bg-green-50/50 border border-green-200/50 rounded-2xl p-10 backdrop-blur-sm">
+                  <ul className="space-y-5 text-green-800">
+                    <li className="flex gap-4 items-start">
+                      <CheckCircle2 size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="font-medium">Automated conflict screening in seconds</span>
+                    </li>
+                    <li className="flex gap-4 items-start">
+                      <CheckCircle2 size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="font-medium">Transparent matching with real-time results</span>
+                    </li>
+                    <li className="flex gap-4 items-start">
+                      <CheckCircle2 size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="font-medium">Fast secure messaging that actually works</span>
+                    </li>
+                    <li className="flex gap-4 items-start">
+                      <CheckCircle2 size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="font-medium">You stay in control of your data</span>
+                    </li>
+                    <li className="flex gap-4 items-start">
+                      <CheckCircle2 size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="font-medium">Direct access to qualified attorneys</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -257,28 +285,40 @@ export default function Home(): React.ReactNode {
               <h2 className="text-5xl md:text-6xl font-bold mb-6">Enterprise-Grade Security</h2>
               <p className="text-xl text-lctextsecondary max-w-2xl mx-auto">Your data protection is our top priority</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white border border-lcborder rounded-2xl p-10 hover:shadow-lg transition hover:border-lcaccent/30 text-center group">
-                <div className="text-lcaccent mb-6 flex justify-center group-hover:scale-110 transition transform">
-                  <Lock size={56} strokeWidth={1.5} />
-                </div>
-                <h3 className="text-2xl font-bold mb-4">Encrypted Communications</h3>
-                <p className="text-lctextsecondary leading-relaxed">End-to-end encryption for all messages and file transfers between clients and attorneys</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div className="hidden lg:flex justify-center">
+                <Image
+                  src="/lady-justice-statue.png"
+                  alt="Lady Justice"
+                  width={350}
+                  height={350}
+                  className="rounded-lg shadow-lg"
+                  priority={false}
+                />
               </div>
-              <div className="bg-white border border-lcborder rounded-2xl p-10 hover:shadow-lg transition hover:border-lcaccent/30 text-center group">
-                <div className="text-lcaccent-client mb-6 flex justify-center group-hover:scale-110 transition transform">
-                  <CheckCircle2 size={56} strokeWidth={1.5} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-white border border-lcborder rounded-2xl p-8 hover:shadow-lg transition hover:border-lcaccent/30 text-center group">
+                  <div className="text-lcaccent mb-6 flex justify-center group-hover:scale-110 transition transform">
+                    <Lock size={56} strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4">Encrypted Communications</h3>
+                  <p className="text-lctextsecondary leading-relaxed">End-to-end encryption for all messages and file transfers between clients and attorneys</p>
                 </div>
-                <h3 className="text-2xl font-bold mb-4">Conflict Screening</h3>
-                <p className="text-lctextsecondary leading-relaxed">Automated conflict checks with no attorney conflicts. Party names hashed before transmission</p>
-              </div>
-              <div className="bg-white border border-lcborder rounded-2xl p-10 hover:shadow-lg transition hover:border-lcaccent/30 text-center group">
-                <div className="text-lcaccent-attorney mb-6 flex justify-center group-hover:scale-110 transition transform">
-                  <Shield size={56} strokeWidth={1.5} />
+                <div className="bg-white border border-lcborder rounded-2xl p-8 hover:shadow-lg transition hover:border-lcaccent/30 text-center group">
+                  <div className="text-lcaccent-client mb-6 flex justify-center group-hover:scale-110 transition transform">
+                    <CheckCircle2 size={56} strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4">Conflict Screening</h3>
+                  <p className="text-lctextsecondary leading-relaxed">Automated conflict checks with no attorney conflicts. Party names hashed before transmission</p>
                 </div>
-                <h3 className="text-2xl font-bold mb-4">Your Data, Your Control</h3>
-                <p className="text-lctextsecondary leading-relaxed">You control your data. No unnecessary human access or third-party sharing</p>
               </div>
+            </div>
+            <div className="mt-12 bg-white border border-lcborder rounded-2xl p-8 hover:shadow-lg transition hover:border-lcaccent/30 text-center">
+              <div className="text-lcaccent-attorney mb-6 flex justify-center group-hover:scale-110 transition transform">
+                <Shield size={56} strokeWidth={1.5} />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Your Data, Your Control</h3>
+              <p className="text-lctextsecondary leading-relaxed">You control your data. No unnecessary human access or third-party sharing</p>
             </div>
           </div>
         </section>

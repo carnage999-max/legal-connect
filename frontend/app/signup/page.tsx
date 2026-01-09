@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { apiPost } from '@/lib/api';
 
 export default function SignupPage() {
@@ -78,11 +79,22 @@ export default function SignupPage() {
       </header>
 
       <main className="site-container py-12">
-        <div className="max-w-md mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Create Account</h1>
-            <p className="text-lctextsecondary">Sign up to get started with Legal Connect</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="hidden lg:flex justify-center">
+            <Image
+              src="/scales-of-justice.png"
+              alt="Scales of Justice"
+              width={350}
+              height={350}
+              className="rounded-lg shadow-lg"
+              priority={false}
+            />
           </div>
+          <div className="max-w-md">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold mb-2">Create Account</h1>
+              <p className="text-lctextsecondary">Sign up to get started with Legal Connect</p>
+            </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
@@ -216,6 +228,7 @@ export default function SignupPage() {
               Privacy Policy
             </Link>
           </p>
+          </div>
         </div>
       </main>
     </div>

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Briefcase, Lock, Zap, CheckCircle2, Clock, Loader } from 'lucide-react';
 import { apiPost } from '@/lib/api';
 
@@ -72,8 +73,22 @@ export default function AttorneysApplyPage(): React.ReactNode {
       <main className="max-w-6xl mx-auto px-6 py-16">
         {/* Hero Section */}
         <div className="max-w-3xl mx-auto mb-16">
-          <h1 className="text-5xl font-bold mb-4">Join Our Attorney Network</h1>
-          <p className="text-2xl text-lctextsecondary mb-8">Get quality referrals while we handle the intake and matching.</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mb-16">
+            <div>
+              <h1 className="text-5xl font-bold mb-4">Join Our Attorney Network</h1>
+              <p className="text-2xl text-lctextsecondary mb-8">Get quality referrals while we handle the intake and matching.</p>
+            </div>
+            <div className="hidden lg:flex justify-center">
+              <Image
+                src="/law-firm-building.png"
+                alt="Law Firm Building"
+                width={350}
+                height={280}
+                className="rounded-lg shadow-lg"
+                priority={false}
+              />
+            </div>
+          </div>
 
           {/* Benefits Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
