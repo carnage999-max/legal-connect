@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': request.headers.get('authorization') || '',
+        'Host': 'api.legalconnectapp.com',
       },
       body: body || undefined,
     });
@@ -46,6 +47,7 @@ export async function GET(request: NextRequest) {
       method: 'GET',
       headers: {
         'Authorization': request.headers.get('authorization') || '',
+        'Host': 'api.legalconnectapp.com',
       },
     });
 
@@ -78,6 +80,7 @@ export async function PATCH(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': request.headers.get('authorization') || '',
+        'Host': 'api.legalconnectapp.com',
       },
       body: body || undefined,
     });
@@ -111,6 +114,7 @@ export async function PUT(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': request.headers.get('authorization') || '',
+        'Host': 'api.legalconnectapp.com',
       },
       body: body || undefined,
     });
@@ -144,6 +148,7 @@ export async function DELETE(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': request.headers.get('authorization') || '',
+        'Host': 'api.legalconnectapp.com',
       },
       body: body || undefined,
     });
