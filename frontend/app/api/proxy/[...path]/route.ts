@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Disable edge runtime - use Node.js runtime for full fetch support
+export const runtime = 'nodejs';
+
 const BACKEND_URL = 'http://api.legalconnectapp.com';
 
 export async function POST(request: NextRequest) {
