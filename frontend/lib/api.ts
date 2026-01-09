@@ -1,9 +1,9 @@
 /* Simple fetch-based API client for Legal Connect frontend
-   Uses Next.js rewrites to proxy requests to backend.
+   Uses Vercel serverless proxy (/api/proxy) to backend.
    Handles token expiry and auto-logout on 401 responses.
 */
 
-const API_BASE = '';
+const API_BASE = '/api/proxy';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
