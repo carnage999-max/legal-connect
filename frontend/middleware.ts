@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Middleware no longer needed - using API routes instead
-// This can be deleted or left empty
-
 export function middleware(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  
+  // Rewrite API calls to the backend
+  if (url.pathname.startsWith('/api/v1')) {
+    url.hostname = 'api.legalconnectapp.com';
+    url.protocol = 'http';
+    url.port = '';
+    return NextResponse.rewrite(url);
+  }
+  
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [],
+  matcher: ['/api/:path*'],
 };
