@@ -3,7 +3,7 @@
    Handles token expiry and auto-logout on 401 responses.
 */
 
-const API_BASE = 'https://api.legalconnectapp.com';
+const API_BASE = 'http://api.legalconnectapp.com';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
