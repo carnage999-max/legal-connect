@@ -4,7 +4,10 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import { AuthTokens, ApiError } from '../types';
 
-// Your computer's local IP address - update this if your IP changes
+// Production API URL
+const PRODUCTION_API_URL = 'https://api.legalconnectapp.com/api/v1';
+
+// Your computer's local IP address - update this if your IP changes (for development)
 const LOCAL_DEV_IP = '10.92.114.26';
 
 // Determine the correct API URL based on the environment
@@ -12,6 +15,11 @@ const getApiBaseUrl = (): string => {
   // First check for environment variable
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  // Use production API by default
+  if (!__DEV__) {
+    return PRODUCTION_API_URL;
   }
 
   // For development, use the appropriate localhost equivalent
@@ -37,8 +45,8 @@ const getApiBaseUrl = (): string => {
     }
   }
 
-  // Fallback - use hardcoded local IP for development
-  return `http://${LOCAL_DEV_IP}:8000/api/v1`;
+  // Fallback - use production API
+  return PRODUCTION_API_URL;
 };
 
 const API_BASE_URL = getApiBaseUrl();
