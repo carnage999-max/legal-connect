@@ -77,7 +77,14 @@ export function BookAppointmentScreen({ navigation, route }: BookAppointmentScre
         attorney_id: attorneyId,
         date: dateStr,
       });
-      setAvailableSlots(data.slots || data.results || data || []);
+      const raw = (data && (data.slots || data.results || data)) || [];
+      const mapped: TimeSlot[] = raw.map((slot: any, idx: number) => ({
+        id: `${dateStr}-${slot.start_time}-${slot.end_time}-${idx}`,
+        start_time: slot.start_time,
+        end_time: slot.end_time,
+        is_available: !!slot.is_available,
+      }));
+      setAvailableSlots(mapped);
       setSelectedSlot(null);
     } catch (error) {
       console.error('Failed to fetch slots:', error);
@@ -122,13 +129,16 @@ export function BookAppointmentScreen({ navigation, route }: BookAppointmentScre
     }
   };
 
-  const formatTime = (timeStr: string) => {
-    const date = new Date(timeStr);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+  const formatTime = (hhmm: string) => {
+    // Expect 'HH:MM'; format to 'h:MM AM/PM'
+    const [hStr, mStr] = hhmm.split(':');
+    const h = parseInt(hStr, 10);
+    const m = parseInt(mStr || '0', 10);
+    if (Number.isNaN(h)) return hhmm;
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 === 0 ? 12 : h % 12;
+    const mm = m.toString().padStart(2, '0');
+    return `${hour12}:${mm} ${period}`;
   };
 
   const isSameDay = (date1: Date, date2: Date) => {

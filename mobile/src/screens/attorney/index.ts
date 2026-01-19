@@ -6,3 +6,4 @@ export { BillingScreen } from './BillingScreen';
 export { ClientsListScreen } from './ClientsListScreen';
 export { ClientDetailScreen } from './ClientDetailScreen';
 export { CreateInvoiceScreen } from './CreateInvoiceScreen';
+export { AttorneyOnboardingScreen } from './AttorneyOnboardingScreen';

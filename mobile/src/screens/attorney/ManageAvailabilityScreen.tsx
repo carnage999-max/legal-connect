@@ -13,6 +13,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Card, Button } from '../../components';
 import api from '../../services/api';
 import { attorneyColors, fontSize, fontWeight, spacing, borderRadius } from '../../utils/theme';
+import { useAuth } from '../../context/AuthContext';
 
 type ManageAvailabilityScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -23,10 +24,12 @@ interface AvailabilitySlot {
   day_of_week: number;
   start_time: string;
   end_time: string;
-  is_available: boolean;
+  // API returns `is_active` for availability slots
+  is_active: boolean;
 }
 
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+// Backend maps Monday=0 ... Sunday=6. Keep UI aligned with backend.
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const TIME_SLOTS = [
   '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
   '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
@@ -34,10 +37,12 @@ const TIME_SLOTS = [
 ];
 
 export function ManageAvailabilityScreen({ navigation }: ManageAvailabilityScreenProps) {
+  const { user } = useAuth();
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(1); // Monday
+  // Monday index is 0 to match backend DayOfWeek (MONDAY=0)
+  const [selectedDay, setSelectedDay] = useState(0);
   const [dayEnabled, setDayEnabled] = useState<Record<number, boolean>>({});
   const [selectedSlots, setSelectedSlots] = useState<Record<string, boolean>>({});
 
@@ -53,7 +58,8 @@ export function ManageAvailabilityScreen({ navigation }: ManageAvailabilityScree
 
       fetchedSlots.forEach((slot: AvailabilitySlot) => {
         dayState[slot.day_of_week] = true;
-        slotState[`${slot.day_of_week}-${slot.start_time}`] = slot.is_available;
+        // API field is `is_active`
+        slotState[`${slot.day_of_week}-${slot.start_time}`] = !!(slot as any).is_active;
       });
 
       setDayEnabled(dayState);
@@ -99,6 +105,8 @@ export function ManageAvailabilityScreen({ navigation }: ManageAvailabilityScree
                 start_time: time,
                 end_time: endTime,
                 is_available: true,
+                // include is_active for backend compatibility
+                is_active: true,
               });
             }
           });
@@ -110,7 +118,17 @@ export function ManageAvailabilityScreen({ navigation }: ManageAvailabilityScree
       Alert.alert('Success', 'Availability updated successfully');
       navigation.goBack();
     } catch (error: any) {
-      const message = error.response?.data?.detail || 'Failed to update availability';
+      // Try to surface useful server messages
+      const data = error?.response?.data;
+      const detail = data?.detail || data?.message;
+      const fromFields = data && typeof data === 'object'
+        ? Object.values(data).flat().join('\n')
+        : undefined;
+      const message = detail || fromFields || 'Failed to update availability';
+      console.error('Availability save error:', {
+        status: error?.response?.status,
+        data: error?.response?.data,
+      });
       Alert.alert('Error', message);
     } finally {
       setIsSaving(false);
@@ -131,6 +149,27 @@ export function ManageAvailabilityScreen({ navigation }: ManageAvailabilityScree
     const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
     return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
+
+  // If attorney profile is not completed, guide user to onboarding
+  if (!isLoading && user?.has_attorney_profile === false) {
+    return (
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Card style={styles.instructionsCard}>
+            <Text style={styles.instructionsText}>
+              Complete your attorney profile before setting availability. This lets clients find and book you.
+            </Text>
+          </Card>
+          <View style={styles.saveContainer}>
+            <Button
+              title="Complete Profile"
+              onPress={() => navigation.navigate('Dashboard' as any, { screen: 'AttorneyOnboarding' })}
+            />
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
 
   if (isLoading) {
     return (

@@ -12,6 +12,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     """Serializer for user details (used by dj-rest-auth)."""
 
     full_name = serializers.ReadOnlyField()
+    has_attorney_profile = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -19,9 +20,16 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'id', 'email', 'first_name', 'last_name', 'full_name',
             'phone_number', 'user_type', 'avatar', 'is_verified',
             'two_factor_enabled', 'timezone', 'language',
-            'date_joined', 'last_login'
+            'date_joined', 'last_login', 'has_attorney_profile'
         ]
         read_only_fields = ['id', 'email', 'is_verified', 'date_joined', 'last_login']
+
+    def get_has_attorney_profile(self, obj):
+        """Check if attorney user has completed their profile setup."""
+        if obj.user_type != 'attorney':
+            return None
+        from apps.attorneys.models import AttorneyProfile
+        return AttorneyProfile.objects.filter(user=obj).exists()
 
 
 class CustomRegisterSerializer(RegisterSerializer):

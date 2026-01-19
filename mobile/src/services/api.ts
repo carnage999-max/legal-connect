@@ -7,8 +7,11 @@ import { AuthTokens, ApiError } from '../types';
 // Production API URL
 const PRODUCTION_API_URL = 'https://api.legalconnectapp.com/api/v1';
 
-// Your computer's local IP address - update this if your IP changes (for development)
+// Your computer's local IP address - update this if your IP changes (for development only)
 const LOCAL_DEV_IP = '10.92.114.26';
+
+// Set to true to use local development API, false to use production
+const USE_LOCAL_API = false;
 
 // Determine the correct API URL based on the environment
 const getApiBaseUrl = (): string => {
@@ -17,32 +20,28 @@ const getApiBaseUrl = (): string => {
     return process.env.EXPO_PUBLIC_API_URL;
   }
 
-  // Use production API by default
-  if (!__DEV__) {
+  // Always use production API unless explicitly set to local
+  if (!USE_LOCAL_API) {
     return PRODUCTION_API_URL;
   }
 
-  // For development, use the appropriate localhost equivalent
+  // For local development ONLY (when USE_LOCAL_API is true)
   const localPort = '8000';
 
-  if (__DEV__) {
-    // For physical devices running Expo Go, use the configured local IP
-    // This is the most common development scenario
-    const debuggerHost = Constants.expoConfig?.hostUri?.split(':')[0];
+  // For physical devices running Expo Go, use the configured local IP
+  const debuggerHost = Constants.expoConfig?.hostUri?.split(':')[0];
 
-    if (debuggerHost && debuggerHost !== 'localhost') {
-      // Use the Expo debugger host IP (your computer's IP)
-      return `http://${debuggerHost}:${localPort}/api/v1`;
-    }
+  if (debuggerHost && debuggerHost !== 'localhost') {
+    // Use the Expo debugger host IP (your computer's IP)
+    return `http://${debuggerHost}:${localPort}/api/v1`;
+  }
 
-    if (Platform.OS === 'android') {
-      // Check if running on emulator vs physical device
-      // Physical devices need the actual IP
-      return `http://${LOCAL_DEV_IP}:${localPort}/api/v1`;
-    } else if (Platform.OS === 'ios') {
-      // iOS simulator can use localhost directly
-      return `http://localhost:${localPort}/api/v1`;
-    }
+  if (Platform.OS === 'android') {
+    // Android physical device needs the actual IP
+    return `http://${LOCAL_DEV_IP}:${localPort}/api/v1`;
+  } else if (Platform.OS === 'ios') {
+    // iOS simulator can use localhost directly
+    return `http://localhost:${localPort}/api/v1`;
   }
 
   // Fallback - use production API
@@ -449,8 +448,13 @@ class ApiService {
     return response.data;
   }
 
-  async getAvailableSlots(params: { attorney_id?: string; date?: string }) {
-    const response = await this.api.get('/scheduling/available-slots/', { params });
+  async getAvailableSlots(params: { attorney_id: string; date: string; duration_minutes?: number }) {
+    const payload = {
+      attorney_id: params.attorney_id,
+      date: params.date,
+      duration_minutes: params.duration_minutes ?? 30,
+    };
+    const response = await this.api.post('/scheduling/available-slots/', payload);
     return response.data;
   }
 
@@ -660,6 +664,12 @@ class ApiService {
 
   async getJurisdictions() {
     const response = await this.api.get('/attorneys/jurisdictions/');
+    return response.data;
+  }
+
+  // Attorney Onboarding
+  async completeAttorneyOnboarding(data: any) {
+    const response = await this.api.post('/attorneys/onboarding/', data);
     return response.data;
   }
 }

@@ -141,19 +141,43 @@ class AttorneyAvailabilityListView(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         # Handle bulk update via { slots: [...] } format from mobile app
         if 'slots' in request.data:
-            attorney_profile = AttorneyProfile.objects.get(user=request.user)
+            try:
+                attorney_profile = AttorneyProfile.objects.get(user=request.user)
+            except AttorneyProfile.DoesNotExist:
+                return Response(
+                    {"detail": "Complete your attorney profile before setting availability."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             # Clear existing slots and create new ones
             AttorneyAvailability.objects.filter(attorney=attorney_profile).delete()
 
             created_slots = []
-            for slot_data in request.data['slots']:
+            slots = request.data.get('slots') or []
+
+            # Allow clearing all availability when slots is empty
+            if not slots:
+                serializer = self.get_serializer([], many=True)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            for slot_data in slots:
+                try:
+                    day_of_week = int(slot_data['day_of_week'])
+                    start_time = slot_data['start_time']
+                    end_time = slot_data['end_time']
+                    is_active = slot_data.get('is_available', slot_data.get('is_active', True))
+                except (KeyError, ValueError, TypeError):
+                    return Response(
+                        {"detail": "Invalid slot format. Expected day_of_week, start_time, end_time."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
                 slot = AttorneyAvailability.objects.create(
                     attorney=attorney_profile,
-                    day_of_week=slot_data['day_of_week'],
-                    start_time=slot_data['start_time'],
-                    end_time=slot_data['end_time'],
-                    is_active=slot_data.get('is_available', True)
+                    day_of_week=day_of_week,
+                    start_time=start_time,
+                    end_time=end_time,
+                    is_active=is_active,
                 )
                 created_slots.append(slot)
 

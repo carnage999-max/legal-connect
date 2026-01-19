@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
 
 import {
   DashboardScreen as AttorneyDashboard,
@@ -14,6 +15,7 @@ import {
   ClientsListScreen,
   ClientDetailScreen,
   CreateInvoiceScreen,
+  AttorneyOnboardingScreen,
 } from '../screens/attorney';
 import {
   MessagingScreen,
@@ -48,6 +50,9 @@ function TabBarIcon({ name, focused }: { name: IconName; focused: boolean }) {
 
 // Dashboard Stack
 function DashboardStack() {
+  const { user } = useAuth();
+  const needsOnboarding = user?.has_attorney_profile === false;
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -56,11 +61,17 @@ function DashboardStack() {
         headerShadowVisible: false,
         headerTintColor: attorneyColors.textPrimary,
       }}
+      initialRouteName={needsOnboarding ? 'AttorneyOnboarding' : 'DashboardHome'}
     >
       <Stack.Screen
         name="DashboardHome"
         component={AttorneyDashboard}
         options={{ title: 'Dashboard' }}
+      />
+      <Stack.Screen
+        name="AttorneyOnboarding"
+        component={AttorneyOnboardingScreen}
+        options={{ title: 'Complete Your Profile', headerBackVisible: false }}
       />
       <Stack.Screen
         name="Billing"

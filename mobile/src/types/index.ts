@@ -14,6 +14,7 @@ export interface User {
   language: string;
   date_joined: string;
   last_login: string | null;
+  has_attorney_profile: boolean | null; // null for non-attorneys, true/false for attorneys
 }
 
 export interface ClientProfile {

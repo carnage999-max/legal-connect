@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { AxiosError } from 'axios';
 import api from '../../services/api';
 import { attorneyColors, fontSize, fontWeight, spacing, borderRadius } from '../../utils/theme';
 
@@ -38,6 +39,7 @@ export function ClientsListScreen({ navigation }: ClientsListScreenProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [profileIncomplete, setProfileIncomplete] = useState(false);
 
   const fetchClients = useCallback(async () => {
     try {
@@ -45,8 +47,17 @@ export function ClientsListScreen({ navigation }: ClientsListScreenProps) {
       const clientList = data.results || data || [];
       setClients(clientList);
       setFilteredClients(clientList);
+      setProfileIncomplete(false);
     } catch (error) {
-      console.error('Failed to fetch clients:', error);
+      const axiosError = error as AxiosError<{ detail?: string }>;
+      if (axiosError.response?.status === 404) {
+        // Attorney profile not found - need to complete onboarding
+        setProfileIncomplete(true);
+        setClients([]);
+        setFilteredClients([]);
+      } else {
+        console.error('Failed to fetch clients:', error);
+      }
     } finally {
       setIsLoading(false);
       setRefreshing(false);
@@ -139,15 +150,37 @@ export function ClientsListScreen({ navigation }: ClientsListScreenProps) {
     </TouchableOpacity>
   );
 
-  const renderEmptyState = () => (
+  const renderProfileIncompleteState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="people-outline" size={64} color={attorneyColors.textSecondary} />
-      <Text style={styles.emptyTitle}>No Clients Yet</Text>
+      <Ionicons name="alert-circle-outline" size={64} color="#F59E0B" />
+      <Text style={styles.emptyTitle}>Complete Your Profile</Text>
       <Text style={styles.emptyText}>
-        Your client list will appear here once you start working with clients.
+        Your attorney profile is not set up yet. Please complete your profile setup to access your clients and start accepting cases.
       </Text>
+      <TouchableOpacity
+        style={styles.completeProfileButton}
+        onPress={() => navigation.getParent()?.navigate('Dashboard', { screen: 'AttorneyOnboarding' })}
+      >
+        <Text style={styles.completeProfileButtonText}>Complete Profile Setup</Text>
+      </TouchableOpacity>
     </View>
   );
+
+  const renderEmptyState = () => {
+    if (profileIncomplete) {
+      return renderProfileIncompleteState();
+    }
+
+    return (
+      <View style={styles.emptyState}>
+        <Ionicons name="people-outline" size={64} color={attorneyColors.textSecondary} />
+        <Text style={styles.emptyTitle}>No Clients Yet</Text>
+        <Text style={styles.emptyText}>
+          Your client list will appear here once you start working with clients.
+        </Text>
+      </View>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -363,5 +396,17 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     color: attorneyColors.textSecondary,
     textAlign: 'center',
+  },
+  completeProfileButton: {
+    marginTop: spacing.lg,
+    backgroundColor: attorneyColors.accent,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.md,
+  },
+  completeProfileButtonText: {
+    color: '#FFFFFF',
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
   },
 });
