@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -29,6 +29,25 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
   const { user, logout, refreshUser } = useAuth();
   const [pushEnabled, setPushEnabled] = useState(true);
   const [emailEnabled, setEmailEnabled] = useState(true);
+  const [attorneyProfile, setAttorneyProfile] = useState<any | null>(null);
+  const [isLoadingAttorney, setIsLoadingAttorney] = useState(false);
+
+  useEffect(() => {
+    const loadAttorneyProfile = async () => {
+      if (user?.user_type !== 'attorney') return;
+      if (user?.has_attorney_profile === false) return;
+      try {
+        setIsLoadingAttorney(true);
+        const data = await api.getMyAttorneyProfile();
+        setAttorneyProfile(data);
+      } catch (e) {
+        setAttorneyProfile(null);
+      } finally {
+        setIsLoadingAttorney(false);
+      }
+    };
+    loadAttorneyProfile();
+  }, [user]);
 
   const handleEditProfile = () => {
     navigation.navigate('EditProfile');
@@ -55,8 +74,13 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
           type: 'image/jpeg',
         } as any);
 
-        await api.updateProfile(formData);
-        refreshUser();
+        // Prefer dedicated avatar endpoint; fallback to profile PATCH
+        try {
+          await api.uploadAvatar(formData);
+        } catch (e) {
+          await api.updateProfile(formData);
+        }
+        await refreshUser();
         Alert.alert('Success', 'Profile photo updated');
       } catch (error) {
         Alert.alert('Error', 'Failed to update profile photo');
@@ -182,6 +206,84 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
             </Text>
           </View>
         </View>
+
+        {/* Attorney Professional Profile (read-only) */}
+        {user?.user_type === 'attorney' && attorneyProfile && (
+          <View style={styles.menuSection}>
+            <Text style={styles.sectionTitle}>Professional Profile</Text>
+            <Card variant="outlined" style={styles.menuCard}>
+              <View style={styles.profileRow}>
+                <Text style={styles.profileLabel}>Headline</Text>
+                <Text style={styles.profileValue}>{attorneyProfile.headline || '—'}</Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.profileRowColumn}>
+                <Text style={styles.profileLabel}>Biography</Text>
+                <Text style={styles.profileValueMultiline}>{attorneyProfile.biography || '—'}</Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.profileRow}>
+                <Text style={styles.profileLabel}>Experience</Text>
+                <Text style={styles.profileValue}>{attorneyProfile.years_of_experience ?? '—'} yrs</Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.profileRow}>
+                <Text style={styles.profileLabel}>Verification</Text>
+                <Text style={styles.profileValue}>{String(attorneyProfile.verification_status || 'pending').replace('_',' ')}</Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.profileRowColumn}>
+                <Text style={styles.profileLabel}>Practice Areas</Text>
+                <Text style={styles.profileValueMultiline}>
+                  {(attorneyProfile.practice_areas || []).map((p: any) => p.name).join(', ') || '—'}
+                </Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.profileRowColumn}>
+                <Text style={styles.profileLabel}>Jurisdictions</Text>
+                <Text style={styles.profileValueMultiline}>
+                  {(attorneyProfile.jurisdictions || []).map((j: any) => j.name).join(', ') || '—'}
+                </Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.profileRow}>
+                <Text style={styles.profileLabel}>Fee Structure</Text>
+                <Text style={styles.profileValue}>{attorneyProfile.fee_structure || '—'}</Text>
+              </View>
+              <View style={styles.profileRow}>
+                <Text style={styles.profileLabel}>Hourly Rate</Text>
+                <Text style={styles.profileValue}>
+                  {attorneyProfile.hourly_rate != null ? `$${attorneyProfile.hourly_rate}` : '—'}
+                </Text>
+              </View>
+              <View style={styles.profileRow}>
+                <Text style={styles.profileLabel}>Consultation Fee</Text>
+                <Text style={styles.profileValue}>
+                  {attorneyProfile.consultation_fee != null ? `$${attorneyProfile.consultation_fee}` : '—'}
+                </Text>
+              </View>
+              <View style={styles.profileRow}>
+                <Text style={styles.profileLabel}>Free Consultation</Text>
+                <Text style={styles.profileValue}>{attorneyProfile.free_consultation ? 'Yes' : 'No'}</Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.profileRow}>
+                <Text style={styles.profileLabel}>Office</Text>
+                <Text style={styles.profileValue}>
+                  {[
+                    attorneyProfile.office_city,
+                    attorneyProfile.office_state,
+                  ].filter(Boolean).join(', ') || '—'}
+                </Text>
+              </View>
+              {isLoadingAttorney && (
+                <View style={{ padding: 12 }}>
+                  <Text style={styles.menuLabel}>Loading profile…</Text>
+                </View>
+              )}
+            </Card>
+          </View>
+        )}
 
         {/* Menu Sections */}
         {menuSections.map((section, sectionIndex) => (
@@ -323,6 +425,37 @@ const styles = StyleSheet.create({
   },
   menuCard: {
     padding: 0,
+  },
+  profileRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  profileRowColumn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  profileLabel: {
+    color: colors.textSecondary,
+    fontSize: fontSize.sm,
+  },
+  profileValue: {
+    color: colors.textPrimary,
+    fontSize: fontSize.sm,
+    maxWidth: '60%',
+    textAlign: 'right',
+  },
+  profileValueMultiline: {
+    color: colors.textPrimary,
+    fontSize: fontSize.sm,
+    marginTop: 2,
+    lineHeight: 18,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: colors.border,
   },
   menuItem: {
     flexDirection: 'row',

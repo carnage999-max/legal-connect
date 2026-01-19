@@ -141,3 +141,29 @@ class DeleteAccountView(APIView):
             {'detail': 'Account has been deleted.'},
             status=status.HTTP_200_OK
         )
+
+
+class UserAvatarUploadView(APIView):
+    """Upload or update current user's avatar image."""
+
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        file = request.FILES.get('avatar')
+        if not file:
+            return Response({'detail': 'No avatar file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = request.user
+        user.avatar = file
+        user.save(update_fields=['avatar'])
+
+        return Response({
+            'avatar': user.avatar.url if user.avatar else None
+        }, status=status.HTTP_200_OK)
+
+    def delete(self, request):
+        user = request.user
+        user.avatar = None
+        user.save(update_fields=['avatar'])
+        return Response({'detail': 'Avatar removed.'})

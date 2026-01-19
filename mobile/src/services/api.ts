@@ -235,8 +235,21 @@ class ApiService {
     return response.data;
   }
 
-  async updateProfile(data: Partial<any>) {
+  async updateProfile(data: any) {
+    if (typeof FormData !== 'undefined' && data instanceof FormData) {
+      const response = await this.api.patch('/users/profile/', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    }
     const response = await this.api.patch('/users/profile/', data);
+    return response.data;
+  }
+
+  async uploadAvatar(formData: FormData) {
+    const response = await this.api.post('/users/profile/avatar/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   }
 
@@ -260,6 +273,12 @@ class ApiService {
 
   async getAttorneyProfile(id: string) {
     const response = await this.api.get(`/attorneys/${id}/`);
+    return response.data;
+  }
+
+  // Current attorney's own profile (detailed, private fields)
+  async getMyAttorneyProfile() {
+    const response = await this.api.get('/attorneys/profile/');
     return response.data;
   }
 
