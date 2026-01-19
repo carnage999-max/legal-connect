@@ -10,3 +10,4 @@ nul
 .env.backend
 .env.production
 .env.local
+nginx-commands.txt

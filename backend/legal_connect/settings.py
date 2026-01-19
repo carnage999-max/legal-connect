@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'phonenumber_field',
     'storages',
+    'anymail',
 
     # Authentication
     'allauth',
@@ -251,12 +252,34 @@ SPECTACULAR_SETTINGS = {
     'SCHEMA_PATH_PREFIX': '/api/v1',
 }
 
-# Email Configuration
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@legalconnect.com')
+"""Email Configuration (Resend via Anymail)
 
-# Resend Configuration (for production email sending)
+The default behavior is:
+- If EMAIL_BACKEND is provided in the environment, use it.
+- Else if RESEND_API_KEY is set, use Anymail's Resend backend.
+- Else fall back to console backend (prints emails to stdout).
+"""
+
 RESEND_API_KEY = config('RESEND_API_KEY', default='')
+
+# Choose backend based on env, preferring Resend when available
+_env_email_backend = config('EMAIL_BACKEND', default=None)
+if _env_email_backend:
+    EMAIL_BACKEND = _env_email_backend
+else:
+    EMAIL_BACKEND = (
+        'anymail.backends.resend.EmailBackend'
+        if RESEND_API_KEY
+        else 'django.core.mail.backends.console.EmailBackend'
+    )
+
+# Default from email
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='info@legalconnectapp.com')
+
+# Anymail (Resend) settings
+ANYMAIL = {
+    'RESEND_API_KEY': RESEND_API_KEY,
+}
 
 # Legacy SMTP Configuration (fallback for development)
 EMAIL_HOST = config('EMAIL_HOST', default='')
