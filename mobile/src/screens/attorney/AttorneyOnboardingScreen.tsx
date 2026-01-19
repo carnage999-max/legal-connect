@@ -157,11 +157,12 @@ export function AttorneyOnboardingScreen({ navigation }: AttorneyOnboardingScree
         }
         return true;
       case 3:
-        if (selectedPracticeAreas.length === 0) {
+        // Only enforce selection if options are available
+        if (practiceAreas.length > 0 && selectedPracticeAreas.length === 0) {
           Alert.alert('Required', 'Please select at least one practice area');
           return false;
         }
-        if (selectedJurisdictions.length === 0) {
+        if (jurisdictions.length > 0 && selectedJurisdictions.length === 0) {
           Alert.alert('Required', 'Please select at least one jurisdiction');
           return false;
         }
@@ -393,6 +394,9 @@ export function AttorneyOnboardingScreen({ navigation }: AttorneyOnboardingScree
 
       <Text style={styles.sectionLabel}>Practice Areas *</Text>
       <View style={styles.chipContainer}>
+        {practiceAreas.length === 0 && (
+          <Text style={styles.stepDescription}>No practice areas available right now.</Text>
+        )}
         {practiceAreas.map((area) => (
           <TouchableOpacity
             key={area.id}
@@ -416,6 +420,9 @@ export function AttorneyOnboardingScreen({ navigation }: AttorneyOnboardingScree
 
       <Text style={styles.sectionLabel}>Jurisdictions *</Text>
       <View style={styles.chipContainer}>
+        {jurisdictions.length === 0 && (
+          <Text style={styles.stepDescription}>No jurisdictions available right now.</Text>
+        )}
         {jurisdictions.map((jurisdiction) => (
           <TouchableOpacity
             key={jurisdiction.id}
