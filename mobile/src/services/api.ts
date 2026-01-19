@@ -240,11 +240,15 @@ class ApiService {
     return response.data;
   }
 
-  async changePassword(oldPassword: string, newPassword: string) {
-    const response = await this.api.post('/users/password/change/', {
-      old_password: oldPassword,
-      new_password: newPassword,
-    });
+  async changePassword(
+    dataOrOld: { old_password: string; new_password: string } | string,
+    maybeNew?: string
+  ) {
+    const payload =
+      typeof dataOrOld === 'string'
+        ? { old_password: dataOrOld, new_password: maybeNew as string }
+        : dataOrOld;
+    const response = await this.api.post('/users/password/change/', payload);
     return response.data;
   }
 

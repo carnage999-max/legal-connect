@@ -140,6 +140,7 @@ AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='us-east-1')
 AWS_S3_CUSTOM_DOMAIN = config('AWS_S3_CUSTOM_DOMAIN', default='')
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
+    'ServerSideEncryption': 'AES256',  # Enforce SSE-S3 at upload
 }
 AWS_DEFAULT_ACL = 'private'
 AWS_S3_SIGNATURE_VERSION = 's3v4'

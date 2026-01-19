@@ -11,6 +11,7 @@ from .serializers import (
     PasswordChangeSerializer, AuditLogSerializer
 )
 from .utils import log_user_action
+from .emails import send_password_changed_email, send_account_deactivated_email
 
 User = get_user_model()
 
@@ -78,6 +79,12 @@ class PasswordChangeView(APIView):
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
 
+        # Send notification email
+        try:
+            send_password_changed_email(request.user)
+        except Exception:
+            pass
+
         log_user_action(
             request.user,
             AuditLog.ActionType.PASSWORD_CHANGE,
@@ -106,6 +113,12 @@ class DeleteAccountView(APIView):
     def delete(self, request):
         user = request.user
         email = user.email
+
+        # Send account deactivation email before anonymizing email
+        try:
+            send_account_deactivated_email(user)
+        except Exception:
+            pass
 
         # Log the deletion
         log_user_action(
