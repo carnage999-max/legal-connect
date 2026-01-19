@@ -1,7 +1,7 @@
 from rest_framework import generics, status, permissions, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Avg
 from django.utils import timezone
@@ -113,7 +113,8 @@ class AttorneyOnboardingView(generics.CreateAPIView):
 
     serializer_class = AttorneyOnboardingSerializer
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    # Accept JSON (mobile) and multipart/form-data (web or with files)
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def perform_create(self, serializer):
         # Set the user and update user type
