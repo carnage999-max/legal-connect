@@ -1,0 +1,35 @@
+{
+  "cli": {
+    "version": ">= 3.18.0"
+  },
+  "build": {
+    "android-internal-apk": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.legalconnectapp.com/api/v1"
+      }
+    },
+    "android-production-apk": {
+      "distribution": "store",
+      "android": {
+        "buildType": "apk",
+        "autoIncrement": "versionCode"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.legalconnectapp.com/api/v1"
+      }
+    },
+    "android-production-aab": {
+      "distribution": "store",
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.legalconnectapp.com/api/v1"
+      }
+    }
+  }
+}

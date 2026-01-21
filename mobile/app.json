@@ -16,6 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.legalconnect.app",
+      "buildNumber": "1.0.0",
       "infoPlist": {
         "NSCameraUsageDescription": "Legal Connect needs access to your camera to scan and upload documents.",
         "NSPhotoLibraryUsageDescription": "Legal Connect needs access to your photo library to upload documents and profile photos.",
@@ -28,13 +29,14 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.legalconnect.app",
+      "versionCode": 1,
       "permissions": [
         "android.permission.CAMERA",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE",
+        "android.permission.READ_MEDIA_IMAGES",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.VIBRATE"
+        "android.permission.RECORD_AUDIO"
       ],
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -68,8 +70,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": ""
+        "projectId": "56c6997e-1db7-4a6e-8de3-5c2e8ed896df"
       }
-    }
+    },
+    "owner": "0x11011"
   }
 }

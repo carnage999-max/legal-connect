@@ -8,7 +8,7 @@ export default function PrivacyPage(): React.ReactNode {
               <img src="/logo.png" alt="Legal Connect" className="h-8 w-8" />
               <span>Legal Connect</span>
             </a>
-            <a href="/" className="text-lctextsecondary hover:text-lctextprimary transition">← Back</a>
+            <a href="/" className="text-lctextsecondary hover:text-lctextprimary transition">? Back</a>
           </nav>
         </div>
       </header>
@@ -168,7 +168,8 @@ export default function PrivacyPage(): React.ReactNode {
             </p>
             <div className="bg-blue-50 border border-lcborder rounded-lg p-6 text-lctextsecondary">
               <p className="mb-2"><strong>Email:</strong> privacy@legalconnect.com</p>
-              <p className="mb-2"><strong>Mail:</strong> Legal Connect, Inc.<br />Data Protection Officer<br />Florida, USA</p>
+              <p className="mb-2"><strong>Phone:</strong> 207-947-1999</p>
+              <p className="mb-2"><strong>Mail:</strong> Legal Connect, Inc.<br />Data Protection Officer<br />PO Box 52,<br />Detroit, ME 04929</p>
               <p><strong>Response Time:</strong> 30 days or as required by law</p>
             </div>
           </section>
@@ -188,10 +189,14 @@ export default function PrivacyPage(): React.ReactNode {
           </section>
 
           <div className="mt-16 pt-8 border-t border-lcborder text-center text-lctextsecondary text-sm">
-            <p>© 2025 Legal Connect, Inc. All rights reserved.</p>
+            <p>&copy; 2025 Legal Connect, Inc. All rights reserved.</p>
           </div>
         </div>
       </main>
     </div>
   );
 }
+
+
+
+
