@@ -7,10 +7,11 @@ from django.utils import timezone
 
 def send_welcome_email(user):
     """Send welcome email to new user."""
+    frontend = getattr(settings, 'FRONTEND_URL', None) or getattr(settings, 'SITE_URL', 'http://localhost:3000')
     context = {
         'user': user,
-        'dashboard_url': f"{getattr(settings, 'SITE_URL', 'http://localhost:3000')}/dashboard",
-        'site_url': getattr(settings, 'SITE_URL', 'http://localhost:3000'),
+        'dashboard_url': f"{frontend.rstrip('/')}/dashboard",
+        'site_url': frontend,
         'year': timezone.now().year,
     }
 
@@ -30,9 +31,10 @@ def send_welcome_email(user):
 
 def send_password_changed_email(user):
     """Send notification when password is changed."""
+    frontend = getattr(settings, 'FRONTEND_URL', None) or getattr(settings, 'SITE_URL', 'http://localhost:3000')
     context = {
         'user': user,
-        'site_url': getattr(settings, 'SITE_URL', 'http://localhost:3000'),
+        'site_url': frontend,
         'year': timezone.now().year,
         'change_time': timezone.now(),
     }

@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 import { Card, Button } from '../../components';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -58,14 +58,8 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
   };
 
   const handleUpdateAvatar = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
+    const result = await DocumentPicker.getDocumentAsync({ type: 'image/*', copyToCacheDirectory: true });
+    if (!result.canceled && result.assets?.[0]) {
       try {
         const formData = new FormData();
         formData.append('avatar', {

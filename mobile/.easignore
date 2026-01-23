@@ -1,0 +1,46 @@
+# Reduce uploaded archive size for EAS builds
+
+# Dependencies are installed in the build environment
+node_modules
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# Native projects generated during prebuild
+android/
+ios/
+
+# Packager / cache / OS clutter
+.expo/
+.expo-shared/
+.cache/
+.DS_Store
+Thumbs.db
+
+# Git / CI / editor files
+.git/
+.github/
+.gitignore
+.vscode/
+.idea/
+
+# Build outputs and temp
+dist/
+build/
+coverage/
+*.iml
+*.tmp
+tmp/
+
+# Large assets not needed for build (keep only what app.json references)
+assets/**
+!assets/icon.png
+!assets/adaptive-icon.png
+!assets/splash-icon.png
+!assets/favicon.png
+!assets/notification-icon.png
+
+# Expo/EAS
+eas-cache/
+*.tar.gz
+

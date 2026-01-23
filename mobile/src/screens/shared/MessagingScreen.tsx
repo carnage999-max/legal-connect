@@ -86,13 +86,8 @@ export function MessagingScreen({ navigation, route }: MessagingScreenProps) {
         {
           text: 'Photo',
           onPress: async () => {
-            const result = await ImagePicker.launchImageLibraryAsync({
-              mediaTypes: ImagePicker.MediaTypeOptions.Images,
-              allowsEditing: true,
-              quality: 0.8,
-            });
-
-            if (!result.canceled && result.assets[0]) {
+            const result = await DocumentPicker.getDocumentAsync({ type: 'image/*', copyToCacheDirectory: true });
+            if (!result.canceled && result.assets?.[0]) {
               await uploadAttachment(result.assets[0].uri, 'image');
             }
           },
@@ -101,11 +96,15 @@ export function MessagingScreen({ navigation, route }: MessagingScreenProps) {
           text: 'Document',
           onPress: async () => {
             const result = await DocumentPicker.getDocumentAsync({
-              type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+              type: ['image/*', 'video/*', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+              copyToCacheDirectory: true,
             });
 
-            if (!result.canceled && result.assets[0]) {
-              await uploadAttachment(result.assets[0].uri, 'document');
+            if (!result.canceled && result.assets?.[0]) {
+              const uri = result.assets[0].uri;
+              const isImage = /\.(png|jpg|jpeg|gif)$/i.test(uri);
+              const isVideo = /\.(mp4|mov|m4v|avi|webm)$/i.test(uri);
+              await uploadAttachment(uri, isImage ? 'image' : isVideo ? 'video' : 'document');
             }
           },
         },

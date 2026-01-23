@@ -175,6 +175,10 @@ AUTH_USER_MODEL = 'users.User'
 
 # Site ID for allauth
 SITE_ID = 1
+# Site branding
+SITE_DOMAIN = config('SITE_DOMAIN', default='legalconnectapp.com')
+SITE_NAME = config('SITE_NAME', default='Legal Connect')
+FRONTEND_URL = config('FRONTEND_URL', default='https://legalconnectapp.com')
 
 # REST Framework Configuration
 REST_FRAMEWORK = {
@@ -225,6 +229,9 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = config('ACCOUNT_DEFAULT_HTTP_PROTOCOL', default='https')
+ACCOUNT_EMAIL_SUBJECT_PREFIX = config('ACCOUNT_EMAIL_SUBJECT_PREFIX', default='[Legal Connect] ')
+ACCOUNT_ADAPTER = 'apps.users.adapters.CustomAccountAdapter'
 
 # dj-rest-auth Configuration
 REST_AUTH = {
