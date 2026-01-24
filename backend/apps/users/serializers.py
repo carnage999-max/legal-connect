@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from django.contrib.auth import get_user_model
-from django.db import transaction
+from django.db import transaction, IntegrityError
+import logging
 
 from .models import ClientProfile, AuditLog
 
@@ -59,12 +60,24 @@ class CustomRegisterSerializer(RegisterSerializer):
             'user_type': self.validated_data.get('user_type', 'client'),
         }
 
+    def validate_email(self, value):
+        # Gracefully handle duplicate emails before hitting DB unique constraint
+        if value and User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError('A user with this email already exists.')
+        return value
+
     @transaction.atomic
     def save(self, request):
+        logger = logging.getLogger(__name__)
         try:
             user = super().save(request)
-        except Exception as e:
-            raise serializers.ValidationError(f"Registration failed: {str(e)}")
+        except IntegrityError:
+            # Map DB unique constraint to friendly validation error
+            raise serializers.ValidationError({'email': 'A user with this email already exists.'})
+        except Exception:
+            # Log server-side, return generic message to the client
+            logger.exception('Registration failed')
+            raise serializers.ValidationError('Registration failed. Please try again.')
         
         user.first_name = self.validated_data.get('first_name', '')
         user.last_name = self.validated_data.get('last_name', '')

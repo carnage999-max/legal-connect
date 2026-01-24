@@ -153,13 +153,11 @@
             </div>
             <div class="email-footer">
                 <p>&copy; {{ year|default:"2024" }} Legal Connect. All rights reserved.</p>
-                {% with domain=site.domain|default:site_url|default:'legalconnectapp.com' %}
                 <p>
-                    <a href="https://{{ domain }}">Visit our website</a> |
-                    <a href="https://{{ domain }}/privacy">Privacy Policy</a> |
-                    <a href="https://{{ domain }}/terms">Terms of Service</a>
+                    <a href="https://legalconnectapp.com">Visit our website</a> |
+                    <a href="https://legalconnectapp.com/privacy">Privacy Policy</a> |
+                    <a href="https://legalconnectapp.com/terms">Terms of Service</a>
                 </p>
-                {% endwith %}
                 <p style="margin-top: 16px; font-size: 12px;">
                     You received this email because you have an account with Legal Connect.<br>
                     If you didn't request this email, please ignore it or contact support.
