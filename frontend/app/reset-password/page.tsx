@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiPost } from "@/lib/api";
 
-export default function ResetPasswordPage() {
+export const dynamic = "force-dynamic";
+
+function ResetPasswordInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [uid, setUid] = useState<string | null>(null);
@@ -96,3 +98,10 @@ export default function ResetPasswordPage() {
   );
 }
 
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-lg px-6 py-16">Loading…</div>}>
+      <ResetPasswordInner />
+    </Suspense>
+  );
+}

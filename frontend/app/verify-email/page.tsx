@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiPost } from "@/lib/api";
 
-export default function VerifyEmailPage() {
+export const dynamic = "force-dynamic";
+
+function VerifyEmailInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -49,3 +51,10 @@ export default function VerifyEmailPage() {
   );
 }
 
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-lg px-6 py-16">Loading…</div>}>
+      <VerifyEmailInner />
+    </Suspense>
+  );
+}
