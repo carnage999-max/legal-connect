@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Messages', href: '/app/attorney/messages' },
   { label: 'Billing', href: '/app/attorney/billing' },
   { label: 'Account', href: '/app/attorney/account' },
+  { label: 'Devices', href: '/app/attorney/devices' },
 ];
 
 export function AttorneyLayout({ children }: { children: ReactNode }): React.ReactNode {

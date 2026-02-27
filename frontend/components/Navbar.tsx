@@ -40,7 +40,7 @@ export function Navbar() {
     isOpen: boolean;
     onEnter: () => void;
     onLeave: () => void;
-    dropdownRef: React.RefObject<HTMLDivElement>;
+    dropdownRef: React.RefObject<HTMLDivElement | null>;
   }) => (
     <div
       ref={dropdownRef}

@@ -183,7 +183,7 @@ FRONTEND_URL = config('FRONTEND_URL', default='https://legalconnectapp.com')
 # REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'apps.users.authentication.DeviceAwareJWTAuthentication',  # Custom JWT with device tracking
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -213,7 +213,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),  # 24 hours for mobile convenience
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # 30 days - user stays logged in for a month
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    'BLACKLIST_AFTER_ROTATION': False,  # DISABLED - we use DeviceSession instead of blacklist
     'UPDATE_LAST_LOGIN': True,
     'ALGORITHM': 'HS256',
     'AUTH_HEADER_TYPES': ('Bearer',),

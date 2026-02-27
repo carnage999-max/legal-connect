@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import User, ClientProfile, AuditLog
+from .models import User, ClientProfile, AuditLog, DeviceSession
 
 
 @admin.register(User)
@@ -48,8 +48,24 @@ class AuditLogAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'user', 'action', 'description', 'ip_address', 'user_agent', 'metadata', 'created_at')
     ordering = ('-created_at',)
 
-    def has_add_permission(self, request):
-        return False
 
-    def has_change_permission(self, request, obj=None):
-        return False
+@admin.register(DeviceSession)
+class DeviceSessionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'device_name', 'ip_address', 'is_active', 'last_active_at', 'created_at')
+    list_filter = ('is_active', 'created_at', 'last_active_at')
+    search_fields = ('user__email', 'device_name', 'ip_address', 'device_fingerprint')
+    readonly_fields = ('id', 'user', 'device_fingerprint', 'user_agent', 'created_at', 'last_active_at', 'revoked_at')
+    
+    fieldsets = (
+        (_('Device Info'), {
+            'fields': ('user', 'device_name', 'device_fingerprint', 'ip_address', 'user_agent')
+        }),
+        (_('Status'), {
+            'fields': ('is_active', 'refresh_token_version')
+        }),
+        (_('Timestamps'), {
+            'fields': ('created_at', 'last_active_at', 'revoked_at')
+        }),
+    )
+    
+ordering = ('-last_active_at',)

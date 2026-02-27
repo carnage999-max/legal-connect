@@ -12,7 +12,8 @@ const navTabs = [
   { name: 'Messages', href: '/app/client/messages' },
   { name: 'Documents', href: '/app/client/documents' },
   { name: 'Payments', href: '/app/client/payments' },
-  { name: 'Account', href: '/app/client/account' }
+  { name: 'Account', href: '/app/client/account' },
+  { name: 'Devices', href: '/app/client/devices' }
 ];
 
 export function ClientLayout({ children }: { children: ReactNode }): React.ReactNode {

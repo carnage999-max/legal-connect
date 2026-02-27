@@ -180,3 +180,73 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.action} - {self.created_at}"
+
+
+class DeviceSession(models.Model):
+    """Track active device sessions for multi-device login support.
+    
+    This model replaces token blacklisting with a more resilient approach:
+    - Each device gets a unique session record
+    - Revocation is per-device, not per-token
+    - Prevents token rotation race conditions
+    """
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='device_sessions'
+    )
+    
+    # Device identification
+    device_fingerprint = models.CharField(
+        max_length=64,
+        help_text='SHA256 hash of device characteristics'
+    )
+    device_name = models.CharField(
+        max_length=100,
+        default='Unknown Device',
+        help_text='User-friendly device name'
+    )
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    user_agent = models.TextField(blank=True)
+    
+    # Session state
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Whether this device session is currently valid'
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_active_at = models.DateTimeField(auto_now=True)
+    revoked_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text='When this session was revoked'
+    )
+    
+    # Refresh token version tracking
+    refresh_token_version = models.IntegerField(
+        default=1,
+        help_text='Version counter for refresh tokens - prevents race conditions'
+    )
+    
+    class Meta:
+        verbose_name = _('device session')
+        verbose_name_plural = _('device sessions')
+        ordering = ['-last_active_at']
+        unique_together = ['user', 'device_fingerprint']
+        indexes = [
+            models.Index(fields=['user', 'is_active']),
+            models.Index(fields=['device_fingerprint']),
+        ]
+    
+    def __str__(self):
+        status = 'Active' if self.is_active else 'Revoked'
+        return f"{self.user.email} - {self.device_name} ({status})"
+    
+    @property
+    def is_revoked(self):
+        """Check if session has been revoked."""
+        return not self.is_active

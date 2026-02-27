@@ -10,4 +10,9 @@ urlpatterns = [
     path('password/change/', views.PasswordChangeView.as_view(), name='password-change'),
     path('audit-logs/', views.AuditLogListView.as_view(), name='audit-logs'),
     path('delete-account/', views.DeleteAccountView.as_view(), name='delete-account'),
+    
+    # Device session management
+    path('sessions/', views.DeviceSessionListView.as_view(), name='device-sessions-list'),
+    path('sessions/<uuid:id>/', views.DeviceSessionDetailView.as_view(), name='device-session-detail'),
+    path('sessions/logout-all/', views.LogoutAllDevicesView.as_view(), name='logout-all-devices'),
 ]

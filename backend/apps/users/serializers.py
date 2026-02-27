@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction, IntegrityError
 import logging
 
-from .models import ClientProfile, AuditLog
+from .models import ClientProfile, AuditLog, DeviceSession
 
 User = get_user_model()
 
@@ -176,3 +176,37 @@ class AuditLogSerializer(serializers.ModelSerializer):
             'ip_address', 'metadata', 'created_at'
         ]
         read_only_fields = ['id', 'user', 'created_at']
+
+class DeviceSessionSerializer(serializers.ModelSerializer):
+    """Serializer for device sessions."""
+    
+    is_revoked = serializers.BooleanField(read_only=True)
+    is_current = serializers.SerializerMethodField(read_only=True)
+    last_active_at_display = serializers.DateTimeField(
+        source='last_active_at',
+        read_only=True,
+        format='%Y-%m-%d %H:%M:%S'
+    )
+    
+    class Meta:
+        model = DeviceSession
+        fields = [
+            'id', 'device_name', 'device_fingerprint', 'ip_address', 'user_agent',
+            'is_active', 'is_revoked', 'is_current', 'created_at', 'last_active_at',
+            'last_active_at_display', 'revoked_at'
+        ]
+        read_only_fields = [
+            'id', 'device_fingerprint', 'created_at', 'last_active_at',
+            'is_revoked', 'revoked_at', 'is_current', 'user_agent'
+        ]
+    
+    def get_is_current(self, obj):
+        """Check if this is the current device making the request."""
+        from .device_manager import get_device_fingerprint
+        
+        request = self.context.get('request')
+        if not request:
+            return False
+        
+        current_fingerprint = get_device_fingerprint(request)
+        return obj.device_fingerprint == current_fingerprint

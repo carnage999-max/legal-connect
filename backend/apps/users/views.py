@@ -4,14 +4,18 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.contrib.auth import get_user_model
 
-from .models import ClientProfile, AuditLog
+from .models import ClientProfile, AuditLog, DeviceSession
 from .serializers import (
     UserDetailSerializer, UserUpdateSerializer,
     ClientProfileSerializer, ClientProfileUpdateSerializer,
-    PasswordChangeSerializer, AuditLogSerializer
+    PasswordChangeSerializer, AuditLogSerializer, DeviceSessionSerializer
 )
 from .utils import log_user_action
 from .emails import send_password_changed_email, send_account_deactivated_email
+from .device_manager import (
+    create_or_get_device_session, revoke_device_session,
+    revoke_all_device_sessions_except, get_active_device_sessions
+)
 
 User = get_user_model()
 
@@ -167,3 +171,81 @@ class UserAvatarUploadView(APIView):
         user.avatar = None
         user.save(update_fields=['avatar'])
         return Response({'detail': 'Avatar removed.'})
+
+
+class DeviceSessionListView(generics.ListAPIView):
+    """List all active and inactive device sessions for current user."""
+    
+    serializer_class = DeviceSessionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        return DeviceSession.objects.filter(user=self.request.user).order_by('-last_active_at')
+
+
+class DeviceSessionDetailView(generics.RetrieveDestroyAPIView):
+    """Get details of a device session or revoke it."""
+    
+    serializer_class = DeviceSessionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+    
+    def get_queryset(self):
+        return DeviceSession.objects.filter(user=self.request.user)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Revoke a device session."""
+        device_session = self.get_object()
+        revoke_device_session(device_session)
+        
+        log_user_action(
+            request.user,
+            AuditLog.ActionType.LOGIN,
+            f'Device session revoked: {device_session.device_name}',
+            request
+        )
+        
+        return Response(
+            {'detail': 'Device session revoked.'},
+            status=status.HTTP_200_OK
+        )
+
+
+class LogoutAllDevicesView(APIView):
+    """Revoke all device sessions except the current one.
+    
+    Useful for "logout from all other devices" functionality.
+    """
+    
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        current_device_session = getattr(request, 'device_session', None)
+        
+        if current_device_session:
+            revoke_all_device_sessions_except(
+                request.user,
+                current_device_session.id
+            )
+            
+            log_user_action(
+                request.user,
+                AuditLog.ActionType.LOGOUT,
+                'Logged out from all other devices',
+                request
+            )
+            
+            return Response(
+                {'detail': 'Logged out from all other devices.'},
+                status=status.HTTP_200_OK
+            )
+        else:
+            # No device session - revoke all
+            DeviceSession.objects.filter(user=request.user).update(
+                is_active=False
+            )
+            return Response(
+                {'detail': 'Logged out from all devices.'},
+                status=status.HTTP_200_OK
+            )
+
