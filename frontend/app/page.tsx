@@ -1,12 +1,10 @@
 'use client';
 import { Shield, CheckCircle2, Lock, AlertCircle, Clock, Eye, FileText, Apple, Smartphone, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import { useAuth } from '@/context/AuthContext';
-import Link from 'next/link';
+import { Navbar } from '@/components/Navbar';
 import { useEffect, useState } from 'react';
 
 export default function Home(): React.ReactNode {
-  const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -15,42 +13,8 @@ export default function Home(): React.ReactNode {
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 text-lctextprimary">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-lcborder shadow-sm">
-        <div className="site-container py-4">
-          <nav className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition">
-              <img src="/logo.png" alt="Legal Connect" className="h-8 w-8" />
-              <span className="font-bold text-xl" style={{ color: '#065F46' }}>Legal Connect</span>
-            </Link>
-            <div className="hidden md:flex items-center gap-6">
-              {mounted && user ? (
-                <>
-                  {user.user_type === 'attorney' ? (
-                    <Link href="/app/attorney/dashboard" className="text-sm font-medium text-lcaccent-attorney hover:opacity-80 transition">Attorney Dashboard</Link>
-                  ) : (
-                    <Link href="/app/client/dashboard" className="text-sm font-medium text-lcaccent-client hover:opacity-80 transition">Client Dashboard</Link>
-                  )}
-                </>
-              ) : (
-                <>
-                  <a href="/login" className="text-sm font-medium text-lctextsecondary hover:text-lctextprimary transition">Client Login</a>
-                  <a href="/signup" className="text-sm font-medium text-lctextsecondary hover:text-lctextprimary transition">Client Signup</a>
-                  <a href="/attorney/login" className="text-sm font-medium text-lctextsecondary hover:text-lctextprimary transition">Attorney Login</a>
-                </>
-              )}
-            </div>
-            {/* Mobile menu button placeholder */}
-            <div className="md:hidden">
-              <button className="p-2 hover:bg-gray-100 rounded-lg">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            </div>
-          </nav>
-        </div>
-      </header>
+      {/* Header with Navbar */}
+      {mounted && <Navbar />}
 
       <main>
         {/* Hero Section */}

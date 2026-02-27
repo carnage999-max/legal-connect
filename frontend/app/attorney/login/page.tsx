@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function AttorneyLoginPage(): React.ReactNode {
   const router = useRouter();
   const { login, loading } = useAuth();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,14 +57,24 @@ export default function AttorneyLoginPage(): React.ReactNode {
 
             <div>
               <label className="block text-sm font-semibold mb-2">Password</label>
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full bg-lcbgattorneysecondary border border-lcborderattorney rounded-md p-3 text-lctextattorney focus:outline-none focus:ring-2 focus:ring-offset-2 transition"
-                style={{ outlineColor: '#6366F1' }}
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full bg-lcbgattorneysecondary border border-lcborderattorney rounded-md p-3 pr-10 text-lctextattorney focus:outline-none focus:ring-2 focus:ring-offset-2 transition"
+                  style={{ outlineColor: '#6366F1' }}
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-lctextattorneysecondary hover:text-lctextattorney transition"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             <button

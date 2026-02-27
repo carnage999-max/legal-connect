@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Eye, EyeOff } from 'lucide-react';
 import { apiPost } from '@/lib/api';
 
 export default function SignupPage() {
@@ -16,6 +17,8 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -164,29 +167,49 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-sm font-medium mb-2">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient"
-                style={{ outlineColor: '#065F46' }}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full border border-lcborder rounded-lg p-3 pr-10 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient"
+                  style={{ outlineColor: '#065F46' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-lctextsecondary hover:text-lctextprimary transition"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
               <p className="text-xs text-lctextsecondary mt-1">At least 8 characters</p>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">Confirm Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient"
-                style={{ outlineColor: '#065F46' }}
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full border border-lcborder rounded-lg p-3 pr-10 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccentclient"
+                  style={{ outlineColor: '#065F46' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-lctextsecondary hover:text-lctextprimary transition"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             <button
