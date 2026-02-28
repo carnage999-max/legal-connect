@@ -1,6 +1,7 @@
 """Custom JWT authentication with device session validation."""
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed as DRFAuthenticationFailed
 from django.contrib.auth import get_user_model
 import logging
 
@@ -17,22 +18,23 @@ class DeviceAwareJWTAuthentication(JWTAuthentication):
     """
     
     def authenticate(self, request):
-        """Authenticate request using JWT token."""
+        """Authenticate request using JWT token - uses parent class implementation."""
         try:
-            # Get JWT from request
-            raw_token = self.get_raw_token(request)
-            if raw_token is None:
+            # Call parent's authenticate method which properly handles token extraction
+            result = super().authenticate(request)
+            
+            if result is None:
                 return None
             
-            # Validate and decode JWT using parent class
-            validated_token = self.get_validated_token(raw_token)
-            user = self.get_user(validated_token)
-            
-            return (user, validated_token)
+            # result is a tuple of (user, validated_token)
+            return result
             
         except InvalidToken as e:
             logger.error(f'Invalid token: {str(e)}')
             raise AuthenticationFailed('Invalid token or token expired')
+        except DRFAuthenticationFailed:
+            # Re-raise DRF authentication failures as-is
+            raise
         except Exception as e:
             logger.error(f'Authentication error: {str(e)}', exc_info=True)
             raise AuthenticationFailed('Authentication failed')
