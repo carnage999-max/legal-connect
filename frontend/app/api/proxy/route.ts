@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = 'http://api.legalconnectapp.com';
+const BACKEND_URL = 'https://api.legalconnectapp.com';
 
 export async function POST(request: NextRequest) {
   const url = new URL(request.url);
