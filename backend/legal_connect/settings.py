@@ -251,6 +251,11 @@ CORS_ALLOWED_ORIGINS = config(
 ).split(',')
 CORS_ALLOW_CREDENTIALS = True
 
+# Needed for admin login over https when running behind nginx.
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in config('CSRF_TRUSTED_ORIGINS', default='').split(',') if o.strip()
+]
+
 # API Documentation
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Legal Connect API',
@@ -336,6 +341,8 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
+    # nginx terminates TLS and forwards the original scheme
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # Disable SSL redirect for now - use Nginx for HTTPS
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False

@@ -1,0 +1,19 @@
+services:
+  legal-connect-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: legal-connect-backend
+    env_file:
+      - .env
+    volumes:
+      # nginx serves /static/ (Django admin assets) from here
+      - /mnt/data/static/legal-connect:/app/staticfiles
+    ports:
+      - "127.0.0.1:8010:8000"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: shared-net
+    external: true

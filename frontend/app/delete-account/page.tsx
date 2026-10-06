@@ -92,7 +92,7 @@ export default function DeleteAccountPage() {
 
           <p className="text-sm text-mute">
             We will send a confirmation email to verify ownership before final deletion. You can also reach us at{' '}
-            <a href="mailto:support@ultimateapartmentmanager.com" className="font-medium text-blue-600 underline underline-offset-2">support@ultimateapartmentmanager.com</a>.
+            <a href="mailto:support@legalconnectapp.com" className="font-medium text-blue-600 underline underline-offset-2">support@legalconnectapp.com</a>.
           </p>
 
           {error ? (

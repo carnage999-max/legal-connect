@@ -2,9 +2,9 @@ db.sqlite3
 .env
 __pycache__/
 *.pyc
-.env.example
 media/
 staticfiles/
 env/
 venv/
 *.pem
+
