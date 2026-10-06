@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, Menu, Scale, User, X } from 'lucide-react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
 
@@ -15,8 +15,8 @@ const LINKS = [
 ];
 
 const SIGN_IN = [
-  { label: 'Client sign in', note: 'Matters, messages and payments', href: '/login', icon: User },
-  { label: 'Attorney sign in', note: 'Referrals, clients and billing', href: '/attorney/login', icon: Scale },
+  { label: 'Client sign in', note: 'Matters, messages and payments', href: '/login' },
+  { label: 'Attorney sign in', note: 'Referrals, clients and billing', href: '/attorney/login' },
 ];
 
 /**
@@ -73,7 +73,7 @@ export function Navbar({ overlay = false }: { overlay?: boolean }) {
   }, [menuOpen]);
 
   const linkClass = transparent
-    ? 'text-slate-200 hover:text-white'
+    ? 'text-white/80 hover:text-white'
     : 'text-mute hover:text-ink';
 
   return (
@@ -83,19 +83,21 @@ export function Navbar({ overlay = false }: { overlay?: boolean }) {
           transparent
             ? 'dark-surface border-b border-transparent bg-transparent'
             : menuOpen
-              ? 'dark-surface border-b border-white/10 bg-navy-900'
-              : 'border-b border-hairline bg-white/90 backdrop-blur-xl'
+              ? 'dark-surface black-surface border-b border-white/10 bg-black'
+              : 'border-b border-black/[0.08] bg-white/80 backdrop-blur-xl backdrop-saturate-150'
         }`}
       >
         <div className="site-container flex items-center justify-between gap-3" style={{ height: 'var(--header-h)' }}>
-          <Logo tone={transparent || menuOpen ? 'dark' : 'light'} />
+          <div className={`transition-opacity duration-300 ${transparent ? 'max-md:pointer-events-none max-md:opacity-0' : ''}`}>
+            <Logo tone={transparent || menuOpen ? 'dark' : 'light'} />
+          </div>
 
           <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
             {LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`rounded-lg px-3 py-2 text-[0.95rem] font-medium transition-colors ${linkClass}`}
+                className={`rounded-full px-3.5 py-2 text-[0.9rem] font-medium transition-colors ${linkClass}`}
               >
                 {l.label}
               </Link>
@@ -115,26 +117,21 @@ export function Navbar({ overlay = false }: { overlay?: boolean }) {
                     aria-expanded={signInOpen}
                     aria-haspopup="true"
                     onClick={() => setSignInOpen((v) => !v)}
-                    className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[0.95rem] font-medium transition-colors ${linkClass}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.9rem] font-medium transition-colors ${linkClass}`}
                   >
                     Sign in
                     <ChevronDown size={16} className={`transition-transform ${signInOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {signInOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-72 overflow-hidden rounded-2xl border border-hairline bg-white p-1.5 shadow-[0_24px_60px_-20px_rgb(16_24_40/0.35)] rise-in">
-                      {SIGN_IN.map(({ label, note, href, icon: Icon }) => (
+                    <div className="light-surface absolute right-0 top-full mt-2 w-72 overflow-hidden rounded-3xl bg-white p-2 shadow-[0_20px_50px_-12px_rgb(0_0_0/0.35)] rise-in">
+                      {SIGN_IN.map(({ label, note, href }) => (
                         <Link
                           key={href}
                           href={href}
-                          className="flex items-center gap-3 rounded-xl p-3 text-ink transition-colors hover:bg-paper"
+                          className="block rounded-2xl px-4 py-3 text-ink transition-colors hover:bg-paper"
                         >
-                          <span className="grid h-10 w-10 flex-none place-items-center rounded-lg bg-blue-50 text-blue-600">
-                            <Icon size={20} />
-                          </span>
-                          <span>
-                            <span className="block text-sm font-semibold">{label}</span>
-                            <span className="block text-xs text-mute">{note}</span>
-                          </span>
+                          <span className="block text-[0.95rem] font-semibold">{label}</span>
+                          <span className="block text-sm text-mute">{note}</span>
                         </Link>
                       ))}
                     </div>
@@ -161,7 +158,6 @@ export function Navbar({ overlay = false }: { overlay?: boolean }) {
             </button>
           </div>
         </div>
-        {!transparent && <div className="split-rule opacity-90" aria-hidden />}
       </header>
 
       {menuOpen && (
@@ -170,7 +166,7 @@ export function Navbar({ overlay = false }: { overlay?: boolean }) {
           role="dialog"
           aria-modal="true"
           aria-label="Menu"
-          className="dark-surface fixed inset-0 z-40 overflow-y-auto bg-navy-900 lg:hidden"
+          className="dark-surface black-surface fixed inset-0 z-40 overflow-y-auto bg-black lg:hidden"
           style={{ paddingTop: 'var(--header-h)' }}
         >
           <div className="site-container flex flex-col gap-1 pb-10 pt-4">
@@ -193,9 +189,8 @@ export function Navbar({ overlay = false }: { overlay?: boolean }) {
               </Link>
             ) : (
               <div className="flex flex-col gap-3">
-                {SIGN_IN.map(({ label, href, icon: Icon }) => (
-                  <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="btn btn-outline btn-lg justify-start">
-                    <Icon size={20} />
+                {SIGN_IN.map(({ label, href }) => (
+                  <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="btn btn-outline btn-lg">
                     {label}
                   </Link>
                 ))}

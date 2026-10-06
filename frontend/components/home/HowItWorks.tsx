@@ -1,58 +1,83 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Reveal } from '@/components/ui/Reveal';
 import { ProductPanel, STAGES, type StageIndex } from './ProductPanel';
 
+/**
+ * Scroll-driven on large screens: the panel stays put while the steps move past,
+ * and the stage changes as each step reaches the middle of the screen.
+ * On phones every step carries its own panel.
+ */
 export function HowItWorks() {
   const [stage, setStage] = useState<StageIndex>(0);
+  const refs = useRef<(HTMLLIElement | null)[]>([]);
+
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setStage(Number((e.target as HTMLElement).dataset.step) as StageIndex);
+        });
+      },
+      { rootMargin: '-45% 0px -45% 0px' },
+    );
+    refs.current.forEach((el) => el && io.observe(el));
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <section id="how-it-works" className="section bg-white">
+    <section id="how-it-works" className="section bg-paper">
       <div className="site-container">
-        <div className="max-w-3xl">
-          <p className="eyebrow">How it works</p>
-          <h2 className="title-1 mt-4">Four steps from your story to the right attorney.</h2>
-          <p className="lede mt-5">Pick a step to see what you would see on screen.</p>
-        </div>
+        <Reveal>
+          <h2 className="title-1 max-w-3xl">Four steps from your story to the right attorney.</h2>
+        </Reveal>
 
-        <div className="mt-12 grid items-start gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
-          <ol role="tablist" aria-label="Steps" aria-orientation="vertical" className="relative space-y-3">
-            {STAGES.map((s, i) => {
-              const on = stage === i;
-              return (
-                <li key={s.key}>
-                  <button
-                    role="tab"
-                    type="button"
-                    aria-selected={on}
-                    onClick={() => setStage(i as StageIndex)}
-                    className={`group flex w-full gap-4 rounded-2xl border p-5 text-left transition-all ${
-                      on ? 'border-blue-500 bg-blue-50 shadow-[0_0_0_4px_rgb(30_127_214/0.12)]' : 'border-hairline bg-white hover:border-blue-400'
-                    }`}
-                  >
-                    <span
-                      className={`grid h-10 w-10 flex-none place-items-center rounded-full text-sm font-bold transition-colors ${
-                        on ? 'bg-blue-600 text-white' : i < stage ? 'bg-green-600 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}
-                    >
-                      {i + 1}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-lg font-semibold text-ink">{s.title}</span>
-                      <span className={`mt-1 block text-[0.97rem] leading-relaxed ${on ? 'text-slate-700' : 'text-mute'}`}>
-                        {s.blurb}
-                      </span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
+        {/* Large screens */}
+        <div className="mt-16 hidden gap-16 lg:grid lg:grid-cols-[1fr_1.05fr]">
+          <ol className="relative">
+            <span aria-hidden className="absolute bottom-0 left-0 top-0 w-px bg-hairline" />
+            <span
+              aria-hidden
+              className="absolute left-0 top-0 w-px bg-ink transition-all duration-700 ease-out"
+              style={{ height: `${((stage + 1) / STAGES.length) * 100}%` }}
+            />
+            {STAGES.map((s, i) => (
+              <li
+                key={s.key}
+                data-step={i}
+                ref={(el) => {
+                  refs.current[i] = el;
+                }}
+                className={`flex min-h-[62vh] flex-col justify-center pl-10 transition-opacity duration-500 ${
+                  stage === i ? 'opacity-100' : 'opacity-30'
+                }`}
+              >
+                <span className="tnum text-sm font-semibold text-mute">0{i + 1}</span>
+                <h3 className="title-2 mt-2">{s.title}</h3>
+                <p className="mt-4 max-w-md text-[1.15rem] leading-relaxed text-mute">{s.blurb}</p>
+              </li>
+            ))}
           </ol>
 
-          <div className="lg:sticky lg:top-28">
-            <ProductPanel stage={stage} />
+          <div className="relative">
+            <div className="sticky top-[22vh]">
+              <ProductPanel stage={stage} />
+            </div>
           </div>
         </div>
+
+        {/* Phones and tablets */}
+        <ol className="mt-12 space-y-14 lg:hidden">
+          {STAGES.map((s, i) => (
+            <Reveal as="li" key={s.key}>
+              <span className="tnum text-sm font-semibold text-mute">0{i + 1}</span>
+              <h3 className="title-2 mt-1">{s.title}</h3>
+              <p className="mb-6 mt-3 max-w-md text-[1.05rem] leading-relaxed text-mute">{s.blurb}</p>
+              <ProductPanel stage={i as StageIndex} />
+            </Reveal>
+          ))}
+        </ol>
       </div>
     </section>
   );

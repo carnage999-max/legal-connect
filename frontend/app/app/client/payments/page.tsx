@@ -289,7 +289,7 @@ function PaymentHistory() {
         <li key={p.id} className="card flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="truncate font-semibold text-ink">{p.description || p.payment_type.replace(/_/g, ' ')}</p>
-            <p className="mt-1 text-sm text-mute">{new Date(p.created_at).toLocaleDateString()}</p>
+            <p className="mt-1 text-sm text-mute">{new Date(p.created_at).toLocaleDateString('en-US')}</p>
           </div>
           <div className="flex flex-none items-center gap-4">
             <span className="tnum font-semibold text-ink">{money(p.amount, p.currency)}</span>

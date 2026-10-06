@@ -188,7 +188,7 @@ export default function ClientDocumentsPage(): React.ReactNode {
                   <div className="min-w-0">
                     <h3 className="truncate font-semibold text-ink">{doc.name}</h3>
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                      <span className="text-sm text-mute">Uploaded {new Date(doc.uploaded_date).toLocaleDateString()}</span>
+                      <span className="text-sm text-mute">Uploaded {new Date(doc.uploaded_date).toLocaleDateString('en-US')}</span>
                       <StatusBadge status={doc.status === 'pending' ? 'pending signature' : doc.status} />
                     </div>
                   </div>

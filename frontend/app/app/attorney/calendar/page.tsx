@@ -105,7 +105,7 @@ export default function AttorneyCalendarPage(): React.ReactNode {
                       </button>
                     </div>
                     <div className="mt-2 space-y-2 text-sm text-mute">
-                      <p className="flex items-center gap-2"><CalendarDays size={16} /> {new Date(apt.scheduled_date).toLocaleDateString()}</p>
+                      <p className="flex items-center gap-2"><CalendarDays size={16} /> {new Date(apt.scheduled_date).toLocaleDateString('en-US')}</p>
                       <p className="flex items-center gap-2"><Clock size={16} /> {apt.scheduled_time}</p>
                       <p className="flex items-center gap-2"><MapPin size={16} /> Matter #{apt.matter_id}</p>
                     </div>
@@ -135,7 +135,7 @@ export default function AttorneyCalendarPage(): React.ReactNode {
                           on ? 'border-blue-500 bg-blue-50 shadow-[0_0_0_3px_rgb(30_127_214/0.18)]' : 'border-hairline bg-[color:var(--surface,#fff)] hover:border-blue-400'
                         }`}
                       >
-                        <span className="block font-semibold text-ink">{new Date(slot.date).toLocaleDateString()}</span>
+                        <span className="block font-semibold text-ink">{new Date(slot.date).toLocaleDateString('en-US')}</span>
                         <span className="block text-sm text-mute">{slot.time}</span>
                       </button>
                     </li>

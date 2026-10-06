@@ -26,16 +26,16 @@
   --color-green-100: #d5f0da;
   --color-green-50: #ebf8ee;
 
-  --color-paper: #f7f9fc;
-  --color-ink: #101828;
-  --color-mute: #5b6b7f;
-  --color-hairline: #dce3ec;
+  --color-paper: #f5f5f7;
+  --color-ink: #1d1d1f;
+  --color-mute: #6e6e73;
+  --color-hairline: #d2d2d7;
 
   /* Semantic names used across the app (kept from the original build). */
   --color-lcbgprimary: #ffffff;
-  --color-lctextprimary: #101828;
-  --color-lctextsecondary: #5b6b7f;
-  --color-lcborder: #dce3ec;
+  --color-lctextprimary: #1d1d1f;
+  --color-lctextsecondary: #6e6e73;
+  --color-lcborder: #d2d2d7;
   --color-lcaccent: #1462b8;
   --color-lcaccentmuted: #edf4fd;
   --color-lcaccentclient: #1e8e3e;
@@ -133,6 +133,68 @@ body {
   background: #d92d20;
 }
 
+/* Dark home sections: neutral black, not navy. Layered on top of .dark-surface. */
+.black-surface .lede {
+  color: #a1a1a6;
+}
+
+.black-surface {
+  --color-ink: #f5f5f7;
+  --color-mute: #a1a1a6;
+  --color-hairline: #2c2c2e;
+  --color-paper: #1c1c1e;
+  --surface: #1c1c1e;
+}
+
+/* A light island inside a dark scope (the sign-in menu over the hero). */
+.light-surface {
+  --color-ink: #1d1d1f;
+  --color-mute: #6e6e73;
+  --color-hairline: #d2d2d7;
+  --color-paper: #f5f5f7;
+  --surface: #ffffff;
+  --color-blue-50: #edf4fd;
+  --color-blue-600: #1462b8;
+  color: var(--color-ink);
+}
+
+/* Apple-style tiles: big radius, flat tonal fill, no border or shadow. */
+.tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  padding: clamp(1.6rem, 3.4vw, 3rem);
+}
+
+.tile-dark {
+  background: #1d1d1f;
+  color: #f5f5f7;
+}
+
+.tile-white {
+  background: #fff;
+}
+
+/* "Learn more >" style text link. */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 500;
+  color: var(--color-blue-600);
+  transition: gap 0.2s ease;
+}
+
+.link-arrow:hover {
+  gap: 0.55rem;
+}
+
+.dark-surface .link-arrow {
+  color: #6db3f4;
+}
+
 /* ------------------------------------------------------------------ */
 /* Layout                                                              */
 /* ------------------------------------------------------------------ */
@@ -159,26 +221,26 @@ body {
 /* ------------------------------------------------------------------ */
 
 .title-hero {
-  font-size: clamp(2.75rem, 6vw, 4.75rem);
+  font-size: clamp(2.9rem, 8.2vw, 6.25rem);
   line-height: 1.02;
-  font-weight: 700;
-  letter-spacing: -0.035em;
+  font-weight: 650;
+  letter-spacing: -0.045em;
   text-wrap: balance;
 }
 
 .title-1 {
-  font-size: clamp(2.25rem, 4.2vw, 3.75rem);
+  font-size: clamp(2.2rem, 5.2vw, 4rem);
   line-height: 1.05;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-weight: 650;
+  letter-spacing: -0.04em;
   text-wrap: balance;
 }
 
 .title-2 {
-  font-size: clamp(1.75rem, 3vw, 2.6rem);
+  font-size: clamp(1.75rem, 3.2vw, 2.75rem);
   line-height: 1.1;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-weight: 650;
+  letter-spacing: -0.035em;
   text-wrap: balance;
 }
 
@@ -190,9 +252,10 @@ body {
 }
 
 .lede {
-  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
-  line-height: 1.6;
-  max-width: 62ch;
+  font-size: clamp(1.1rem, 1.7vw, 1.4rem);
+  line-height: 1.5;
+  max-width: 52ch;
+  letter-spacing: -0.01em;
   color: var(--color-mute);
 }
 
@@ -204,26 +267,11 @@ body {
   max-width: 68ch;
 }
 
-/* Small sentence-case lead-in with the shield's split as its marker. */
 .eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--color-blue-600);
-}
-
-.eyebrow::before {
-  content: "";
-  width: 1.4rem;
-  height: 0.6rem;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--color-blue-500) 50%, var(--color-green-500) 50%);
-}
-
-.dark-surface .eyebrow {
-  color: var(--color-blue-400);
+  letter-spacing: -0.01em;
+  color: var(--color-mute);
 }
 
 /* ------------------------------------------------------------------ */
@@ -237,7 +285,7 @@ body {
   gap: 0.5rem;
   min-height: 46px;
   padding: 0.7rem 1.35rem;
-  border-radius: var(--radius-control);
+  border-radius: 999px;
   border: 1px solid transparent;
   font-weight: 600;
   font-size: 0.975rem;
@@ -272,7 +320,6 @@ body {
   min-height: 38px;
   padding: 0.45rem 0.95rem;
   font-size: 0.875rem;
-  border-radius: 10px;
 }
 
 /* Primary action: always green. */
@@ -646,20 +693,9 @@ select.field {
 /* Backdrops                                                           */
 /* ------------------------------------------------------------------ */
 
-/* The hero: the shield's two colours as slow light behind navy. */
+/* Flat black. The video (or nothing) provides the texture. */
 .hero-bg {
-  background:
-    radial-gradient(60rem 38rem at 12% -10%, rgb(30 127 214 / 0.34), transparent 60%),
-    radial-gradient(52rem 34rem at 96% 8%, rgb(53 176 75 / 0.22), transparent 58%),
-    var(--color-navy-900);
-}
-
-.grid-lines {
-  background-image:
-    linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse at 50% 30%, #000 20%, transparent 72%);
+  background: #08080a;
 }
 
 /* The hairline that runs under the header once the page scrolls. */
@@ -707,6 +743,56 @@ select.field {
 
 .pulse-ring {
   animation: pulse-ring 1.8s ease-out infinite;
+}
+
+/* Scroll reveal: starts offset, settles once. Content stays visible without JS. */
+[data-reveal="pending"] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+
+[data-reveal="shown"] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+@keyframes tick-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.tick-in {
+  animation: tick-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes line-up {
+  from {
+    transform: translate3d(0, 105%, 0);
+  }
+}
+
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.line-up {
+  display: block;
+  animation: line-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--d, 0s);
 }
 
 @keyframes header-in {
@@ -803,6 +889,11 @@ select.field {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  [data-reveal="pending"] {
+    opacity: 1;
+    transform: none;
   }
 
   *,

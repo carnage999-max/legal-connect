@@ -36,7 +36,6 @@ export function AuthShell({
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       <aside className="dark-surface hero-bg relative hidden overflow-hidden text-white lg:flex lg:flex-col lg:justify-between">
-        <div aria-hidden className="grid-lines absolute inset-0" />
         <div className="relative p-10 xl:p-14">
           <Logo tone="dark" size={44} hideWordOnTiny={false} />
         </div>

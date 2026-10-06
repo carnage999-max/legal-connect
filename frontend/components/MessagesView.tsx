@@ -60,7 +60,7 @@ export function MessagesView({
                 >
                   <span className="min-w-0">
                     <span className={`block truncate text-[0.95rem] font-semibold ${on ? 'text-blue-600' : 'text-ink'}`}>Matter #{conv.matter_id}</span>
-                    <span className="block text-xs text-mute">{new Date(conv.last_message_date).toLocaleDateString()}</span>
+                    <span className="block text-xs text-mute">{new Date(conv.last_message_date).toLocaleDateString('en-US')}</span>
                   </span>
                   {conv.unread_count > 0 && (
                     <span className="grid h-6 min-w-6 flex-none place-items-center rounded-full bg-[#1e8e3e] px-1.5 text-xs font-bold text-white">
@@ -103,7 +103,7 @@ export function MessagesView({
                       }`}
                     >
                       <p className="whitespace-pre-wrap break-words leading-relaxed">{msg.content}</p>
-                      <p className={`mt-1 text-xs ${mine ? 'text-white/75' : 'text-mute'}`}>{new Date(msg.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      <p className={`mt-1 text-xs ${mine ? 'text-white/75' : 'text-mute'}`}>{new Date(msg.sent_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                   </div>
                 );

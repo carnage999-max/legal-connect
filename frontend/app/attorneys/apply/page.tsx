@@ -75,7 +75,6 @@ export default function AttorneysApplyPage(): React.ReactNode {
       <Navbar />
 
       <section className="dark-surface hero-bg relative isolate overflow-hidden text-white">
-        <div aria-hidden className="grid-lines absolute inset-0 -z-10" />
         <div className="site-container py-16 md:py-24">
           <p className="eyebrow">For attorneys</p>
           <h1 className="title-1 mt-4 max-w-3xl">Join our attorney network.</h1>

@@ -105,7 +105,7 @@ export default function AttorneyDashboardPage(): React.ReactNode {
                         </span>
                         <div className="min-w-0">
                           <p className="truncate font-semibold text-ink">{a.client_name || 'Client'}</p>
-                          <p className="text-sm text-mute">{new Date(a.date).toLocaleString()}</p>
+                          <p className="text-sm text-mute">{new Date(a.date).toLocaleString('en-US')}</p>
                         </div>
                       </div>
                       <ChevronRight size={20} className="flex-none text-mute transition-transform group-hover:translate-x-1" />

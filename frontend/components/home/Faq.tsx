@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react';
+import { Reveal } from '@/components/ui/Reveal';
 
 const FAQS = [
   {
@@ -31,30 +32,29 @@ const FAQS = [
   },
   {
     q: 'What if no attorney is available?',
-    a: 'You will be told plainly, instead of being left on a dead end. You can adjust your details and try again.',
+    a: 'You will be told plainly, instead of being left at a dead end. You can adjust your details and try again.',
   },
 ];
 
 export function Faq() {
   return (
-    <section id="faq" className="section bg-paper">
-      <div className="site-container grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-        <div>
-          <p className="eyebrow">Common questions</p>
-          <h2 className="title-1 mt-4">Straight answers before you start.</h2>
-        </div>
+    <section id="faq" className="section bg-white">
+      <div className="site-container grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+        <Reveal>
+          <h2 className="title-1">Common questions.</h2>
+        </Reveal>
 
-        <div className="divide-y divide-hairline overflow-hidden rounded-[20px] border border-hairline bg-white">
+        <Reveal className="border-b border-hairline" delay={0.08}>
           {FAQS.map((f) => (
-            <details key={f.q} className="group">
-              <summary className="flex min-h-[64px] cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left text-[1.02rem] font-semibold text-ink hover:bg-paper sm:px-6">
+            <details key={f.q} className="group border-t border-hairline">
+              <summary className="flex min-h-[68px] cursor-pointer items-center justify-between gap-6 py-4 text-left text-[1.1rem] font-semibold tracking-tight text-ink">
                 {f.q}
-                <Plus size={20} className="flex-none text-blue-600 transition-transform group-open:rotate-45" />
+                <Plus size={22} strokeWidth={1.75} className="flex-none text-mute transition-transform duration-300 group-open:rotate-45" />
               </summary>
-              <p className="px-5 pb-5 text-[0.98rem] leading-relaxed text-mute sm:px-6">{f.a}</p>
+              <p className="pb-6 pr-10 text-[1rem] leading-relaxed text-mute">{f.a}</p>
             </details>
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

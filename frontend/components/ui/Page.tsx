@@ -76,7 +76,7 @@ export function EmptyState({
   );
 }
 
-/** Maps a free-text status from the API to a badge colour. */
+/** Maps a free-text status from the API to a badge color. */
 export function StatusBadge({ status }: { status?: string | null }) {
   const raw = (status || 'unknown').toString();
   const s = raw.toLowerCase();
