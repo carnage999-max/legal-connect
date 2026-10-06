@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { ClientLayout } from '@/components/ClientLayout';
-import { FileText, Calendar, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { AlertCircle, Briefcase, CalendarDays, ChevronRight, FileText, Mail, MessageSquare, Plus } from 'lucide-react';
+import { EmptyState, PageHeader, SectionTitle, StatCard, StatusBadge } from '@/components/ui/Page';
 import { apiGet } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { DashboardLoadingSkeleton } from '@/components/DashboardLoadingSkeleton';
@@ -47,102 +49,101 @@ export default function ClientDashboardPage(): React.ReactNode {
         <DashboardLoadingSkeleton />
       ) : (
         <div>
-        <div className="mb-8 md:mb-12">
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">Welcome back</h1>
-          <p className="text-base md:text-lg text-lctextsecondary">Manage your legal matters and appointments in one place.</p>
-        </div>
+          <PageHeader
+            title="Welcome back"
+            description="Manage your legal matters and appointments in one place."
+            actions={
+              <Link href="/intake" className="btn btn-primary">
+                <Plus size={18} /> New matter
+              </Link>
+            }
+          />
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">{error}</div>}
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-12">
-          <div className="bg-white border border-lcborder rounded-lg p-4 md:p-6 shadow-sm">
-            <p className="text-lctextsecondary text-xs md:text-sm font-medium mb-2 truncate">Active Matters</p>
-            <p className="text-3xl md:text-4xl font-bold text-lcaccentclient">{loading ? '-' : matters.length}</p>
-          </div>
-          <div className="bg-white border border-lcborder rounded-lg p-4 md:p-6 shadow-sm">
-            <p className="text-lctextsecondary text-xs md:text-sm font-medium mb-2 truncate">Upcoming Appointments</p>
-            <p className="text-3xl md:text-4xl font-bold text-lcaccentclient">{loading ? '-' : appointments.length}</p>
-          </div>
-          <div className="bg-white border border-lcborder rounded-lg p-4 md:p-6 shadow-sm">
-            <p className="text-lctextsecondary text-xs md:text-sm font-medium mb-2 truncate">Unread Messages</p>
-            <p className="text-3xl md:text-4xl font-bold text-lcaccentclient">{loading ? '-' : unreadCount}</p>
-          </div>
-        </div>
-
-        {/* Active Matters Section */}
-        <section className="mb-12">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-3 md:gap-0">
-            <h2 className="text-xl md:text-2xl font-bold">Active Matters</h2>
-            <a href="/intake" className="px-4 py-2 bg-lcaccentclient text-white rounded-lg font-medium hover:opacity-90 transition text-sm w-full md:w-auto text-center md:text-left">
-              + New Matter
-            </a>
-          </div>
-          {matters.length === 0 ? (
-            <div className="bg-white border-2 border-dashed border-lcborder rounded-lg p-8 md:p-12 text-center">
-              <div className="flex justify-center mb-4"><FileText size={48} strokeWidth={1.5} className="text-lctextsecondary" /></div>
-              <p className="text-lg text-lctextprimary font-medium mb-2">No active matters yet</p>
-              <p className="text-lctextsecondary mb-6 text-sm md:text-base">Start by describing your legal issue. We'll match you with the right attorney.</p>
-              <a href="/intake" className="inline-block px-6 py-2 bg-lcaccentclient text-white rounded-lg font-medium hover:opacity-90 transition text-sm">
-                Start New Matter
-              </a>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {matters.map(m => (
-                <div key={m.id} className="bg-white border border-lcborder rounded-lg p-4 md:p-6 hover:shadow-md transition">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-base md:text-lg truncate">{m.title}</h3>
-                      <p className="text-lctextsecondary text-sm">Status: {m.status}</p>
-                    </div>
-                    <a href={`/app/client/matters/${m.id}`} className="px-4 py-2 border border-lcborder rounded-lg hover:bg-gray-50 transition text-sm whitespace-nowrap">
-                      View
-                    </a>
-                  </div>
-                </div>
-              ))}
+          {error && (
+            <div role="alert" className="notice notice-error mb-6">
+              <AlertCircle size={18} className="mt-0.5 flex-none" />
+              {error}
             </div>
           )}
-        </section>
 
-        {/* Upcoming Appointments Section */}
-        <section className="mb-12">
-          <h2 className="text-xl md:text-2xl font-bold mb-6">Upcoming Appointments</h2>
-          {appointments.length === 0 ? (
-            <div className="bg-white border-2 border-dashed border-lcborder rounded-lg p-8 md:p-12 text-center">
-              <div className="flex justify-center mb-4"><Calendar size={48} strokeWidth={1.5} className="text-lctextsecondary" /></div>
-              <p className="text-lg text-lctextprimary font-medium mb-2">No upcoming appointments</p>
-              <p className="text-lctextsecondary text-sm md:text-base">Once matched with an attorney, you can schedule appointments here.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {appointments.map(a => (
-                <div key={a.id} className="bg-white border border-lcborder rounded-lg p-4 md:p-6">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold truncate">{a.attorney}</p>
-                      <p className="text-lctextsecondary text-sm">{new Date(a.date).toLocaleDateString()}</p>
-                    </div>
-                    <a href={`/appointments/${a.id}`} className="px-4 py-2 border border-lcborder rounded-lg hover:bg-gray-50 transition text-sm whitespace-nowrap">
-                      View
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Recent Activity Section */}
-        <section>
-          <h2 className="text-xl md:text-2xl font-bold mb-6">Recent Activity</h2>
-          <div className="bg-white border-2 border-dashed border-lcborder rounded-lg p-8 md:p-12 text-center">
-            <div className="flex justify-center mb-4"><Mail size={48} strokeWidth={1.5} className="text-lctextsecondary" /></div>
-            <p className="text-lg text-lctextprimary font-medium mb-2">No recent activity</p>
-            <p className="text-lctextsecondary text-sm md:text-base">Messages, documents, and updates will appear here.</p>
+          <div className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
+            <StatCard label="Active matters" value={matters.length} icon={Briefcase} tone="green" />
+            <StatCard label="Upcoming appointments" value={appointments.length} icon={CalendarDays} />
+            <StatCard label="Unread messages" value={unreadCount} icon={MessageSquare} />
           </div>
-        </section>
+
+          <section className="mb-12">
+            <SectionTitle
+              action={
+                matters.length > 0 ? (
+                  <Link href="/app/client/matters" className="btn btn-ghost btn-sm">
+                    View all
+                  </Link>
+                ) : undefined
+              }
+            >
+              Active matters
+            </SectionTitle>
+            {matters.length === 0 ? (
+              <EmptyState
+                icon={FileText}
+                title="No active matters yet"
+                text="Describe your legal issue once. We screen for conflicts and match you with an attorney."
+                action={{ label: 'Start a new matter', href: '/intake' }}
+              />
+            ) : (
+              <ul className="space-y-3">
+                {matters.map((m) => (
+                  <li key={m.id}>
+                    <Link href={`/app/client/matters/${m.id}`} className="card card-hover group flex items-center justify-between gap-4 p-5">
+                      <div className="min-w-0">
+                        <h3 className="truncate text-[1.05rem] font-semibold text-ink">{m.title}</h3>
+                        <div className="mt-2">
+                          <StatusBadge status={m.status} />
+                        </div>
+                      </div>
+                      <ChevronRight size={20} className="flex-none text-mute transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="mb-12">
+            <SectionTitle>Upcoming appointments</SectionTitle>
+            {appointments.length === 0 ? (
+              <EmptyState
+                icon={CalendarDays}
+                title="No upcoming appointments"
+                text="Once you are matched with an attorney, you can schedule appointments here."
+              />
+            ) : (
+              <ul className="space-y-3">
+                {appointments.map((a) => (
+                  <li key={a.id}>
+                    <a href={`/appointments/${a.id}`} className="card card-hover group flex items-center justify-between gap-4 p-5">
+                      <div className="flex min-w-0 items-center gap-4">
+                        <span className="grid h-12 w-12 flex-none place-items-center rounded-xl bg-blue-50 text-blue-600">
+                          <CalendarDays size={22} />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-ink">{a.attorney}</p>
+                          <p className="text-sm text-mute">{new Date(a.date).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <ChevronRight size={20} className="flex-none text-mute transition-transform group-hover:translate-x-1" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section>
+            <SectionTitle>Recent activity</SectionTitle>
+            <EmptyState icon={Mail} title="No recent activity" text="Messages, documents and updates will appear here." />
+          </section>
         </div>
       )}
     </ClientLayout>

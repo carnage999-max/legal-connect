@@ -1,8 +1,15 @@
+import logging
+from decimal import Decimal
+
+import stripe
+from django.conf import settings
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.conf import settings
-from django.utils import timezone
+
+from .stripe_service import StripeNotConfigured, get_stripe, to_cents
 
 from .models import PaymentMethod, Payment, Refund, Subscription, Invoice
 from .serializers import (
@@ -13,6 +20,10 @@ from .serializers import (
     InvoiceSerializer, CreateInvoiceSerializer
 )
 from apps.attorneys.views import IsAttorney, IsClient
+
+logger = logging.getLogger(__name__)
+
+PLATFORM_FEE_RATE = Decimal('0.05')
 
 
 class PaymentMethodListView(generics.ListAPIView):
@@ -119,65 +130,223 @@ class PaymentListView(generics.ListAPIView):
         ).select_related('recipient', 'matter', 'payment_method')
 
 
+class PaymentConfigView(APIView):
+    """The publishable key the browser needs to load Stripe's own card fields."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if not settings.STRIPE_PUBLIC_KEY:
+            return Response(
+                {'detail': 'Payments are not configured.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        return Response({'publishable_key': settings.STRIPE_PUBLIC_KEY})
+
+
 class CreatePaymentView(APIView):
-    """Create a new payment."""
+    """Start a payment: create a Stripe PaymentIntent and return its client secret.
+
+    The browser or app then confirms the intent with Stripe directly, so card
+    details never reach this server. The amount is decided here, never by the
+    client: a consultation fee comes from the attorney's profile, and a service
+    fee comes from the invoice. The payment is only marked completed by the
+    Stripe webhook.
+    """
 
     permission_classes = [IsClient]
 
     def post(self, request):
         serializer = CreatePaymentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        from apps.attorneys.models import AttorneyProfile
-        from apps.matters.models import Matter
-
         data = serializer.validated_data
+
+        try:
+            stripe_sdk = get_stripe()
+        except StripeNotConfigured:
+            return Response(
+                {'detail': 'Payments are not configured.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+
         matter = None
         recipient = None
+        description = data.get('description', '')
 
-        if data.get('matter_id'):
-            matter = Matter.objects.get(pk=data['matter_id'], client=request.user)
-            if matter.attorney:
-                recipient = matter.attorney
+        if data.get('invoice_id'):
+            invoice = get_object_or_404(Invoice, pk=data['invoice_id'], client=request.user)
+            if invoice.status not in (Invoice.InvoiceStatus.SENT, Invoice.InvoiceStatus.OVERDUE):
+                return Response(
+                    {'detail': 'This invoice is not payable.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            amount = invoice.total
+            matter = invoice.matter
+            recipient = invoice.attorney
+            payment_type = Payment.PaymentType.SERVICE_FEE
+            description = f'Invoice {invoice.invoice_number}'
+        else:
+            from apps.matters.models import Matter
 
-        if data.get('attorney_id'):
-            recipient = AttorneyProfile.objects.get(user_id=data['attorney_id'])
+            matter = get_object_or_404(Matter, pk=data['matter_id'], client=request.user)
+            recipient = matter.attorney
+            if not recipient:
+                return Response(
+                    {'detail': 'This matter has no attorney assigned yet.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if recipient.free_consultation or not recipient.consultation_fee:
+                return Response(
+                    {'detail': 'No consultation fee is due for this matter.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            amount = recipient.consultation_fee
+            payment_type = Payment.PaymentType.CONSULTATION
+            description = description or 'Consultation fee'
 
-        # Calculate platform fee (e.g., 5%)
-        amount = data['amount']
-        platform_fee = amount * 0.05
-        net_amount = amount - platform_fee
+        same = Payment.objects.filter(
+            payer=request.user, matter=matter, payment_type=payment_type, description=description
+        )
+        if same.filter(status=Payment.PaymentStatus.COMPLETED).exists():
+            return Response({'detail': 'This has already been paid.'}, status=status.HTTP_409_CONFLICT)
 
+        # A reload should not create a second charge: reuse a still-open intent.
+        open_payment = same.filter(status=Payment.PaymentStatus.PENDING).exclude(
+            stripe_payment_intent_id=''
+        ).first()
+        if open_payment:
+            try:
+                intent = stripe_sdk.PaymentIntent.retrieve(open_payment.stripe_payment_intent_id)
+                if (
+                    intent.status in ('requires_payment_method', 'requires_confirmation', 'requires_action')
+                    and intent.amount == to_cents(amount)
+                ):
+                    return self._response(open_payment, intent.client_secret)
+            except stripe.error.StripeError:
+                logger.exception('Could not reuse PaymentIntent %s', open_payment.stripe_payment_intent_id)
+
+        platform_fee = (amount * PLATFORM_FEE_RATE).quantize(Decimal('0.01'))
         payment = Payment.objects.create(
             payer=request.user,
             recipient=recipient,
             matter=matter,
-            payment_type=data['payment_type'],
+            payment_type=payment_type,
             amount=amount,
             platform_fee=platform_fee,
-            net_amount=net_amount,
-            description=data.get('description', ''),
+            net_amount=amount - platform_fee,
+            description=description,
             status=Payment.PaymentStatus.PENDING,
-            in_escrow=True  # Hold in escrow until service delivered
+            in_escrow=True,  # held by the platform until the service is delivered
         )
 
-        if data.get('payment_method_id'):
-            payment.payment_method = PaymentMethod.objects.get(
-                pk=data['payment_method_id'],
-                user=request.user
+        try:
+            intent = stripe_sdk.PaymentIntent.create(
+                amount=to_cents(amount),
+                currency=payment.currency.lower(),
+                automatic_payment_methods={'enabled': True},
+                description=description,
+                receipt_email=request.user.email or None,
+                metadata={
+                    'payment_id': str(payment.id),
+                    'payer_id': str(request.user.pk),
+                    'matter_id': str(matter.pk) if matter else '',
+                },
+                idempotency_key=f'payment-{payment.id}',
             )
-            payment.save()
+        except stripe.error.StripeError:
+            logger.exception('Stripe PaymentIntent creation failed for payment %s', payment.id)
+            payment.status = Payment.PaymentStatus.FAILED
+            payment.save(update_fields=['status', 'updated_at'])
+            return Response(
+                {'detail': 'We could not start the payment. Please try again.'},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
 
-        # In production, process payment via Stripe
-        # For now, simulate successful payment
+        payment.stripe_payment_intent_id = intent.id
+        payment.save(update_fields=['stripe_payment_intent_id', 'updated_at'])
+        return self._response(payment, intent.client_secret)
+
+    @staticmethod
+    def _response(payment, client_secret):
+        body = PaymentSerializer(payment).data
+        body['client_secret'] = client_secret
+        return Response(body, status=status.HTTP_201_CREATED)
+
+
+class StripeWebhookView(APIView):
+    """Receives signed events from Stripe and is the only thing that marks a payment paid."""
+
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = []
+
+    def post(self, request):
+        secret = settings.STRIPE_WEBHOOK_SECRET
+        if not secret:
+            return Response({'detail': 'Webhook not configured.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        try:
+            event = stripe.Webhook.construct_event(
+                request.body,
+                request.META.get('HTTP_STRIPE_SIGNATURE', ''),
+                secret,
+            )
+        except (ValueError, stripe.error.SignatureVerificationError):
+            return Response({'detail': 'Invalid signature.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        obj = event['data']['object']
+        kind = event['type']
+
+        if kind == 'payment_intent.succeeded':
+            self._complete(obj)
+        elif kind == 'payment_intent.payment_failed':
+            self._set_status(obj['id'], Payment.PaymentStatus.FAILED)
+        elif kind == 'payment_intent.canceled':
+            self._set_status(obj['id'], Payment.PaymentStatus.CANCELLED)
+        elif kind == 'charge.refunded':
+            self._refunded(obj)
+
+        return Response({'received': True})
+
+    @staticmethod
+    def _complete(intent):
+        payment = Payment.objects.filter(stripe_payment_intent_id=intent['id']).first()
+        if not payment or payment.status == Payment.PaymentStatus.COMPLETED:
+            return
         payment.status = Payment.PaymentStatus.COMPLETED
         payment.completed_at = timezone.now()
+        charge_id = intent.get('latest_charge') or ''
+        payment.stripe_charge_id = charge_id if isinstance(charge_id, str) else charge_id.get('id', '')
+        if payment.stripe_charge_id:
+            try:
+                charge = get_stripe().Charge.retrieve(payment.stripe_charge_id)
+                payment.receipt_url = charge.get('receipt_url') or ''
+            except (stripe.error.StripeError, StripeNotConfigured):
+                logger.warning('Could not fetch receipt for charge %s', payment.stripe_charge_id)
         payment.save()
 
-        return Response(
-            PaymentSerializer(payment).data,
-            status=status.HTTP_201_CREATED
+        if payment.description.startswith('Invoice '):
+            Invoice.objects.filter(
+                client=payment.payer,
+                invoice_number=payment.description.removeprefix('Invoice '),
+            ).update(status=Invoice.InvoiceStatus.PAID, paid_at=timezone.now())
+
+    @staticmethod
+    def _set_status(intent_id, new_status):
+        Payment.objects.filter(
+            stripe_payment_intent_id=intent_id
+        ).exclude(status=Payment.PaymentStatus.COMPLETED).update(status=new_status)
+
+    @staticmethod
+    def _refunded(charge):
+        payment = Payment.objects.filter(stripe_charge_id=charge['id']).first()
+        if not payment:
+            return
+        full = charge.get('refunded') or charge.get('amount_refunded') == charge.get('amount')
+        payment.status = (
+            Payment.PaymentStatus.REFUNDED if full else Payment.PaymentStatus.PARTIALLY_REFUNDED
         )
+        payment.save(update_fields=['status', 'updated_at'])
 
 
 class PaymentDetailView(generics.RetrieveAPIView):

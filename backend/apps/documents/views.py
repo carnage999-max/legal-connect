@@ -2,6 +2,9 @@ from rest_framework import generics, status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.core import signing
+from django.http import FileResponse, Http404
+from django.urls import reverse
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Q
@@ -70,6 +73,38 @@ class DocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
 
+DOWNLOAD_SALT = 'document-download'
+DOWNLOAD_LINK_MAX_AGE = 60 * 60  # one hour
+
+
+class DocumentFileView(APIView):
+    """Streams a private document to anyone holding a valid, unexpired signed link."""
+
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = []
+
+    def get(self, request, pk):
+        token = request.query_params.get('token', '')
+        try:
+            value = signing.TimestampSigner(salt=DOWNLOAD_SALT).unsign(token, max_age=DOWNLOAD_LINK_MAX_AGE)
+        except signing.BadSignature:
+            raise Http404
+        if value.split(':')[0] != str(pk):
+            raise Http404
+        try:
+            document = Document.objects.get(pk=pk)
+            handle = document.file.open('rb')
+        except (Document.DoesNotExist, FileNotFoundError, ValueError):
+            raise Http404
+        return FileResponse(
+            handle,
+            as_attachment=True,
+            filename=document.original_filename or None,
+            content_type=document.file_type or None,
+        )
+
+
 class DocumentDownloadView(APIView):
     """Generate download URL for a document."""
 
@@ -97,8 +132,12 @@ class DocumentDownloadView(APIView):
             user_agent=request.META.get('HTTP_USER_AGENT', '')
         )
 
+        # A short-lived signed link, like the presigned URLs used before. Files are
+        # private, so nginx never serves them directly.
+        token = signing.TimestampSigner(salt=DOWNLOAD_SALT).sign(f'{document.pk}:{user.pk}')
+        link = reverse('documents:document-file', args=[document.pk])
         return Response({
-            'download_url': request.build_absolute_uri(document.file.url),
+            'download_url': request.build_absolute_uri(f'{link}?token={token}'),
             'filename': document.original_filename,
             'file_size': document.file_size,
             'file_type': document.file_type

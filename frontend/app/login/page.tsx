@@ -3,9 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Eye, EyeOff } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { AlertCircle, Clock } from 'lucide-react';
+import { AuthShell } from '@/components/AuthShell';
+import { PasswordField } from '@/components/ui/PasswordField';
+import { Spinner } from '@/components/ui/Spinner';
 
 const LoginComponent = () => {
   const router = useRouter();
@@ -14,7 +16,6 @@ const LoginComponent = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [tokenExpired, setTokenExpired] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('expired') === 'true') {
@@ -35,95 +36,82 @@ const LoginComponent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-lctextprimary">
-      <header className="border-b border-lcborder">
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <Link href="/" className="inline-flex items-center gap-2 font-bold text-2xl hover:opacity-80 transition">
-            <img src="/logo.png" alt="Legal Connect" className="h-8 w-8" />
-            <span>Legal Connect</span>
+    <AuthShell
+      title="Welcome back"
+      subtitle="Access your matters, messages and payments securely."
+      asideTitle="Your matter, picked up where you left it."
+      asidePoints={['See where each matter stands', 'Message your attorney securely', 'Keep your documents in one place']}
+      asideImage={{
+        src: '/potential-client-browsing-legal-connect.jpeg',
+        alt: 'Over the shoulder of a woman using a laptop that shows the Legal Connect steps: describe, screen, match and connect. Attorney profile photos are linked above.',
+      }}
+      footer={
+        <>
+          <p>
+            New to Legal Connect?{' '}
+            <Link href="/signup" className="font-semibold text-blue-600 hover:underline">
+              Create an account
+            </Link>
+          </p>
+          <p>
+            Are you an attorney?{' '}
+            <Link href="/attorney/login" className="font-semibold text-blue-600 hover:underline">
+              Attorney sign in
+            </Link>
+          </p>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        {tokenExpired && (
+          <div role="status" className="notice notice-warn">
+            <Clock size={18} className="mt-0.5 flex-none" />
+            Your session has expired. Please sign in again.
+          </div>
+        )}
+        {error && (
+          <div role="alert" className="notice notice-error">
+            <AlertCircle size={18} className="mt-0.5 flex-none" />
+            {error}
+          </div>
+        )}
+
+        <div>
+          <label htmlFor="username" className="label">
+            Email address
+          </label>
+          <input
+            id="username"
+            type="text"
+            inputMode="email"
+            autoComplete="username"
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            className="field"
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <PasswordField
+          label="Password"
+          autoComplete="current-password"
+          value={formData.password}
+          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          placeholder="Your password"
+        />
+
+        <div className="flex justify-end">
+          <Link href="/forgot-password" className="text-sm font-semibold text-blue-600 hover:underline">
+            Forgot password?
           </Link>
         </div>
-      </header>
-      
-      <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full max-w-5xl">
-          <div className="flex justify-center">
-            <Image
-              src="/lady-justice-statue.png"
-              alt="Lady Justice"
-              width={350}
-              height={350}
-              className="rounded-lg shadow-lg"
-              priority={false}
-            />
-          </div>
-          <div className="w-full max-w-md">
-            <h1 className="text-4xl font-semibold mb-3">Welcome back</h1>
-            <p className="text-lg text-lctextsecondary mb-8">Access your matters, messages, and payments securely.</p>
 
-            <form onSubmit={handleSubmit} className="space-y-5 mb-8">
-              {tokenExpired && <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700 text-sm font-medium">Your session has expired. Please log in again.</div>}
-              {error && <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm font-medium">{error}</div>}
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Email Address</label>
-                <input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  className="w-full border border-lcborder rounded-md p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:ring-offset-2 transition"
-                  style={{ outlineColor: '#065F46' }}
-                  placeholder="you@example.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Password</label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full border border-lcborder rounded-md p-3 pr-10 text-lctextprimary focus:outline-none focus:ring-2 focus:ring-offset-2 transition"
-                    style={{ outlineColor: '#065F46' }}
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-lctextsecondary hover:text-lctextprimary transition"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                style={{ backgroundColor: '#065F46' }}
-                className="w-full text-white rounded-md py-3 font-semibold hover:opacity-90 disabled:opacity-50 transition"
-              >
-                {loading ? 'Signing in...' : 'Sign In'}
-              </button>
-            </form>
-
-            <div className="space-y-4 border-t border-lcborder pt-6">
-              <div>
-                <p className="text-lctextsecondary text-sm mb-2">Don't have an account?</p>
-                <Link href="/signup" className="text-lcaccent-client font-medium hover:underline">Create one now</Link>
-              </div>
-              
-              <div>
-                <p className="text-lctextsecondary text-sm mb-2">Are you an attorney?</p>
-                <Link href="/attorney/login" className="text-lcaccent-client font-medium hover:underline">Attorney login</Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full">
+          {loading && <Spinner />}
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+    </AuthShell>
   );
 };
 

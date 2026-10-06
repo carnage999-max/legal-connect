@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { apiPost } from "@/lib/api";
+import { AuthShell } from "@/components/AuthShell";
+import { Spinner } from "@/components/ui/Spinner";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -27,32 +31,56 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="mx-auto max-w-lg px-6 py-16">
-      <h1 className="text-2xl font-semibold mb-2">Forgot Password</h1>
-      <p className="text-sm text-gray-600 mb-6">
-        Enter your email to receive a password reset link.
-      </p>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded border px-3 py-2"
-          required
-        />
+    <AuthShell
+      title="Forgot your password?"
+      subtitle="Enter the email on your account and we will send you a link to choose a new one."
+      asideTitle="Back in your account in a minute."
+      asidePoints={["The link is single-use", "We never show whether an email has an account", "Your matters are untouched"]}
+      footer={
+        <p>
+          Remembered it?{" "}
+          <Link href="/login" className="font-semibold text-blue-600 hover:underline">
+            Back to sign in
+          </Link>
+        </p>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label htmlFor="email" className="label">
+            Email address
+          </label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="field"
+            required
+          />
+        </div>
+
         {status !== "idle" && message && (
-          <p className={status === "error" ? "text-red-600 text-sm" : "text-green-700 text-sm"}>{message}</p>
+          <div
+            role={status === "error" ? "alert" : "status"}
+            className={`notice ${status === "error" ? "notice-error" : "notice-success"}`}
+          >
+            {status === "error" ? (
+              <AlertCircle size={18} className="mt-0.5 flex-none" />
+            ) : (
+              <CheckCircle2 size={18} className="mt-0.5 flex-none" />
+            )}
+            {message}
+          </div>
         )}
-        <button
-          type="submit"
-          disabled={status === "loading"}
-          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
-        >
-          {status === "loading" ? "Sending…" : "Send Reset Link"}
+
+        <button type="submit" disabled={status === "loading"} className="btn btn-primary btn-lg w-full">
+          {status === "loading" && <Spinner />}
+          {status === "loading" ? "Sending…" : "Send reset link"}
         </button>
       </form>
-    </div>
+    </AuthShell>
   );
 }
-

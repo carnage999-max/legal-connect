@@ -58,19 +58,16 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 class CreatePaymentSerializer(serializers.Serializer):
-    """Serializer for creating a payment."""
+    """Which thing is being paid for. The amount is never accepted from the client."""
 
     matter_id = serializers.UUIDField(required=False)
-    attorney_id = serializers.UUIDField(required=False)
-    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
-    payment_type = serializers.ChoiceField(choices=Payment.PaymentType.choices)
-    payment_method_id = serializers.UUIDField(required=False)
+    invoice_id = serializers.UUIDField(required=False)
     description = serializers.CharField(required=False, allow_blank=True)
 
-    def validate_amount(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("Amount must be greater than zero.")
-        return value
+    def validate(self, attrs):
+        if bool(attrs.get('matter_id')) == bool(attrs.get('invoice_id')):
+            raise serializers.ValidationError('Provide either matter_id or invoice_id.')
+        return attrs
 
 
 class RefundSerializer(serializers.ModelSerializer):

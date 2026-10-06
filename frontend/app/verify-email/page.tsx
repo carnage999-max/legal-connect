@@ -2,7 +2,10 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { apiPost } from "@/lib/api";
+import { AuthShell } from "@/components/AuthShell";
+import { Spinner } from "@/components/ui/Spinner";
 
 export const dynamic = "force-dynamic";
 
@@ -37,23 +40,41 @@ function VerifyEmailInner() {
   }, [searchParams]);
 
   return (
-    <div className="mx-auto max-w-lg px-6 py-16">
-      <h1 className="text-2xl font-semibold mb-4">Verify Email</h1>
-      {status === "loading" && <p>Verifying your email…</p>}
-      {status !== "loading" && <p className="mb-6">{message}</p>}
-      <button
-        onClick={() => router.push("/login")}
-        className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-      >
-        Go to Login
-      </button>
-    </div>
+    <AuthShell
+      title="Verify your email"
+      asideTitle="One quick check and you are in."
+      asidePoints={["Confirms the address is yours", "Keeps your account and matters secure"]}
+    >
+      <div className="space-y-6">
+        {status === "loading" && (
+          <div role="status" className="notice notice-info">
+            <Spinner />
+            Verifying your email…
+          </div>
+        )}
+        {status === "success" && (
+          <div role="status" className="notice notice-success">
+            <CheckCircle2 size={18} className="mt-0.5 flex-none" />
+            {message}
+          </div>
+        )}
+        {status === "error" && (
+          <div role="alert" className="notice notice-error">
+            <AlertCircle size={18} className="mt-0.5 flex-none" />
+            {message}
+          </div>
+        )}
+        <button onClick={() => router.push("/login")} className="btn btn-primary btn-lg w-full">
+          Go to sign in
+        </button>
+      </div>
+    </AuthShell>
   );
 }
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-lg px-6 py-16">Loading…</div>}>
+    <Suspense fallback={<div className="grid min-h-screen place-items-center"><Spinner size={28} /></div>}>
       <VerifyEmailInner />
     </Suspense>
   );

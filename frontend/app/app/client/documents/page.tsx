@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { ClientLayout } from '@/components/ClientLayout';
-import { FileText, Download, Trash2, Upload, Loader, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Download, FileText, Trash2, Upload } from 'lucide-react';
+import { EmptyState, PageHeader, StatusBadge } from '@/components/ui/Page';
+import { Spinner } from '@/components/ui/Spinner';
 import { apiGet, apiPost } from '@/lib/api';
 
 type Document = {
@@ -85,170 +87,133 @@ export default function ClientDocumentsPage(): React.ReactNode {
 
   async function handleDownload(id: number, name: string) {
     try {
-      const response = await fetch(`/api/v1/documents/${id}/download/`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('lc_token')}`
-        }
-      });
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      // The API answers with a short-lived signed link to the file.
+      const { download_url } = await apiGet(`/api/v1/documents/${id}/download/`);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = download_url;
       a.download = name;
+      a.rel = 'noopener';
       a.click();
     } catch (e) {
       setError('Failed to download document');
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'signed':
-        return 'bg-green-50 border-green-200 text-green-700';
-      case 'executed':
-        return 'bg-blue-50 border-blue-200 text-blue-700';
-      default:
-        return 'bg-yellow-50 border-yellow-200 text-yellow-700';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'signed':
-        return '✓ Signed';
-      case 'executed':
-        return '✓ Executed';
-      default:
-        return 'Pending Signature';
-    }
-  };
-
   return (
     <ClientLayout>
-      <div>
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Documents</h1>
-            <p className="text-lg text-lctextsecondary">Upload, sign, and manage legal documents</p>
-          </div>
-          <button
-            onClick={() => setShowUpload(!showUpload)}
-            className="px-6 py-3 bg-lcaccentclient text-white rounded-lg font-medium hover:opacity-90 transition flex items-center gap-2"
-          >
-            <Upload size={20} />
-            Upload Document
+      <PageHeader
+        title="Documents"
+        description="Upload, sign and manage your legal documents."
+        actions={
+          <button onClick={() => setShowUpload(!showUpload)} className="btn btn-primary">
+            <Upload size={18} /> Upload document
           </button>
+        }
+      />
+
+      {error && (
+        <div role="alert" className="notice notice-error mb-6">
+          <AlertCircle size={18} className="mt-0.5 flex-none" />
+          {error}
         </div>
+      )}
+      {success && (
+        <div role="status" className="notice notice-success mb-6">
+          <CheckCircle2 size={18} className="mt-0.5 flex-none" />
+          {success}
+        </div>
+      )}
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">{error}</div>}
-        {success && <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-6">{success}</div>}
-
-        {/* Upload Form */}
-        {showUpload && (
-          <div className="bg-white border-2 border-lcborder rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-bold mb-4">Upload Document</h2>
-            <form onSubmit={handleUpload} className="space-y-4">
-              <div className="border-2 border-dashed border-lcborder rounded-lg p-8 text-center cursor-pointer hover:border-lcaccentclient transition"
-                onClick={() => document.getElementById('file-input')?.click()}
-              >
-                <Upload size={32} className="mx-auto mb-2 text-lctextsecondary" />
-                <p className="font-medium text-lctextprimary mb-1">Click to upload or drag and drop</p>
-                <p className="text-sm text-lctextsecondary">PDF, DOC, DOCX up to 10MB</p>
-                <input
-                  id="file-input"
-                  type="file"
-                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                  accept=".pdf,.doc,.docx"
-                  className="hidden"
-                />
-              </div>
-              {selectedFile && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm"><strong>Selected:</strong> {selectedFile.name}</p>
-                </div>
-              )}
-              <div className="flex gap-3">
-                <button
-                  type="submit"
-                  disabled={!selectedFile || uploading}
-                  className="flex-1 py-2 bg-lcaccentclient text-white rounded-lg font-medium hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {uploading && <Loader size={18} className="animate-spin" />}
-                  {uploading ? 'Uploading...' : 'Upload Document'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowUpload(false);
-                    setSelectedFile(null);
-                  }}
-                  className="px-6 py-2 border border-lcborder rounded-lg hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+      {showUpload && (
+        <form onSubmit={handleUpload} className="card rise-in mb-10 space-y-5 p-6">
+          <h2 className="title-3">Upload a document</h2>
+          <label
+            htmlFor="file-input"
+            className="block cursor-pointer rounded-2xl border-2 border-dashed border-[#c5cfdc] p-8 text-center transition-colors hover:border-blue-500 hover:bg-blue-50"
+          >
+            <Upload size={30} className="mx-auto mb-3 text-blue-600" />
+            <span className="block font-semibold text-ink">Choose a file to upload</span>
+            <span className="mt-1 block text-sm text-mute">PDF, DOC or DOCX, up to 10 MB</span>
+            <input
+              id="file-input"
+              type="file"
+              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+              accept=".pdf,.doc,.docx"
+              className="sr-only"
+            />
+          </label>
+          {selectedFile && (
+            <div className="notice notice-info">
+              <FileText size={18} className="mt-0.5 flex-none" />
+              <span className="min-w-0 truncate">
+                <span className="font-semibold">Selected:</span> {selectedFile.name}
+              </span>
+            </div>
+          )}
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button type="submit" disabled={!selectedFile || uploading} className="btn btn-primary flex-1">
+              {uploading && <Spinner />}
+              {uploading ? 'Uploading…' : 'Upload document'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowUpload(false);
+                setSelectedFile(null);
+              }}
+              className="btn btn-outline"
+            >
+              Cancel
+            </button>
           </div>
-        )}
+        </form>
+      )}
 
-        {/* Documents List */}
-        <div>
-          <h2 className="text-2xl font-bold mb-6">Your Documents</h2>
-          {loading ? (
-            <div className="flex items-center justify-center p-12">
-              <Loader size={32} className="animate-spin" />
-            </div>
-          ) : documents.length === 0 ? (
-            <div className="bg-white border-2 border-dashed border-lcborder rounded-lg p-12 text-center text-lctextsecondary">
-              <FileText size={48} className="mx-auto mb-4 opacity-50" />
-              <p className="mb-4">No documents yet</p>
-              <button
-                onClick={() => setShowUpload(true)}
-                className="px-6 py-2 bg-lcaccentclient text-white rounded-lg font-medium hover:opacity-90 transition"
-              >
-                Upload Your First Document
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {documents.map(doc => (
-                <div key={doc.id} className="bg-white border border-lcborder rounded-lg p-6 hover:shadow-md transition">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4 flex-1">
-                      <FileText size={32} className="text-lctextsecondary mt-1" />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg text-lctextprimary mb-1">{doc.name}</h3>
-                        <p className="text-sm text-lctextsecondary mb-2">
-                          Uploaded {new Date(doc.uploaded_date).toLocaleDateString()}
-                        </p>
-                        <div className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(doc.status)}`}>
-                          {getStatusLabel(doc.status)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 ml-4">
-                      <button
-                        onClick={() => handleDownload(doc.id, doc.name)}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition text-lctextsecondary hover:text-lctextprimary"
-                        title="Download"
-                      >
-                        <Download size={20} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(doc.id)}
-                        className="p-2 hover:bg-red-100 rounded-lg transition text-lctextsecondary hover:text-red-600"
-                        title="Delete"
-                      >
-                        <Trash2 size={20} />
-                      </button>
+      <section>
+        <h2 className="title-3 mb-5 text-[1.35rem]">Your documents</h2>
+        {loading ? (
+          <div className="flex justify-center p-12 text-blue-600" role="status" aria-label="Loading">
+            <Spinner size={30} />
+          </div>
+        ) : documents.length === 0 ? (
+          <EmptyState icon={FileText} title="No documents yet" text="Documents you upload or receive will be kept here, privately." />
+        ) : (
+          <ul className="space-y-3">
+            {documents.map((doc) => (
+              <li key={doc.id} className="card flex items-center justify-between gap-4 p-5">
+                <div className="flex min-w-0 items-center gap-4">
+                  <span className="grid h-12 w-12 flex-none place-items-center rounded-xl bg-blue-50 text-blue-600">
+                    <FileText size={22} />
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="truncate font-semibold text-ink">{doc.name}</h3>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                      <span className="text-sm text-mute">Uploaded {new Date(doc.uploaded_date).toLocaleDateString()}</span>
+                      <StatusBadge status={doc.status === 'pending' ? 'pending signature' : doc.status} />
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+                <div className="flex flex-none items-center gap-1">
+                  <button
+                    onClick={() => handleDownload(doc.id, doc.name)}
+                    className="grid h-11 w-11 place-items-center rounded-xl text-mute transition-colors hover:bg-paper hover:text-ink"
+                    aria-label={`Download ${doc.name}`}
+                  >
+                    <Download size={20} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(doc.id)}
+                    className="grid h-11 w-11 place-items-center rounded-xl text-mute transition-colors hover:bg-[#fef3f2] hover:text-[#b42318]"
+                    aria-label={`Delete ${doc.name}`}
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </ClientLayout>
   );
 }

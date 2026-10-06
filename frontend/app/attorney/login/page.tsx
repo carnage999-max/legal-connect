@@ -3,14 +3,16 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { AuthShell } from '@/components/AuthShell';
+import { PasswordField } from '@/components/ui/PasswordField';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function AttorneyLoginPage(): React.ReactNode {
   const router = useRouter();
   const { login, loading } = useAuth();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,94 +26,76 @@ export default function AttorneyLoginPage(): React.ReactNode {
   }
 
   return (
-    <div className="min-h-screen bg-lcbgattorney text-lctextattorney">
-      <header className="border-b border-lcborderattorney">
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <Link href="/" className="inline-flex items-center gap-2 font-bold text-2xl hover:opacity-80 transition">
-            <img src="/logo.png" alt="Legal Connect" className="h-8 w-8" />
-            <span>Legal Connect</span>
-          </Link>
-          <p className="text-lctextattorneysecondary text-sm mt-1">Attorney Portal</p>
-        </div>
-      </header>
-
-      <div className="min-h-[calc(100vh-120px)] flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <h1 className="text-4xl font-semibold mb-3">Welcome, Counselor</h1>
-          <p className="text-lg text-lctextattorneysecondary mb-8">Access your referrals, clients, appointments, and billing.</p>
-
-          <form onSubmit={handleSubmit} className="space-y-5 mb-8">
-            {error && <div className="p-4 bg-red-900 bg-opacity-30 border border-red-700 rounded-md text-red-300 text-sm font-medium">{error}</div>}
-
-            <div>
-              <label className="block text-sm font-semibold mb-2">Email Address</label>
-              <input
-                type="text"
-                value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="w-full bg-lcbgattorneysecondary border border-lcborderattorney rounded-md p-3 text-lctextattorney focus:outline-none focus:ring-2 focus:ring-offset-2 transition"
-                style={{ outlineColor: '#6366F1' }}
-                placeholder="you@attorney.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold mb-2">Password</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full bg-lcbgattorneysecondary border border-lcborderattorney rounded-md p-3 pr-10 text-lctextattorney focus:outline-none focus:ring-2 focus:ring-offset-2 transition"
-                  style={{ outlineColor: '#6366F1' }}
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-lctextattorneysecondary hover:text-lctextattorney transition"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                backgroundColor: '#6366F1',
-                color: 'white',
-                padding: '12px 16px',
-                borderRadius: '6px',
-                border: 'none',
-                fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.6 : 1,
-                width: '100%',
-                transition: 'opacity 0.2s'
-              }}
-              onMouseEnter={(e) => !loading && (e.currentTarget.style.opacity = '0.9')}
-              onMouseLeave={(e) => !loading && (e.currentTarget.style.opacity = '1')}
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
-
-          <div className="space-y-4 border-t border-lcborderattorney pt-6">
-            <div>
-              <p className="text-lctextattorneysecondary text-sm mb-2">Don't have an account?</p>
-              <Link href="/attorneys/apply" className="text-lcaccentattorney font-medium hover:underline">Apply to join Legal Connect</Link>
-            </div>
-            
-            <div>
-              <p className="text-lctextattorneysecondary text-sm mb-2">Are you a client?</p>
-              <Link href="/login" className="text-lcaccentattorney font-medium hover:underline">Client login</Link>
-            </div>
+    <AuthShell
+      variant="attorney"
+      title="Welcome, Counselor"
+      subtitle="Access your referrals, clients, appointments and billing."
+      asideTitle="Screened matters, ready for your review."
+      asidePoints={['New requests arrive with structured details', 'Accept or decline on your schedule', 'Message clients without leaving the platform']}
+      asideImage={{
+        src: '/attorney-with-client.jpeg',
+        alt: 'An attorney speaking with a client, with a network of attorney profiles and the Legal Connect logo beside them.',
+      }}
+      footer={
+        <>
+          <p>
+            Not a member yet?{' '}
+            <Link href="/attorneys/apply" className="font-semibold text-blue-400 hover:underline">
+              Apply to join Legal Connect
+            </Link>
+          </p>
+          <p>
+            Looking for legal help?{' '}
+            <Link href="/login" className="font-semibold text-blue-400 hover:underline">
+              Client sign in
+            </Link>
+          </p>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        {error && (
+          <div role="alert" className="notice notice-error">
+            <AlertCircle size={18} className="mt-0.5 flex-none" />
+            {error}
           </div>
+        )}
+
+        <div>
+          <label htmlFor="username" className="label">
+            Email address
+          </label>
+          <input
+            id="username"
+            type="text"
+            inputMode="email"
+            autoComplete="username"
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            className="field"
+            placeholder="you@firm.com"
+          />
         </div>
-      </div>
-    </div>
+
+        <PasswordField
+          label="Password"
+          autoComplete="current-password"
+          value={formData.password}
+          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          placeholder="Your password"
+        />
+
+        <div className="flex justify-end">
+          <Link href="/forgot-password" className="text-sm font-semibold text-blue-400 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
+
+        <button type="submit" disabled={loading} className="btn btn-blue btn-lg w-full">
+          {loading && <Spinner />}
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+    </AuthShell>
   );
 }

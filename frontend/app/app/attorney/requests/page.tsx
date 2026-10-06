@@ -1,14 +1,12 @@
+import { Inbox } from 'lucide-react';
 import { AttorneyLayout } from '@/components/AttorneyLayout';
+import { EmptyState, PageHeader } from '@/components/ui/Page';
 
 export default function AttorneyRequestsPage(): React.ReactNode {
   return (
     <AttorneyLayout>
-      <div>
-        <h1 className="text-2xl font-semibold mb-4">New Referral Requests</h1>
-        <div className="bg-lcbgattorney-secondary rounded-md p-6 border border-lcborder-attorney text-lctextattorney-secondary">
-          <p>No new referral requests at this time.</p>
-        </div>
-      </div>
+      <PageHeader title="New referral requests" description="Screened matters waiting for your decision." />
+      <EmptyState icon={Inbox} title="No new referral requests" text="When a conflict-free match is made, the matter will appear here for you to accept or decline." />
     </AttorneyLayout>
   );
 }

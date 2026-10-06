@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { Smartphone, Monitor, Clock, MapPin, Trash2, LogOut, RefreshCw } from 'lucide-react';
+import { AlertCircle, Clock, LogOut, MapPin, Monitor, ShieldCheck, Smartphone, Trash2 } from 'lucide-react';
+import { EmptyState, PageHeader } from '@/components/ui/Page';
+import { Spinner } from '@/components/ui/Spinner';
 import { getActiveSessions, revokeDevice, logoutAllOtherDevices } from '@/lib/api';
 
 interface DeviceSession {
@@ -97,14 +99,6 @@ export function DeviceManager() {
     }
   };
 
-  const getDeviceIcon = (userAgent: string) => {
-    const ua = userAgent.toLowerCase();
-    if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
-      return <Smartphone size={20} className="text-blue-600" />;
-    }
-    return <Monitor size={20} className="text-gray-600" />;
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -127,105 +121,86 @@ export function DeviceManager() {
     return 'Unknown Browser';
   };
 
+  const isMobile = (userAgent: string) => /mobile|android|iphone/i.test(userAgent);
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin">
-          <RefreshCw size={24} className="text-lcaccentclient" />
-        </div>
-        <span className="ml-3 text-lctextsecondary">Loading your devices...</span>
+      <div role="status" className="flex items-center gap-3 py-12 text-mute">
+        <Spinner size={22} /> Loading your devices…
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-lctextprimary">Active Devices</h2>
-          <p className="text-sm text-lctextsecondary mt-1">
-            Manage your active sessions across different devices
-          </p>
-        </div>
-        {devices.length > 1 && (
-          <button
-            onClick={handleLogoutAllOthers}
-            disabled={loggingOutAll}
-            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50 rounded-lg font-medium text-sm transition-colors flex items-center gap-2"
-          >
-            <LogOut size={16} />
-            Logout All Others
-          </button>
-        )}
-      </div>
+    <div>
+      <PageHeader
+        title="Active devices"
+        description="Manage your signed-in sessions across devices."
+        actions={
+          devices.length > 1 ? (
+            <button onClick={handleLogoutAllOthers} disabled={loggingOutAll} className="btn btn-outline btn-sm !border-[#fecdca] !text-[#b42318] hover:!bg-[#fef3f2]">
+              {loggingOutAll ? <Spinner size={16} /> : <LogOut size={16} />}
+              Sign out all others
+            </button>
+          ) : undefined
+        }
+      />
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
+        <div role="alert" className="notice notice-error mb-6">
+          <AlertCircle size={18} className="mt-0.5 flex-none" />
           {error}
         </div>
       )}
 
       {devices.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <Smartphone size={48} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-lctextsecondary">No active devices found</p>
-        </div>
+        <EmptyState icon={Smartphone} title="No active devices found" />
       ) : (
-        <div className="space-y-3">
+        <ul className="space-y-3">
           {devices.map((device) => (
-            <div
-              key={device.id}
-              className="border border-lcborder rounded-lg p-4 hover:border-lcaccentclient hover:shadow-sm transition-all bg-white"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="mt-1">{getDeviceIcon(device.user_agent)}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-lctextprimary">
-                        {device.device_name || getDeviceName(device.user_agent)}
-                      </h3>
-                      {device.is_current && (
-                        <span className="px-2 py-1 bg-green-50 text-green-700 text-xs font-medium rounded">
-                          Current Device
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-lctextsecondary space-y-1 mt-2">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin size={14} />
-                        {device.ip_address}
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Clock size={14} />
-                        Last active: {formatDate(device.last_active_at)}
-                      </div>
-                      <p className="text-gray-500 truncate">{device.user_agent}</p>
-                    </div>
+            <li key={device.id} className="card flex items-start justify-between gap-4 p-5">
+              <div className="flex min-w-0 items-start gap-4">
+                <span className="grid h-12 w-12 flex-none place-items-center rounded-xl bg-blue-50 text-blue-600">
+                  {isMobile(device.user_agent) ? <Smartphone size={22} /> : <Monitor size={22} />}
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="font-semibold text-ink">{device.device_name || getDeviceName(device.user_agent)}</h2>
+                    {device.is_current && <span className="badge badge-green">This device</span>}
+                  </div>
+                  <div className="mt-2 space-y-1 text-sm text-mute">
+                    <p className="flex items-center gap-2">
+                      <MapPin size={14} className="flex-none" /> {device.ip_address}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <Clock size={14} className="flex-none" /> Last active {formatDate(device.last_active_at)}
+                    </p>
+                    <p className="truncate text-xs">{device.user_agent}</p>
                   </div>
                 </div>
-
-                {!device.is_current && (
-                  <button
-                    onClick={() => handleRevokeDevice(device.id)}
-                    disabled={revoking === device.id}
-                    className="ml-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                    title="Revoke this device"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                )}
               </div>
-            </div>
+
+              {!device.is_current && (
+                <button
+                  onClick={() => handleRevokeDevice(device.id)}
+                  disabled={revoking === device.id}
+                  className="grid h-11 w-11 flex-none place-items-center rounded-xl text-[#b42318] transition-colors hover:bg-[#fef3f2] disabled:opacity-50"
+                  aria-label={`Sign out ${device.device_name || getDeviceName(device.user_agent)}`}
+                >
+                  {revoking === device.id ? <Spinner size={18} /> : <Trash2 size={18} />}
+                </button>
+              )}
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-        <p className="font-medium">Security Tip</p>
-        <p className="mt-1">
-          Regularly review your active devices and revoke any that you no longer recognize or use.
-        </p>
+      <div className="notice notice-info mt-8">
+        <ShieldCheck size={18} className="mt-0.5 flex-none" />
+        <div>
+          <p className="font-semibold">Security tip</p>
+          <p className="mt-0.5">Review your devices regularly and sign out any you no longer recognize.</p>
+        </div>
       </div>
     </div>
   );

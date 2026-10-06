@@ -2,7 +2,11 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { apiPost } from "@/lib/api";
+import { AuthShell } from "@/components/AuthShell";
+import { PasswordField } from "@/components/ui/PasswordField";
+import { Spinner } from "@/components/ui/Spinner";
 
 export const dynamic = "force-dynamic";
 
@@ -52,55 +56,59 @@ function ResetPasswordInner() {
   };
 
   return (
-    <div className="mx-auto max-w-lg px-6 py-16">
-      <h1 className="text-2xl font-semibold mb-4">Reset Password</h1>
+    <AuthShell
+      title="Choose a new password"
+      subtitle="Pick something you have not used elsewhere."
+      asideTitle="Almost there."
+      asidePoints={["Use at least 8 characters", "Avoid passwords you use on other sites"]}
+    >
       {status === "success" ? (
-        <div>
-          <p className="mb-6">{message}</p>
-          <button
-            onClick={() => router.push("/login")}
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
-            Go to Login
+        <div className="space-y-6">
+          <div role="status" className="notice notice-success">
+            <CheckCircle2 size={18} className="mt-0.5 flex-none" />
+            {message}
+          </div>
+          <button onClick={() => router.push("/login")} className="btn btn-primary btn-lg w-full">
+            Go to sign in
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="password"
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <PasswordField
+            label="New password"
+            autoComplete="new-password"
             placeholder="New password"
             value={password1}
             onChange={(e) => setPassword1(e.target.value)}
-            className="w-full rounded border px-3 py-2"
             required
           />
-          <input
-            type="password"
+          <PasswordField
+            label="Confirm new password"
+            autoComplete="new-password"
             placeholder="Confirm new password"
             value={password2}
             onChange={(e) => setPassword2(e.target.value)}
-            className="w-full rounded border px-3 py-2"
             required
           />
           {status === "error" && (
-            <p className="text-red-600 text-sm">{message}</p>
+            <div role="alert" className="notice notice-error">
+              <AlertCircle size={18} className="mt-0.5 flex-none" />
+              {message}
+            </div>
           )}
-          <button
-            type="submit"
-            disabled={status === "loading"}
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
-          >
-            {status === "loading" ? "Resetting…" : "Reset Password"}
+          <button type="submit" disabled={status === "loading"} className="btn btn-primary btn-lg w-full">
+            {status === "loading" && <Spinner />}
+            {status === "loading" ? "Resetting…" : "Reset password"}
           </button>
         </form>
       )}
-    </div>
+    </AuthShell>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-lg px-6 py-16">Loading…</div>}>
+    <Suspense fallback={<div className="grid min-h-screen place-items-center"><Spinner size={28} /></div>}>
       <ResetPasswordInner />
     </Suspense>
   );

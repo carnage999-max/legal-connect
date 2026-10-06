@@ -1,14 +1,12 @@
+import { Users } from 'lucide-react';
 import { AttorneyLayout } from '@/components/AttorneyLayout';
+import { EmptyState, PageHeader } from '@/components/ui/Page';
 
 export default function AttorneyClientsPage(): React.ReactNode {
   return (
     <AttorneyLayout>
-      <div>
-        <h1 className="text-2xl font-semibold mb-4">Active Clients</h1>
-        <div className="bg-lcbgattorney-secondary rounded-md p-6 border border-lcborder-attorney text-lctextattorney-secondary">
-          <p>No active clients at this time.</p>
-        </div>
-      </div>
+      <PageHeader title="Active clients" description="People you are currently working with." />
+      <EmptyState icon={Users} title="No active clients at this time" text="Clients appear here once you accept a referral." />
     </AttorneyLayout>
   );
 }
