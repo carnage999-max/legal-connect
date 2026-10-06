@@ -3,16 +3,51 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { SiteFooter } from "@/components/Footer";
+import { SITE } from "@/lib/site";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
 
+const ogImage = {
+  url: SITE.ogImage.url,
+  width: SITE.ogImage.width,
+  height: SITE.ogImage.height,
+  alt: 'Legal Connect: from a stressful search for a lawyer to a confirmed match with a qualified attorney.',
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE.url),
   manifest: "/manifest.webmanifest",
+  applicationName: SITE.name,
   title: {
-    default: "Legal Connect | Describe your legal issue once",
-    template: "%s | Legal Connect",
+    default: 'Legal Connect | Find an attorney. Describe your issue once.',
+    template: '%s | Legal Connect',
   },
-  description: "Legal Connect — fast, private legal intake and attorney matching",
+  description: SITE.description,
+  keywords: [
+    'find an attorney',
+    'legal intake',
+    'attorney matching',
+    'conflict of interest check',
+    'find a lawyer online',
+    'legal help',
+  ],
+  alternates: { canonical: '/' },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
+  openGraph: {
+    type: 'website',
+    siteName: SITE.name,
+    locale: 'en_US',
+    title: 'Legal Connect | Find an attorney. Describe your issue once.',
+    description: SITE.description,
+    url: '/',
+    images: [ogImage],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Legal Connect | Find an attorney. Describe your issue once.',
+    description: SITE.description,
+    images: [ogImage.url],
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

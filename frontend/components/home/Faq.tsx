@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { Plus } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 
-const FAQS = [
+export const FAQS = [
   {
     q: 'What does it cost me to use Legal Connect?',
     a: 'Describing your matter and getting matched happens on the platform. Any legal fees are agreed directly between you and the attorney you choose, so ask about fees before you engage them.',

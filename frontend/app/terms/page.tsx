@@ -1,4 +1,6 @@
+import type { Metadata } from 'next';
 import { LegalLayout, type TocItem } from '@/components/legal/LegalLayout';
+import { pageMetadata } from '@/lib/seo';
 
 const TOC: TocItem[] = [
   { id: "acceptance-of-terms", label: "1. Acceptance of Terms" },
@@ -18,6 +20,12 @@ const TOC: TocItem[] = [
   { id: "compliance-with-laws", label: "15. Compliance with Laws" },
   { id: "contact-information", label: "16. Contact Information" },
 ];
+
+export const metadata: Metadata = pageMetadata({
+  title: 'Terms of Service',
+  description: 'The terms for using Legal Connect, a technology platform that connects people with independent, licensed attorneys.',
+  path: '/terms',
+});
 
 export default function TermsPage(): React.ReactNode {
   return (
