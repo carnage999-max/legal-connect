@@ -12,7 +12,9 @@ urlpatterns = [
 
     # Payments
     path('', views.PaymentListView.as_view(), name='payment-list'),
+    path('config/', views.PaymentConfigView.as_view(), name='payment-config'),
     path('create/', views.CreatePaymentView.as_view(), name='payment-create'),
+    path('webhook/', views.StripeWebhookView.as_view(), name='stripe-webhook'),
     path('<uuid:pk>/', views.PaymentDetailView.as_view(), name='payment-detail'),
 
     # Refunds

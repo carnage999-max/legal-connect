@@ -69,7 +69,23 @@ sudo certbot --nginx -d api.legalconnectapp.com
 DNS must point `legalconnectapp.com`, `www` and `api` at the se7en server first. They currently
 point at the old AWS host (`54.224.190.122` appears in the old nginx files).
 
-## 4. Updating
+## 4. Stripe
+
+Card details are entered in Stripe's own fields and never reach our servers. The API creates a
+PaymentIntent and the browser confirms it with Stripe. A payment is marked paid only by Stripe's
+webhook, so the webhook must be set up before payments will complete.
+
+1. In the Stripe dashboard, create a webhook endpoint:
+   `https://api.legalconnectapp.com/api/v1/payments/webhook/`
+2. Subscribe it to: `payment_intent.succeeded`, `payment_intent.payment_failed`,
+   `payment_intent.canceled`, `charge.refunded`.
+3. Copy its signing secret (`whsec_...`) into `STRIPE_WEBHOOK_SECRET` in `backend/.env`, along with
+   `STRIPE_SECRET_KEY` and `STRIPE_PUBLIC_KEY`, then `docker compose up -d` in `backend/`.
+
+The browser gets the publishable key from `GET /api/v1/payments/config/`, so the frontend needs no
+Stripe variable. Test first with `sk_test_` / `pk_test_` keys and card `4242 4242 4242 4242`.
+
+## 5. Updating
 
 ```bash
 git pull

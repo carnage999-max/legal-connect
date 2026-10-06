@@ -212,6 +212,11 @@ export default function MatterDetailPage({ params }: { params: Promise<{ id: str
                 </div>
               )}
             </dl>
+            {matter.attorney && matter.status !== 'closed' && matter.status !== 'cancelled' && (
+              <Link href={`/app/client/payments?matter_id=${matter.id}`} className="btn btn-outline btn-sm mt-5 w-full">
+                Pay consultation fee
+              </Link>
+            )}
           </section>
 
           <section className="card p-6">
