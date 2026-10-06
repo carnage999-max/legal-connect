@@ -1,4 +1,6 @@
+import type { Metadata } from 'next';
 import { LegalLayout, type TocItem } from '@/components/legal/LegalLayout';
+import { pageMetadata } from '@/lib/seo';
 
 const TOC: TocItem[] = [
   { id: "introduction", label: "Introduction" },
@@ -18,6 +20,12 @@ const TOC: TocItem[] = [
   { id: "updates-to-this-policy", label: "14. Updates to This Policy" },
   { id: "california-privacy-rights-ccpa-cpra", label: "15. California Privacy Rights (CCPA/CPRA)" },
 ];
+
+export const metadata: Metadata = pageMetadata({
+  title: 'Privacy Policy',
+  description: 'How Legal Connect collects, uses and protects your information, and the choices and rights you have over it.',
+  path: '/privacy',
+});
 
 export default function PrivacyPage(): React.ReactNode {
   return (

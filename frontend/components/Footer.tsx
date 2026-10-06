@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
+import { SocialRow } from '@/components/site/SocialRow';
 
 const COLUMNS = [
   [
@@ -40,9 +41,23 @@ export function Footer() {
     <footer className="dark-surface black-surface overflow-hidden bg-black text-white">
       <div className="site-container pt-20 md:pt-28">
         <div className="grid gap-14 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
-          <p className="max-w-xl text-[clamp(2rem,4.4vw,3.6rem)] font-light leading-[1.08] tracking-[-0.035em]">
-            Describe your legal issue once. We find the attorney.
-          </p>
+          <div>
+            <p className="max-w-xl text-[clamp(2rem,4.4vw,3.6rem)] font-light leading-[1.08] tracking-[-0.035em]">
+              Describe your legal issue once. We find the attorney.
+            </p>
+
+            {/* Store links are placeholders until the apps are live. */}
+            <div className="mt-10 flex flex-wrap items-center gap-3">
+              <a href="#" onClick={(e) => e.preventDefault()} aria-label="Download on the App Store">
+                <Image src="/apple-store.svg" alt="Download on the App Store" width={135} height={40} className="h-11 w-auto" />
+              </a>
+              <a href="#" onClick={(e) => e.preventDefault()} aria-label="Get it on Google Play">
+                <Image src="/play-store.svg" alt="Get it on Google Play" width={180} height={53} className="h-11 w-auto" />
+              </a>
+            </div>
+
+            <SocialRow className="mt-6" />
+          </div>
           {COLUMNS.map((links, i) => (
             <nav key={i} aria-label={`Footer ${i + 1}`}>
               <ul className="space-y-4">
