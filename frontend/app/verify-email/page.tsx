@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, MailCheck, ShieldCheck } from "lucide-react";
 import { apiPost } from "@/lib/api";
 import { AuthShell } from "@/components/AuthShell";
 import { Spinner } from "@/components/ui/Spinner";
@@ -43,7 +43,10 @@ function VerifyEmailInner() {
     <AuthShell
       title="Verify your email"
       asideTitle="One quick check and you are in."
-      asidePoints={["Confirms the address is yours", "Keeps your account and matters secure"]}
+      asidePoints={[
+        { icon: MailCheck, text: "Confirms the address is yours" },
+        { icon: ShieldCheck, text: "Keeps your account and matters secure" },
+      ]}
     >
       <div className="space-y-6">
         {status === "loading" && (

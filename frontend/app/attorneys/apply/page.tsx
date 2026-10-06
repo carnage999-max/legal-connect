@@ -91,10 +91,8 @@ export default function AttorneysApplyPage(): React.ReactNode {
         <div className="space-y-12">
           <ul className="space-y-4">
             {benefits.map(({ icon: Icon, title, text }) => (
-              <li key={title} className="card flex items-start gap-4 p-5">
-                <span className="grid h-11 w-11 flex-none place-items-center rounded-xl bg-blue-50 text-blue-600">
-                  <Icon size={22} />
-                </span>
+              <li key={title} className="card flex items-start gap-4 p-6">
+                <Icon size={26} strokeWidth={1.6} className="mt-0.5 flex-none text-mute" />
                 <div>
                   <h2 className="title-3">{title}</h2>
                   <p className="mt-1 text-[0.95rem] leading-relaxed text-mute">{text}</p>
@@ -108,9 +106,7 @@ export default function AttorneysApplyPage(): React.ReactNode {
             <ol className="mt-6 space-y-6">
               {steps.map((st, i) => (
                 <li key={st.title} className="flex gap-4">
-                  <span className="grid h-10 w-10 flex-none place-items-center rounded-full bg-blue-600 text-sm font-bold text-white">
-                    {i + 1}
-                  </span>
+                  <span className="tnum w-6 flex-none pt-0.5 text-2xl font-semibold tracking-tight text-mute">{i + 1}</span>
                   <div>
                     <h3 className="title-3">{st.title}</h3>
                     <p className="mt-1 text-[0.97rem] leading-relaxed text-mute">{st.text}</p>

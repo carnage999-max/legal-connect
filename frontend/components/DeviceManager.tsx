@@ -160,7 +160,7 @@ export function DeviceManager() {
           {devices.map((device) => (
             <li key={device.id} className="card flex items-start justify-between gap-4 p-5">
               <div className="flex min-w-0 items-start gap-4">
-                <span className="grid h-12 w-12 flex-none place-items-center rounded-xl bg-blue-50 text-blue-600">
+                <span className="flex-none text-mute">
                   {isMobile(device.user_agent) ? <Smartphone size={22} /> : <Monitor size={22} />}
                 </span>
                 <div className="min-w-0">

@@ -5,7 +5,7 @@
  * deep blue on the left, green on the right. Blue is the attorney side and
  * the brand voice, green is the client side and the primary action.
  */
-@theme {
+@theme static {
   --color-navy-950: #050d1a;
   --color-navy-900: #08111f;
   --color-navy-800: #0e1b2e;
@@ -114,15 +114,6 @@ body {
   --color-green-700: #8be39a;
 }
 
-.dark-surface .card {
-  box-shadow: none;
-}
-
-.dark-surface .card-hover:hover {
-  border-color: #3a5073;
-  box-shadow: 0 18px 40px -20px rgb(0 0 0 / 0.7);
-}
-
 .dark-surface .choice {
   background: var(--color-navy-800);
   border-color: var(--color-navy-600);
@@ -139,6 +130,9 @@ body {
 }
 
 .black-surface {
+  --bubble: #2c2c2e;
+  --card-bg: #1c1c1e;
+  --card-bg-hover: #242426;
   --color-ink: #f5f5f7;
   --color-mute: #a1a1a6;
   --color-hairline: #2c2c2e;
@@ -416,22 +410,18 @@ body {
 /* ------------------------------------------------------------------ */
 
 .card {
-  background: var(--surface, #fff);
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-soft);
+  background: var(--card-bg, #f5f5f7);
+  border-radius: 24px;
 }
 
 .card-hover {
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.25s ease,
+    transform 0.25s ease;
 }
 
 .card-hover:hover {
-  border-color: var(--color-blue-400);
-  box-shadow: var(--shadow-lift);
+  background: var(--card-bg-hover, #ececf0);
   transform: translateY(-2px);
 }
 
@@ -465,7 +455,7 @@ body {
   min-height: 48px;
   padding: 0.7rem 0.9rem;
   border-radius: var(--radius-control);
-  border: 1px solid #c5cfdc;
+  border: 1px solid #d2d2d7;
   background: #fff;
   color: var(--color-ink);
   font: inherit;
@@ -479,13 +469,22 @@ body {
 }
 
 .field:hover {
-  border-color: #9fb0c4;
+  border-color: #86868b;
 }
 
 .field:focus {
   outline: none;
   border-color: var(--color-blue-500);
   box-shadow: 0 0 0 4px rgb(30 127 214 / 0.18);
+}
+
+/* Room for an icon on either side (beats the .field padding above). */
+.field.pl-11 {
+  padding-left: 2.85rem;
+}
+
+.field.pr-12 {
+  padding-right: 3.1rem;
 }
 
 textarea.field {
@@ -532,36 +531,59 @@ select.field {
 .choice {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  min-height: 52px;
-  padding: 0.7rem 1rem;
-  border-radius: var(--radius-control);
-  border: 1px solid #c5cfdc;
-  background: #fff;
+  gap: 0.8rem;
+  min-height: 56px;
+  padding: 0.75rem 1.1rem;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: #f5f5f7;
   cursor: pointer;
   font-weight: 550;
   transition:
-    border-color 0.15s ease,
     background-color 0.15s ease,
+    border-color 0.15s ease,
     box-shadow 0.15s ease;
 }
 
 .choice:hover {
-  border-color: var(--color-blue-500);
+  background: #ececf0;
 }
 
 .choice[data-on="true"],
 .choice:has(input:checked) {
+  background: #fff;
   border-color: var(--color-blue-500);
-  background: var(--color-blue-50);
-  box-shadow: 0 0 0 3px rgb(30 127 214 / 0.14);
+  box-shadow: 0 0 0 3px rgb(30 127 214 / 0.16);
 }
 
+.choice {
+  position: relative;
+}
+
+/* The tile itself shows the selection; the input stays for keyboards and screen readers. */
 .choice input {
-  accent-color: var(--color-blue-600);
-  width: 1.1rem;
-  height: 1.1rem;
-  flex: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.card .choice {
+  background: #fff;
+}
+
+.card .choice:hover {
+  background: #fafafa;
+}
+
+.black-surface .card .choice {
+  background: #2c2c2e;
+  color: #f5f5f7;
+}
+
+.choice:has(input:focus-visible) {
+  outline: 2px solid var(--color-blue-500);
+  outline-offset: 2px;
 }
 
 /* ------------------------------------------------------------------ */
@@ -625,67 +647,46 @@ select.field {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.22rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.4;
-  background: #eef2f6;
-  color: #344054;
+  color: var(--color-mute);
   white-space: nowrap;
 }
 
-.badge::before {
-  content: "";
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 999px;
-  background: currentColor;
-  opacity: 0.8;
-}
-
 .badge-green {
-  background: var(--color-green-50);
-  color: var(--color-green-700);
+  color: #17702f;
 }
 
 .badge-blue {
-  background: var(--color-blue-50);
-  color: var(--color-blue-700);
+  color: #0e4a8a;
 }
 
 .badge-amber {
-  background: #fffaeb;
   color: #93370d;
 }
 
 .badge-red {
-  background: #fef3f2;
-  color: #912018;
+  color: #b42318;
 }
 
 .dark-surface .badge {
-  background: rgb(255 255 255 / 0.08);
-  color: #d0d9e6;
+  color: #a1a1a6;
 }
 
 .dark-surface .badge-green {
-  background: rgb(53 176 75 / 0.16);
-  color: #8be39a;
+  color: #5bd16e;
 }
 
 .dark-surface .badge-blue {
-  background: rgb(77 163 242 / 0.16);
-  color: #8cc4f8;
+  color: #6db3f4;
 }
 
 .dark-surface .badge-amber {
-  background: rgb(247 144 9 / 0.14);
   color: #fec84b;
 }
 
 .dark-surface .badge-red {
-  background: rgb(240 68 56 / 0.15);
   color: #fda29b;
 }
 

@@ -180,7 +180,7 @@ export default function MatterDetailPage({ params }: { params: Promise<{ id: str
             <section className="card p-6">
               <h2 className="title-3">Your attorney</h2>
               <div className="mt-4 flex items-center gap-4">
-                <span className="grid h-14 w-14 flex-none place-items-center rounded-full bg-gradient-to-br from-blue-600 to-green-600 font-semibold text-white">
+                <span className="grid h-14 w-14 flex-none place-items-center rounded-full bg-ink font-semibold text-white">
                   {matter.attorney.user.first_name?.[0]}
                   {matter.attorney.user.last_name?.[0]}
                 </span>

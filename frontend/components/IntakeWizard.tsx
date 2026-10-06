@@ -1,7 +1,10 @@
 "use client";
 import React, { useState } from 'react';
 import { apiPost, apiGet } from '../lib/api';
-import { AlertCircle, ArrowLeft, ArrowRight, Check, CheckCircle2, Info, Loader2, Plus, ShieldCheck, Users, X } from 'lucide-react';
+import {
+  AlertCircle, ArrowLeft, ArrowRight, Check, CheckCircle2, Ellipsis, FileSignature, Flag, Gavel, Globe, House,
+  Info, Landmark, Loader2, MapPin, Plus, Scale, ShieldCheck, User, Users, X, type LucideIcon,
+} from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import Link from 'next/link';
 
@@ -222,6 +225,16 @@ export function IntakeWizard(): React.ReactNode {
   }
 
   const stageLabels = ['Matter', 'Describe', 'Parties', 'Conflicts', 'Match'];
+  const matterIcons: Record<MatterType, LucideIcon> = {
+    civil: Scale,
+    criminal: Gavel,
+    family: Users,
+    contract: FileSignature,
+    real_estate: House,
+    probate: Landmark,
+    other: Ellipsis,
+  };
+  const jurisdictionIcons: Record<string, LucideIcon> = { state: Landmark, federal: Flag, international: Globe };
   const whyAsk: Partial<Record<Step, string>> = {
     2: 'We use this to find attorneys who handle matters like yours. You can go back and change it.',
     3: 'Parties are needed for conflict screening, so an attorney who already acts for someone involved is never matched with you. Names are protected before they are compared.',
@@ -238,10 +251,10 @@ export function IntakeWizard(): React.ReactNode {
         : '';
 
   const summary = [
-    { label: 'Matter type', value: matterLabel },
-    { label: 'Jurisdiction', value: where },
-    { label: 'Your role', value: roleLabel },
-    { label: 'Parties listed', value: partyCount ? String(partyCount) : '' },
+    { label: 'Matter type', value: matterLabel, icon: Scale },
+    { label: 'Jurisdiction', value: where, icon: MapPin },
+    { label: 'Your role', value: roleLabel, icon: User },
+    { label: 'Parties listed', value: partyCount ? String(partyCount) : '', icon: Users },
   ];
 
   function FieldError({ id, msg }: { id: string; msg?: string }) {
@@ -254,7 +267,7 @@ export function IntakeWizard(): React.ReactNode {
   }
 
   return (
-    <div className="min-h-screen bg-paper pb-28 text-ink lg:pb-0">
+    <div className="min-h-screen bg-white pb-28 text-ink lg:pb-0">
       <header className="border-b border-hairline bg-white">
         <div className="site-container flex items-center justify-between" style={{ height: 'var(--header-h)' }}>
           <Logo />
@@ -262,7 +275,6 @@ export function IntakeWizard(): React.ReactNode {
             <ArrowLeft size={16} /> Exit intake
           </Link>
         </div>
-        <div className="split-rule" aria-hidden />
       </header>
 
       <main className="site-container py-8 md:py-12">
@@ -303,7 +315,7 @@ export function IntakeWizard(): React.ReactNode {
               )}
             </div>
 
-            <div className="card p-5 sm:p-8">
+            <div className="card p-6 sm:p-9">
               {step === 1 && (
                 <fieldset aria-describedby={errors.matterType ? 'err-matter' : undefined}>
                   <legend className="mb-5 text-lg font-semibold">Which type of legal matter do you need help with?</legend>
@@ -317,6 +329,10 @@ export function IntakeWizard(): React.ReactNode {
                           checked={formData.matterType === mt.value}
                           onChange={(e) => setFormData({ ...formData, matterType: e.target.value as MatterType })}
                         />
+                        {(() => {
+                          const Icon = matterIcons[mt.value];
+                          return <Icon size={20} strokeWidth={1.75} className="flex-none text-mute" />;
+                        })()}
                         <span>{mt.label}</span>
                       </label>
                     ))}
@@ -404,6 +420,10 @@ export function IntakeWizard(): React.ReactNode {
                             checked={formData.jurisdictionType === (type as JurisdictionType)}
                             onChange={(e) => setFormData({ ...formData, jurisdictionType: e.target.value as JurisdictionType, jurisdictionState: '' })}
                           />
+                          {(() => {
+                            const Icon = jurisdictionIcons[type];
+                            return <Icon size={20} strokeWidth={1.75} className="flex-none text-mute" />;
+                          })()}
                           <span>{type}</span>
                         </label>
                       ))}
@@ -451,7 +471,7 @@ export function IntakeWizard(): React.ReactNode {
                 <div aria-live="polite" className="py-4 text-center sm:py-8">
                   {conflictLoading ? (
                     <div className="flex flex-col items-center">
-                      <span className="grid h-16 w-16 place-items-center rounded-full bg-blue-50 text-blue-600">
+                      <span className="text-blue-600">
                         <Loader2 size={30} className="animate-spin" />
                       </span>
                       <h2 className="title-3 mt-6">Checking for conflicts of interest</h2>
@@ -488,9 +508,9 @@ export function IntakeWizard(): React.ReactNode {
                   ) : availableAttorneys.length > 0 ? (
                     <ul className="space-y-4">
                       {availableAttorneys.map((atty: any) => (
-                        <li key={atty.id} className="rounded-2xl border border-hairline bg-white p-5 transition-all hover:border-blue-400 hover:shadow-[var(--shadow-lift)]">
+                        <li key={atty.id} className="rounded-2xl bg-white p-5">
                           <div className="flex items-start gap-4">
-                            <span className="grid h-12 w-12 flex-none place-items-center rounded-full bg-gradient-to-br from-blue-600 to-green-600 text-sm font-bold text-white">
+                            <span className="grid h-12 w-12 flex-none place-items-center rounded-full bg-ink text-sm font-semibold text-white">
                               {(atty.name || 'A').trim().charAt(0).toUpperCase()}
                             </span>
                             <div className="min-w-0 flex-1">
@@ -507,8 +527,8 @@ export function IntakeWizard(): React.ReactNode {
                       ))}
                     </ul>
                   ) : (
-                    <div className="rounded-2xl bg-paper px-6 py-12 text-center">
-                      <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-white text-mute shadow-[var(--shadow-soft)]">
+                    <div className="rounded-2xl bg-white px-6 py-12 text-center">
+                      <span className="mx-auto block text-mute">
                         <Users size={26} strokeWidth={1.6} />
                       </span>
                       <p className="mt-5 text-lg font-semibold">No attorneys are available for your matter type right now.</p>
@@ -553,9 +573,12 @@ export function IntakeWizard(): React.ReactNode {
               <h2 className="title-3">Your matter so far</h2>
               <dl className="mt-5 space-y-4 text-[0.95rem]">
                 {summary.map((row) => (
-                  <div key={row.label}>
-                    <dt className="text-xs font-medium text-mute">{row.label}</dt>
-                    <dd className={row.value ? 'mt-0.5 font-semibold text-ink' : 'mt-0.5 text-slate-400'}>{row.value || 'Not added yet'}</dd>
+                  <div key={row.label} className="flex items-start gap-3">
+                    <row.icon size={18} strokeWidth={1.75} className="mt-0.5 flex-none text-mute" />
+                    <div>
+                      <dt className="text-xs font-medium text-mute">{row.label}</dt>
+                      <dd className={row.value ? 'mt-0.5 font-semibold text-ink' : 'mt-0.5 text-[#aeaeb2]'}>{row.value || 'Not added yet'}</dd>
+                    </div>
                   </div>
                 ))}
               </dl>

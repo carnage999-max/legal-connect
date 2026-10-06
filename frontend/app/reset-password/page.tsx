@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, KeyRound, ShieldCheck } from "lucide-react";
 import { apiPost } from "@/lib/api";
 import { AuthShell } from "@/components/AuthShell";
 import { PasswordField } from "@/components/ui/PasswordField";
@@ -60,7 +60,10 @@ function ResetPasswordInner() {
       title="Choose a new password"
       subtitle="Pick something you have not used elsewhere."
       asideTitle="Almost there."
-      asidePoints={["Use at least 8 characters", "Avoid passwords you use on other sites"]}
+      asidePoints={[
+        { icon: KeyRound, text: "Use at least 8 characters" },
+        { icon: ShieldCheck, text: "Avoid passwords you use on other sites" },
+      ]}
     >
       {status === "success" ? (
         <div className="space-y-6">

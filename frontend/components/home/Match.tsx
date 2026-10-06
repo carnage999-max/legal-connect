@@ -1,10 +1,11 @@
+import { Clock, Info, MapPin, ShieldCheck, UserCheck } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 
 const POINTS = [
-  'License and verification status on every profile',
-  'Practice focus and the jurisdictions they cover',
-  'Availability and how quickly they respond',
-  'A plain reason for why each attorney is shown',
+  { icon: UserCheck, text: 'License and verification status on every profile' },
+  { icon: MapPin, text: 'Practice focus and the jurisdictions they cover' },
+  { icon: Clock, text: 'Availability and how quickly they respond' },
+  { icon: Info, text: 'A plain reason for why each attorney is shown' },
 ];
 
 const ATTORNEYS = [
@@ -36,8 +37,9 @@ export function Match() {
             </p>
             <ul className="mt-9 divide-y divide-hairline border-y border-hairline">
               {POINTS.map((p) => (
-                <li key={p} className="py-3.5 text-[1rem] text-ink">
-                  {p}
+                <li key={p.text} className="flex items-center gap-3.5 py-3.5 text-[1rem] text-ink">
+                  <p.icon size={20} strokeWidth={1.75} className="flex-none text-mute" />
+                  {p.text}
                 </li>
               ))}
             </ul>
@@ -47,10 +49,14 @@ export function Match() {
             {ATTORNEYS.map((a, i) => (
               <Reveal key={a.name} delay={0.1 + i * 0.1} className="rounded-3xl bg-white p-6 sm:p-7">
                 <p className="text-xl font-semibold tracking-tight">{a.name}</p>
-                <p className="mt-0.5 text-[0.97rem] text-mute">
+                <p className="mt-1 flex items-center gap-2 text-[0.97rem] text-mute">
+                  <ShieldCheck size={17} strokeWidth={1.75} className="flex-none text-green-700" />
                   {a.focus}, {a.where}
                 </p>
-                <p className="mt-3 text-[0.97rem] font-medium text-green-700">{a.note}</p>
+                <p className="mt-3 flex items-center gap-2 text-[0.97rem] font-medium text-green-700">
+                  <Clock size={17} strokeWidth={2} className="flex-none" />
+                  {a.note}
+                </p>
                 <p className="mt-4 border-t border-hairline pt-4 text-[0.9rem] leading-relaxed text-mute">
                   <span className="font-semibold text-ink">Why you see this attorney. </span>
                   {a.why}

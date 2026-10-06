@@ -1,13 +1,14 @@
 import Image from 'next/image';
+import { Database, EyeOff, FileLock2, KeyRound, Lock, Trash2 } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 
 const ITEMS = [
-  { title: 'Encrypted connections', text: 'Everything you send travels over an encrypted connection.' },
-  { title: 'Protected party names', text: 'Names are transformed before conflict screening compares them.' },
-  { title: 'Protected file exchange', text: 'Documents live inside the platform, not in email attachments.' },
-  { title: 'Access controls', text: 'People see only the matters and stages they are authorized for.' },
-  { title: 'Data minimization', text: 'We ask for what matching needs and nothing more.' },
-  { title: 'You stay in control', text: 'You can request deletion of your account and data at any time.' },
+  { icon: Lock, title: 'Encrypted connections', text: 'Everything you send travels over an encrypted connection.' },
+  { icon: EyeOff, title: 'Protected party names', text: 'Names are transformed before conflict screening compares them.' },
+  { icon: FileLock2, title: 'Protected file exchange', text: 'Documents live inside the platform, not in email attachments.' },
+  { icon: KeyRound, title: 'Access controls', text: 'People see only the matters and stages they are authorized for.' },
+  { icon: Database, title: 'Data minimization', text: 'We ask for what matching needs and nothing more.' },
+  { icon: Trash2, title: 'You stay in control', text: 'You can request deletion of your account and data at any time.' },
 ];
 
 export function Security() {
@@ -30,6 +31,7 @@ export function Security() {
         <dl className="grid gap-x-10 sm:grid-cols-2">
           {ITEMS.map((item, i) => (
             <Reveal key={item.title} delay={(i % 2) * 0.08} className="border-t border-hairline py-7">
+              <item.icon size={26} strokeWidth={1.5} className="mb-3 text-ink" />
               <dt className="text-lg font-semibold tracking-tight">{item.title}</dt>
               <dd className="mt-2 text-[0.97rem] leading-relaxed text-mute">{item.text}</dd>
             </Reveal>

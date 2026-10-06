@@ -1,12 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { ArrowRight, ClipboardList, Lock, ShieldCheck, Zap } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 
 const CAPABILITIES = [
-  { title: 'Guided intake', text: 'One conversation instead of a wall of forms.' },
-  { title: 'Conflict screening', text: 'Run before any attorney is contacted.' },
-  { title: 'Real-time availability', text: 'Only attorneys who can take your matter on.' },
-  { title: 'Secure messaging', text: 'Messages and files stay in one place.' },
+  { icon: ClipboardList, title: 'Guided intake', text: 'One conversation instead of a wall of forms.' },
+  { icon: ShieldCheck, title: 'Conflict screening', text: 'Run before any attorney is contacted.' },
+  { icon: Zap, title: 'Real-time availability', text: 'Only attorneys who can take your matter on.' },
+  { icon: Lock, title: 'Secure messaging', text: 'Messages and files stay in one place.' },
 ];
 
 const OLD = ['Search for lawyers', 'Leave voicemails', 'Repeat your story at every firm', 'Hit a conflict', 'Start over'];
@@ -24,6 +25,7 @@ export function Problem() {
           <dl className="mt-14 grid gap-x-8 gap-y-8 border-t border-hairline pt-8 sm:grid-cols-2 lg:grid-cols-4">
             {CAPABILITIES.map((c) => (
               <div key={c.title}>
+                <c.icon size={28} strokeWidth={1.5} className="mb-4 text-ink" />
                 <dt className="font-semibold text-ink">{c.title}</dt>
                 <dd className="mt-1.5 text-[0.97rem] leading-relaxed text-mute">{c.text}</dd>
               </div>
@@ -64,7 +66,7 @@ export function Problem() {
                 ))}
               </ol>
               <Link href="/intake" className="link-arrow mt-7 text-[1.05rem]">
-                Start Legal Intake <span aria-hidden>›</span>
+                Start Legal Intake <ArrowRight size={18} aria-hidden />
               </Link>
             </Reveal>
           </div>

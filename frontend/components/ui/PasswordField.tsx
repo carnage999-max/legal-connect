@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Lock } from 'lucide-react';
 
 type Props = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'className'> & {
   label: string;
@@ -19,7 +19,8 @@ export function PasswordField({ label, hint, id, ...rest }: Props) {
         {label}
       </label>
       <div className="relative">
-        <input id={inputId} type={show ? 'text' : 'password'} className="field pr-12" {...rest} />
+        <Lock size={19} strokeWidth={1.75} aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
+        <input id={inputId} type={show ? 'text' : 'password'} className="field pl-11 pr-12" {...rest} />
         <button
           type="button"
           onClick={() => setShow((v) => !v)}

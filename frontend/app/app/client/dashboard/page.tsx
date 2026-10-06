@@ -124,7 +124,7 @@ export default function ClientDashboardPage(): React.ReactNode {
                   <li key={a.id}>
                     <a href={`/appointments/${a.id}`} className="card card-hover group flex items-center justify-between gap-4 p-5">
                       <div className="flex min-w-0 items-center gap-4">
-                        <span className="grid h-12 w-12 flex-none place-items-center rounded-xl bg-blue-50 text-blue-600">
+                        <span className="flex-none text-mute">
                           <CalendarDays size={22} />
                         </span>
                         <div className="min-w-0">
