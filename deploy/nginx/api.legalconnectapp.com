@@ -12,6 +12,18 @@ server {
         add_header Cache-Control "public";
     }
 
+    # Uploaded files live on the server. Avatars are public; everything else
+    # (legal documents, ID and licence scans, message attachments) is private and is only
+    # delivered by the API through short-lived signed links.
+    location ^~ /media/avatars/ {
+        alias /mnt/data/media/legal-connect/avatars/;
+        expires 30d;
+        add_header Cache-Control "public";
+    }
+    location ^~ /media/ {
+        return 404;
+    }
+
     location / {
         proxy_pass http://localhost:8010;
         proxy_set_header Host $host;

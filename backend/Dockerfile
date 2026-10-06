@@ -16,9 +16,9 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .
 
-# The app writes logs/django.log and collects static files here.
+# The app writes logs/django.log, collects static files and stores uploads here.
 RUN useradd -m -u 1000 appuser \
-    && mkdir -p /app/logs /app/staticfiles \
+    && mkdir -p /app/logs /app/staticfiles /app/media \
     && chmod +x /app/docker-entrypoint.sh \
     && chown -R appuser:appuser /app
 

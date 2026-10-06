@@ -26,6 +26,20 @@ export function Hero() {
 
   return (
     <section className="dark-surface hero-bg relative isolate overflow-hidden text-white">
+      {/* Silent looping background. Skipped for people who ask for reduced motion. */}
+      {!reduced && (
+        <video
+          aria-hidden
+          className="absolute inset-0 -z-20 h-full w-full object-cover opacity-45"
+          src="/hero-video.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+        />
+      )}
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(8_17_31/0.92)_0%,rgb(8_17_31/0.7)_45%,rgb(8_17_31/0.35)_100%)]" />
       <div aria-hidden className="grid-lines absolute inset-0 -z-10" />
       <div
         className="site-container grid items-center gap-12 pb-16 pt-[calc(var(--header-h)+3rem)] lg:min-h-[100svh] lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:pb-24"

@@ -87,16 +87,12 @@ export default function ClientDocumentsPage(): React.ReactNode {
 
   async function handleDownload(id: number, name: string) {
     try {
-      const response = await fetch(`/api/v1/documents/${id}/download/`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('lc_token')}`
-        }
-      });
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      // The API answers with a short-lived signed link to the file.
+      const { download_url } = await apiGet(`/api/v1/documents/${id}/download/`);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = download_url;
       a.download = name;
+      a.rel = 'noopener';
       a.click();
     } catch (e) {
       setError('Failed to download document');

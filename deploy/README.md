@@ -17,9 +17,11 @@ sudo ss -ltnp | grep -E ':(3010|8010)\b' || echo "both free"
 ## 1. One-time server setup
 
 ```bash
-# static folder the API container writes to and nginx serves (container runs as uid 1000)
-sudo mkdir -p /mnt/data/static/legal-connect
-sudo chown 1000:1000 /mnt/data/static/legal-connect
+# folders the API container writes to (it runs as uid 1000):
+#   static = Django admin assets, served by nginx
+#   media  = uploaded files, kept on this server (no S3)
+sudo mkdir -p /mnt/data/static/legal-connect /mnt/data/media/legal-connect
+sudo chown 1000:1000 /mnt/data/static/legal-connect /mnt/data/media/legal-connect
 
 # database: create a role and database in the shared Postgres (adjust the container name)
 docker exec -it <postgres-container> psql -U postgres -c "CREATE ROLE legal_connect LOGIN PASSWORD '<choose-a-password>';"
@@ -91,6 +93,13 @@ Stripe variable. Test first with `sk_test_` / `pk_test_` keys and card `4242 424
 git pull
 docker compose up -d --build     # in backend/ and/or frontend/
 ```
+
+## Uploaded files
+
+Files are stored on the server in `/mnt/data/media/legal-connect` (mounted at `/app/media`), like
+`liberty-social`. Back this folder up with the database. nginx serves only `/media/avatars/`
+publicly; legal documents, ID and licence scans and message attachments return 404 from nginx
+and are delivered by the API through signed links that expire after an hour.
 
 ## Notes
 

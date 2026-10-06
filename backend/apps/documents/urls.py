@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.DocumentListView.as_view(), name='document-list'),
     path('upload/', views.DocumentUploadView.as_view(), name='document-upload'),
     path('<uuid:pk>/', views.DocumentDetailView.as_view(), name='document-detail'),
+    path('<uuid:pk>/file/', views.DocumentFileView.as_view(), name='document-file'),
     path('<uuid:pk>/download/', views.DocumentDownloadView.as_view(), name='document-download'),
 
     # Versioning
