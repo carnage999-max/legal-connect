@@ -2,7 +2,9 @@
 import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ClientLayout } from '@/components/ClientLayout';
-import { CreditCard, Loader } from 'lucide-react';
+import { AlertCircle, CheckCircle2, CreditCard, Lock } from 'lucide-react';
+import { PageHeader } from '@/components/ui/Page';
+import { Spinner } from '@/components/ui/Spinner';
 import { useRouter } from 'next/navigation';
 import { apiPost } from '@/lib/api';
 
@@ -73,64 +75,56 @@ function PaymentFormContent() {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-8">
-      {/* Fee Summary */}
-      <div className="bg-white border border-lcborder rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-6">Fee Summary</h2>
-        <div className="space-y-4 pb-6 border-b border-lcborder">
-          <div className="flex justify-between">
-            <span className="text-lctextsecondary">Consultation Fee</span>
-            <span className="font-semibold">${amount.toFixed(2)}</span>
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-8">
+      <section className="card h-fit p-6">
+        <h2 className="title-3">Fee summary</h2>
+        <dl className="mt-6 space-y-4 border-b border-hairline pb-6">
+          <div className="flex justify-between gap-4">
+            <dt className="text-mute">Consultation fee</dt>
+            <dd className="tnum font-semibold text-ink">${amount.toFixed(2)}</dd>
           </div>
-          <div className="flex justify-between text-sm text-lctextsecondary">
-            <span>GST/HST</span>
-            <span>${(amount * 0.13).toFixed(2)}</span>
+          <div className="flex justify-between gap-4 text-sm">
+            <dt className="text-mute">GST/HST</dt>
+            <dd className="tnum text-mute">${(amount * 0.13).toFixed(2)}</dd>
           </div>
+        </dl>
+        <div className="mt-6 flex items-baseline justify-between gap-4">
+          <span className="text-lg font-semibold text-ink">Total</span>
+          <span className="tnum text-3xl font-bold tracking-tight text-green-700">${(amount * 1.13).toFixed(2)}</span>
         </div>
-        <div className="flex justify-between text-lg font-bold mt-6">
-          <span>Total</span>
-          <span className="text-lcaccentclient">${(amount * 1.13).toFixed(2)}</span>
-        </div>
-      </div>
+      </section>
 
-      {/* Payment Form */}
-      <div className="bg-white border border-lcborder rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-6">Payment Method</h2>
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4">{error}</div>}
-        {success && <div className="bg-green-50 border border-green-200 text-green-700 p-3 rounded-lg mb-4">Payment successful!</div>}
+      <section className="card p-6">
+        <h2 className="title-3">Payment method</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-lctextprimary mb-2">Card Holder Name</label>
-            <input
-              type="text"
-              value={formData.card_holder}
-              onChange={(e) => setFormData({ ...formData, card_holder: e.target.value })}
-              className="w-full px-4 py-2 border border-lcborder rounded-lg focus:outline-none focus:ring-2 focus:ring-lcaccentclient"
-              placeholder="John Doe"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5" noValidate>
+          {error && (
+            <div role="alert" className="notice notice-error">
+              <AlertCircle size={18} className="mt-0.5 flex-none" />
+              {error}
+            </div>
+          )}
+          {success && (
+            <div role="status" className="notice notice-success">
+              <CheckCircle2 size={18} className="mt-0.5 flex-none" />
+              Payment successful!
+            </div>
+          )}
 
           <div>
-            <label className="block text-sm font-medium text-lctextprimary mb-2">Card Number</label>
-            <input
-              type="text"
-              value={formData.card_number}
-              onChange={handleCardNumberChange}
-              maxLength={19}
-              className="w-full px-4 py-2 border border-lcborder rounded-lg focus:outline-none focus:ring-2 focus:ring-lcaccentclient"
-              placeholder="1234 5678 9012 3456"
-            />
+            <label htmlFor="card_holder" className="label">Card holder name</label>
+            <input id="card_holder" type="text" autoComplete="cc-name" value={formData.card_holder} onChange={(e) => setFormData({ ...formData, card_holder: e.target.value })} className="field" placeholder="John Doe" />
+          </div>
+
+          <div>
+            <label htmlFor="card_number" className="label">Card number</label>
+            <input id="card_number" type="text" inputMode="numeric" autoComplete="cc-number" value={formData.card_number} onChange={handleCardNumberChange} maxLength={19} className="field tnum" placeholder="1234 5678 9012 3456" />
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-lctextprimary mb-2">Month</label>
-              <select
-                value={formData.expiry_month}
-                onChange={(e) => setFormData({ ...formData, expiry_month: e.target.value })}
-                className="w-full px-3 py-2 border border-lcborder rounded-lg focus:outline-none focus:ring-2 focus:ring-lcaccentclient"
-              >
+              <label htmlFor="expiry_month" className="label">Month</label>
+              <select id="expiry_month" autoComplete="cc-exp-month" value={formData.expiry_month} onChange={(e) => setFormData({ ...formData, expiry_month: e.target.value })} className="field">
                 <option value="">MM</option>
                 {Array.from({ length: 12 }, (_, i) => (
                   <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
@@ -140,12 +134,8 @@ function PaymentFormContent() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-lctextprimary mb-2">Year</label>
-              <select
-                value={formData.expiry_year}
-                onChange={(e) => setFormData({ ...formData, expiry_year: e.target.value })}
-                className="w-full px-3 py-2 border border-lcborder rounded-lg focus:outline-none focus:ring-2 focus:ring-lcaccentclient"
-              >
+              <label htmlFor="expiry_year" className="label">Year</label>
+              <select id="expiry_year" autoComplete="cc-exp-year" value={formData.expiry_year} onChange={(e) => setFormData({ ...formData, expiry_year: e.target.value })} className="field">
                 <option value="">YY</option>
                 {Array.from({ length: 10 }, (_, i) => {
                   const year = new Date().getFullYear() + i;
@@ -158,28 +148,20 @@ function PaymentFormContent() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-lctextprimary mb-2">CVV</label>
-              <input
-                type="text"
-                value={formData.cvv}
-                onChange={handleCVVChange}
-                maxLength={4}
-                className="w-full px-3 py-2 border border-lcborder rounded-lg focus:outline-none focus:ring-2 focus:ring-lcaccentclient"
-                placeholder="123"
-              />
+              <label htmlFor="cvv" className="label">CVV</label>
+              <input id="cvv" type="text" inputMode="numeric" autoComplete="cc-csc" value={formData.cvv} onChange={handleCVVChange} maxLength={4} className="field tnum" placeholder="123" />
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading || success}
-            className="w-full py-3 bg-lcaccentclient text-white rounded-lg font-medium hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {loading ? <Loader size={18} className="animate-spin" /> : <CreditCard size={18} />}
-            {loading ? 'Processing...' : 'Pay Now'}
+          <button type="submit" disabled={loading || success} className="btn btn-primary btn-lg w-full">
+            {loading ? <Spinner /> : <CreditCard size={18} />}
+            {loading ? 'Processing…' : 'Pay now'}
           </button>
+          <p className="flex items-center justify-center gap-2 text-sm text-mute">
+            <Lock size={14} /> Payments are processed securely.
+          </p>
         </form>
-      </div>
+      </section>
     </div>
   );
 }
@@ -187,14 +169,10 @@ function PaymentFormContent() {
 export default function ClientPaymentsPage(): React.ReactNode {
   return (
     <ClientLayout>
-      <div>
-        <h1 className="text-4xl font-bold mb-2">Secure Payment</h1>
-        <p className="text-lg text-lctextsecondary mb-8">Complete your payment securely</p>
-
-        <Suspense fallback={<div className="flex items-center justify-center p-12"><Loader size={32} className="animate-spin" /></div>}>
-          <PaymentFormContent />
-        </Suspense>
-      </div>
+      <PageHeader title="Secure payment" description="Complete your payment securely." />
+      <Suspense fallback={<div className="flex justify-center p-12 text-blue-600"><Spinner size={30} /></div>}>
+        <PaymentFormContent />
+      </Suspense>
     </ClientLayout>
   );
 }

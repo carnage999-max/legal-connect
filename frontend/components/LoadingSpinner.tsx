@@ -1,56 +1,19 @@
 "use client";
 
+import { Logo } from '@/components/Logo';
+
 export function LoadingSpinner() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white">
-      <div className="flex flex-col items-center gap-4">
-        {/* Logo/Brand */}
-        <div className="flex items-center gap-2 mb-4">
-          <img src="/logo.png" alt="Legal Connect" className="h-8 w-8" />
-          <span className="font-semibold text-lg text-lctextprimary">Legal Connect</span>
+    <div role="status" className="grid min-h-screen place-items-center bg-white">
+      <div className="flex flex-col items-center gap-6">
+        <Logo href={null} />
+        <div className="flex items-center gap-2" aria-hidden>
+          {['bg-blue-500', 'bg-green-500', 'bg-blue-500'].map((c, i) => (
+            <span key={i} className={`h-2.5 w-2.5 rounded-full ${c} animate-bounce`} style={{ animationDelay: `${i * 0.15}s` }} />
+          ))}
         </div>
-
-        {/* Animated dots */}
-        <div className="flex items-center gap-2">
-          <div
-            className="h-3 w-3 rounded-full bg-lcaccent-client"
-            style={{
-              animation: 'pulse 1.4s infinite',
-              animationDelay: '0s',
-            }}
-          />
-          <div
-            className="h-3 w-3 rounded-full bg-lcaccent-attorney"
-            style={{
-              animation: 'pulse 1.4s infinite',
-              animationDelay: '0.2s',
-            }}
-          />
-          <div
-            className="h-3 w-3 rounded-full bg-lcaccent"
-            style={{
-              animation: 'pulse 1.4s infinite',
-              animationDelay: '0.4s',
-            }}
-          />
-        </div>
-
-        {/* Loading text */}
-        <p className="text-sm text-lctextsecondary mt-4">Loading...</p>
+        <p className="text-sm text-mute">Loading…</p>
       </div>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 0.3;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 1;
-            transform: scale(1.2);
-          }
-        }
-      `}</style>
     </div>
   );
 }

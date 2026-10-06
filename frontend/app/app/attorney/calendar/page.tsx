@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { AttorneyLayout } from '@/components/AttorneyLayout';
-import { Calendar, Clock, MapPin, X, Loader, Plus } from 'lucide-react';
+import { AlertCircle, CalendarDays, CheckCircle2, Clock, MapPin, Plus, X } from 'lucide-react';
+import { DashboardLoadingSkeleton } from '@/components/DashboardLoadingSkeleton';
+import { EmptyState, PageHeader, StatusBadge } from '@/components/ui/Page';
 import { apiGet, apiPost } from '@/lib/api';
 
 interface Appointment {
@@ -61,103 +63,89 @@ export default function AttorneyCalendarPage(): React.ReactNode {
     }
   }
 
-  if (loading) {
-    return (
-      <AttorneyLayout>
-        <div className="flex items-center justify-center p-12">
-          <Loader size={32} className="animate-spin" />
-        </div>
-      </AttorneyLayout>
-    );
-  }
+  const live = appointments.filter((a) => a.status !== 'cancelled');
 
   return (
     <AttorneyLayout>
-      <div>
-        <h1 className="text-4xl font-bold mb-2">Calendar</h1>
-        <p className="text-lg text-lctextattorney-secondary mb-8">Manage your appointments and availability</p>
+      <PageHeader title="Calendar" description="Manage your appointments and availability." />
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">{error}</div>}
-        {success && <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-6">{success}</div>}
-
-        <div className="grid grid-cols-2 gap-8">
-          {/* Appointments */}
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Your Appointments</h2>
-            {appointments.length === 0 ? (
-              <div className="bg-lcbgattorney rounded-lg p-8 text-center text-lctextattorney-secondary border border-lcborder-attorney">
-                <Calendar size={48} className="mx-auto mb-4 opacity-50" />
-                <p className="mb-4">No appointments scheduled</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {appointments
-                  .filter(a => a.status !== 'cancelled')
-                  .map(apt => (
-                    <div key={apt.id} className="bg-lcbgattorney rounded-lg p-4 border border-lcborder-attorney hover:shadow-md transition">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="font-semibold text-lctextattorney-primary">{apt.client_name}</h3>
-                        <button
-                          onClick={() => handleCancelAppointment(apt.id)}
-                          className="p-1 hover:bg-red-100 rounded transition text-lctextattorney-secondary hover:text-red-600"
-                        >
-                          <X size={18} />
-                        </button>
-                      </div>
-                      <div className="space-y-2 text-sm text-lctextattorney-secondary">
-                        <div className="flex items-center gap-2">
-                          <Calendar size={16} />
-                          {new Date(apt.scheduled_date).toLocaleDateString()}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock size={16} />
-                          {apt.scheduled_time}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <MapPin size={16} />
-                          Matter #{apt.matter_id}
-                        </div>
-                      </div>
-                      <div className="mt-3 inline-block text-xs font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700">
-                        {apt.status}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-
-          {/* Available Slots */}
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Available Slots</h2>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {availability.length === 0 ? (
-                <div className="bg-lcbgattorney rounded-lg p-8 text-center text-lctextattorney-secondary border border-lcborder-attorney">
-                  <Plus size={48} className="mx-auto mb-4 opacity-50" />
-                  <p className="mb-4">No available slots configured</p>
-                </div>
-              ) : (
-                availability.map((slot, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedSlot(selectedSlot?.date === slot.date && selectedSlot?.time === slot.time ? null : slot)}
-                    className={`w-full text-left p-4 rounded-lg border-2 transition ${
-                      selectedSlot?.date === slot.date && selectedSlot?.time === slot.time
-                        ? 'border-lcaccentattorney bg-lcaccentattorney/10'
-                        : 'border-lcborder-attorney bg-lcbgattorney hover:border-lcaccentattorney'
-                    }`}
-                  >
-                    <div className="font-semibold text-lctextattorney-primary">
-                      {new Date(slot.date).toLocaleDateString()}
-                    </div>
-                    <div className="text-sm text-lctextattorney-secondary">{slot.time}</div>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
+      {error && (
+        <div role="alert" className="notice notice-error mb-6">
+          <AlertCircle size={18} className="mt-0.5 flex-none" />
+          {error}
         </div>
-      </div>
+      )}
+      {success && (
+        <div role="status" className="notice notice-success mb-6">
+          <CheckCircle2 size={18} className="mt-0.5 flex-none" />
+          {success}
+        </div>
+      )}
+
+      {loading ? (
+        <DashboardLoadingSkeleton />
+      ) : (
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-8">
+          <section>
+            <h2 className="title-3 mb-5 text-[1.35rem]">Your appointments</h2>
+            {live.length === 0 ? (
+              <EmptyState icon={CalendarDays} title="No appointments scheduled" />
+            ) : (
+              <ul className="space-y-3">
+                {live.map((apt) => (
+                  <li key={apt.id} className="card p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="font-semibold text-ink">{apt.client_name}</h3>
+                      <button
+                        onClick={() => handleCancelAppointment(apt.id)}
+                        className="-mr-2 -mt-2 grid h-11 w-11 place-items-center rounded-xl text-mute transition-colors hover:bg-[#fef3f2] hover:text-[#b42318]"
+                        aria-label={`Cancel appointment with ${apt.client_name}`}
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                    <div className="mt-2 space-y-2 text-sm text-mute">
+                      <p className="flex items-center gap-2"><CalendarDays size={16} /> {new Date(apt.scheduled_date).toLocaleDateString()}</p>
+                      <p className="flex items-center gap-2"><Clock size={16} /> {apt.scheduled_time}</p>
+                      <p className="flex items-center gap-2"><MapPin size={16} /> Matter #{apt.matter_id}</p>
+                    </div>
+                    <div className="mt-4">
+                      <StatusBadge status={apt.status} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section>
+            <h2 className="title-3 mb-5 text-[1.35rem]">Available slots</h2>
+            {availability.length === 0 ? (
+              <EmptyState icon={Plus} title="No available slots configured" />
+            ) : (
+              <ul className="max-h-[32rem] space-y-3 overflow-y-auto pr-1">
+                {availability.map((slot, idx) => {
+                  const on = selectedSlot?.date === slot.date && selectedSlot?.time === slot.time;
+                  return (
+                    <li key={idx}>
+                      <button
+                        onClick={() => setSelectedSlot(on ? null : slot)}
+                        aria-pressed={on}
+                        className={`w-full rounded-2xl border p-4 text-left transition-all ${
+                          on ? 'border-blue-500 bg-blue-50 shadow-[0_0_0_3px_rgb(30_127_214/0.18)]' : 'border-hairline bg-[color:var(--surface,#fff)] hover:border-blue-400'
+                        }`}
+                      >
+                        <span className="block font-semibold text-ink">{new Date(slot.date).toLocaleDateString()}</span>
+                        <span className="block text-sm text-mute">{slot.time}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        </div>
+      )}
     </AttorneyLayout>
   );
 }

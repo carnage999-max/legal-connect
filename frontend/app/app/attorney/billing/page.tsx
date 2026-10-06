@@ -1,18 +1,21 @@
+import { Wallet } from 'lucide-react';
 import { AttorneyLayout } from '@/components/AttorneyLayout';
+import { PageHeader } from '@/components/ui/Page';
 
 export default function AttorneyBillingPage(): React.ReactNode {
   return (
     <AttorneyLayout>
-      <div>
-        <h1 className="text-2xl font-semibold mb-4">Billing</h1>
-        <div className="bg-lcbgattorney-secondary rounded-md p-6 border border-lcborder-attorney">
-          <p className="text-lctextattorney-secondary text-sm mb-4">Referral Fees (This Month)</p>
-          <p className="text-3xl font-semibold text-lctextattorney mb-6">$0</p>
-          <button className="px-4 py-2 bg-lcaccent-attorney text-white rounded-md text-sm">
-            View Payout History
-          </button>
+      <PageHeader title="Billing" description="Referral fees and payouts." />
+      <section className="card max-w-xl p-6 sm:p-8">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-medium text-mute">Referral fees (this month)</p>
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-50 text-blue-600">
+            <Wallet size={18} />
+          </span>
         </div>
-      </div>
+        <p className="tnum mt-3 text-5xl font-bold tracking-tight text-ink">$0</p>
+        <button className="btn btn-blue mt-8">View payout history</button>
+      </section>
     </AttorneyLayout>
   );
 }

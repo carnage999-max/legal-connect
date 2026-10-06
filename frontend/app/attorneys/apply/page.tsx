@@ -2,9 +2,11 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Briefcase, Lock, Zap, CheckCircle2, Clock, Loader } from 'lucide-react';
+import { AlertCircle, Briefcase, CheckCircle2, Lock, Zap } from 'lucide-react';
 import { apiPost } from '@/lib/api';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function AttorneysApplyPage(): React.ReactNode {
   const router = useRouter();
@@ -56,163 +58,126 @@ export default function AttorneysApplyPage(): React.ReactNode {
     }
   }
 
+  const benefits = [
+    { icon: Briefcase, title: 'Quality referrals', text: 'Only conflict-free matches in your practice areas and jurisdictions.' },
+    { icon: Lock, title: 'Automated conflict check', text: 'Our system screens for conflicts before a referral reaches you.' },
+    { icon: Zap, title: 'Accept or decline', text: 'You decide within 24 hours. No pressure, no obligations.' },
+  ];
+
+  const steps = [
+    { title: 'Complete your profile', text: 'Tell us about your experience, practice areas and jurisdictions. Set your rates and availability.' },
+    { title: 'Receive referrals', text: 'When a conflict-free match is made, you get a notification with client info and matter details.' },
+    { title: 'Accept and engage', text: 'Review the referral and accept it. We connect you with the client, and you take it from there.' },
+  ];
+
   return (
-    <div className="min-h-screen bg-white text-lctextprimary">
-      <header className="border-b border-lcborder">
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <nav className="flex items-center justify-between">
-            <Link href="/" className="inline-flex items-center gap-2 font-bold text-2xl hover:opacity-80 transition">
-              <img src="/logo.png" alt="Legal Connect" className="h-8 w-8" />
-              <span>Legal Connect</span>
-            </Link>
-            <Link href="/" className="text-lctextsecondary hover:text-lctextprimary transition">← Back</Link>
-          </nav>
-        </div>
-      </header>
+    <>
+      <Navbar />
 
-      <main className="max-w-6xl mx-auto px-6 py-16">
-        {/* Hero Section */}
-        <div className="max-w-3xl mx-auto mb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mb-16">
+      <section className="dark-surface hero-bg relative isolate overflow-hidden text-white">
+        <div aria-hidden className="grid-lines absolute inset-0 -z-10" />
+        <div className="site-container py-16 md:py-24">
+          <p className="eyebrow">For attorneys</p>
+          <h1 className="title-1 mt-4 max-w-3xl">Join our attorney network.</h1>
+          <p className="lede mt-5">Get quality referrals while we handle the intake and matching.</p>
+          <div className="mt-8">
+            <a href="#apply" className="btn btn-primary btn-lg">
+              Start your application
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <div className="site-container grid gap-12 py-14 lg:grid-cols-[1fr_1.05fr] lg:gap-16 lg:py-20">
+        <div className="space-y-12">
+          <ul className="space-y-4">
+            {benefits.map(({ icon: Icon, title, text }) => (
+              <li key={title} className="card flex items-start gap-4 p-5">
+                <span className="grid h-11 w-11 flex-none place-items-center rounded-xl bg-blue-50 text-blue-600">
+                  <Icon size={22} />
+                </span>
+                <div>
+                  <h2 className="title-3">{title}</h2>
+                  <p className="mt-1 text-[0.95rem] leading-relaxed text-mute">{text}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div>
+            <h2 className="title-2">How it works</h2>
+            <ol className="mt-6 space-y-6">
+              {steps.map((st, i) => (
+                <li key={st.title} className="flex gap-4">
+                  <span className="grid h-10 w-10 flex-none place-items-center rounded-full bg-blue-600 text-sm font-bold text-white">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <h3 className="title-3">{st.title}</h3>
+                    <p className="mt-1 text-[0.97rem] leading-relaxed text-mute">{st.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="notice notice-info !block rounded-2xl p-6">
+            <h2 className="title-3">Fee structure</h2>
+            <p className="mt-2 text-[0.97rem] leading-relaxed">
+              Legal Connect charges a referral fee on successful matter engagements. No upfront costs or monthly
+              subscriptions.
+            </p>
+            <p className="mt-2 text-sm opacity-80">
+              Detailed fee information is provided during your onboarding and approval process.
+            </p>
+          </div>
+        </div>
+
+        <div id="apply" className="lg:sticky lg:top-24 lg:self-start">
+          <form onSubmit={handleSubmit} className="card space-y-5 p-6 sm:p-8" noValidate>
             <div>
-              <h1 className="text-5xl font-bold mb-4">Join Our Attorney Network</h1>
-              <p className="text-2xl text-lctextsecondary mb-8">Get quality referrals while we handle the intake and matching.</p>
+              <h2 className="title-2">Attorney application</h2>
+              <p className="mt-2 text-[0.95rem] text-mute">Fields marked * are required. Already a member? <Link href="/attorney/login" className="font-semibold text-blue-600 hover:underline">Sign in</Link>.</p>
             </div>
-            <div className="flex justify-center">
-              <Image
-                src="/law-firm-building.png"
-                alt="Law Firm Building"
-                width={350}
-                height={280}
-                className="rounded-lg shadow-lg"
-                priority={false}
-              />
-            </div>
-          </div>
 
-          {/* Benefits Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            <div className="p-6 bg-blue-50 rounded-lg border border-lcborder">
-              <div className="text-lcaccent mb-3"><Briefcase size={32} strokeWidth={1.5} /></div>
-              <h3 className="font-semibold text-lg mb-2">Quality Referrals</h3>
-              <p className="text-lctextsecondary text-sm">Only conflict-free matches in your practice areas and jurisdictions.</p>
-            </div>
-            <div className="p-6 bg-blue-50 rounded-lg border border-lcborder">
-              <div className="text-lcaccent mb-3"><Lock size={32} strokeWidth={1.5} /></div>
-              <h3 className="font-semibold text-lg mb-2">Automated Conflict Check</h3>
-              <p className="text-lctextsecondary text-sm">Our system verifies no conflicts before sending your way.</p>
-            </div>
-            <div className="p-6 bg-blue-50 rounded-lg border border-lcborder">
-              <div className="text-lcaccent mb-3"><Zap size={32} strokeWidth={1.5} /></div>
-              <h3 className="font-semibold text-lg mb-2">Accept or Decline</h3>
-              <p className="text-lctextsecondary text-sm">You decide within 24 hours. No pressure, no obligations.</p>
-            </div>
-          </div>
-
-          {/* How It Works */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold mb-8">How It Works</h2>
-            <div className="space-y-6">
-              <div className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-lcaccent text-white font-bold">1</div>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Complete Your Profile</h3>
-                  <p className="text-lctextsecondary">Tell us about your experience, practice areas, and jurisdictions. Set your rates and availability.</p>
-                </div>
+            {error && (
+              <div role="alert" className="notice notice-error">
+                <AlertCircle size={18} className="mt-0.5 flex-none" />
+                {error}
               </div>
-              <div className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-lcaccent text-white font-bold">2</div>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Receive Referrals</h3>
-                  <p className="text-lctextsecondary">When a conflict-free match is made, you'll get a notification with client info and matter details.</p>
-                </div>
+            )}
+            {success && (
+              <div role="status" className="notice notice-success">
+                <CheckCircle2 size={18} className="mt-0.5 flex-none" />
+                {success}
               </div>
-              <div className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-lcaccent text-white font-bold">3</div>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Accept & Engage</h3>
-                  <p className="text-lctextsecondary">Review the referral and accept it. We'll connect you with the client, and you take it from there.</p>
-                </div>
-              </div>
-            </div>
-          </div>
+            )}
 
-          {/* Fee Structure */}
-          <div className="bg-indigo-50 border-2 border-indigo-200 rounded-lg p-8 mb-16">
-            <h2 className="text-2xl font-bold mb-4">Fee Structure</h2>
-            <p className="text-lctextsecondary mb-4">Legal Connect charges a referral fee on successful matter engagements. No upfront costs or monthly subscriptions.</p>
-            <p className="text-lctextsecondary text-sm">Detailed fee information will be provided during your onboarding and approval process.</p>
-          </div>
-        </div>
-
-        {/* Application Form */}
-        <div className="max-w-2xl mx-auto">
-          <form onSubmit={handleSubmit} className="bg-white border-2 border-lcborder rounded-lg p-10 shadow-sm">
-            <h2 className="text-3xl font-bold mb-8">Attorney Application</h2>
-
-            {error && <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">{error}</div>}
-            {success && <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-6">{success}</div>}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="grid gap-5 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-semibold mb-2">First Name *</label>
-                <input
-                  type="text"
-                  value={formData.first_name}
-                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                  placeholder="John"
-                  className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent"
-                />
+                <label htmlFor="first_name" className="label">First name *</label>
+                <input id="first_name" type="text" autoComplete="given-name" value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} placeholder="John" className="field" />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-2">Last Name *</label>
-                <input
-                  type="text"
-                  value={formData.last_name}
-                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                  placeholder="Doe"
-                  className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent"
-                />
+                <label htmlFor="last_name" className="label">Last name *</label>
+                <input id="last_name" type="text" autoComplete="family-name" value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} placeholder="Doe" className="field" />
               </div>
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-semibold mb-2">Email Address *</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="john.doe@example.com"
-                className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent"
-              />
+            <div>
+              <label htmlFor="email" className="label">Email address *</label>
+              <input id="email" type="email" autoComplete="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="john.doe@example.com" className="field" />
             </div>
 
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="grid gap-5 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-semibold mb-2">Bar License *</label>
-                <input
-                  type="text"
-                  value={formData.bar_license}
-                  onChange={(e) => setFormData({ ...formData, bar_license: e.target.value })}
-                  placeholder="e.g., CA123456"
-                  className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent"
-                />
+                <label htmlFor="bar_license" className="label">Bar license *</label>
+                <input id="bar_license" type="text" value={formData.bar_license} onChange={(e) => setFormData({ ...formData, bar_license: e.target.value })} placeholder="e.g. CA123456" className="field" />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-2">Primary Jurisdiction</label>
-                <select
-                  value={formData.jurisdiction}
-                  onChange={(e) => setFormData({ ...formData, jurisdiction: e.target.value })}
-                  className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent"
-                >
-                  <option value="">Select your state...</option>
+                <label htmlFor="jurisdiction" className="label">Primary jurisdiction</label>
+                <select id="jurisdiction" value={formData.jurisdiction} onChange={(e) => setFormData({ ...formData, jurisdiction: e.target.value })} className="field">
+                  <option value="">Select your state…</option>
                   <option value="CA">California</option>
                   <option value="NY">New York</option>
                   <option value="TX">Texas</option>
@@ -222,14 +187,10 @@ export default function AttorneysApplyPage(): React.ReactNode {
               </div>
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-semibold mb-2">Years of Experience</label>
-              <select
-                value={formData.years_experience}
-                onChange={(e) => setFormData({ ...formData, years_experience: e.target.value })}
-                className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent"
-              >
-                <option value="">Select experience level...</option>
+            <div>
+              <label htmlFor="years_experience" className="label">Years of experience</label>
+              <select id="years_experience" value={formData.years_experience} onChange={(e) => setFormData({ ...formData, years_experience: e.target.value })} className="field">
+                <option value="">Select experience level…</option>
                 <option value="0-2">0-2 years</option>
                 <option value="2-5">2-5 years</option>
                 <option value="5-10">5-10 years</option>
@@ -237,49 +198,31 @@ export default function AttorneysApplyPage(): React.ReactNode {
               </select>
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-semibold mb-3">Practice Areas</label>
-              <div className="grid grid-cols-2 gap-3">
-                {practiceAreaOptions.map(area => (
-                  <label key={area} className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition ${
-                    formData.practice_areas.includes(area)
-                      ? 'border-lcaccent bg-blue-50'
-                      : 'border-lcborder hover:border-lcaccent'
-                  }`}>
-                    <input
-                      type="checkbox"
-                      checked={formData.practice_areas.includes(area)}
-                      onChange={() => togglePracticeArea(area)}
-                      className="mr-2 w-4 h-4"
-                    />
-                    <span className="text-sm font-medium text-lctextprimary">{area}</span>
+            <fieldset>
+              <legend className="label">Practice areas</legend>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {practiceAreaOptions.map((area) => (
+                  <label key={area} className="choice">
+                    <input type="checkbox" checked={formData.practice_areas.includes(area)} onChange={() => togglePracticeArea(area)} />
+                    <span className="text-[0.95rem]">{area}</span>
                   </label>
                 ))}
               </div>
+            </fieldset>
+
+            <div>
+              <label htmlFor="bio" className="label">Professional bio</label>
+              <textarea id="bio" value={formData.bio} onChange={(e) => setFormData({ ...formData, bio: e.target.value })} placeholder="Tell us about your background and expertise…" rows={5} className="field" />
             </div>
 
-            <div className="mb-8">
-              <label className="block text-sm font-semibold mb-2">Professional Bio</label>
-              <textarea
-                value={formData.bio}
-                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                placeholder="Tell us about your background and expertise..."
-                rows={5}
-                className="w-full border border-lcborder rounded-lg p-3 text-lctextprimary focus:outline-none focus:ring-2 focus:border-lcaccent resize-none"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-lcaccent text-white font-semibold rounded-lg hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading && <Loader size={20} className="animate-spin" />}
-              {loading ? 'Submitting...' : 'Submit Application'}
+            <button type="submit" disabled={loading} className="btn btn-blue btn-lg w-full">
+              {loading && <Spinner />}
+              {loading ? 'Submitting…' : 'Submit application'}
             </button>
           </form>
         </div>
-      </main>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

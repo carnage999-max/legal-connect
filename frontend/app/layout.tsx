@@ -1,14 +1,17 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import { Footer } from "@/components/Footer";
+import { SiteFooter } from "@/components/Footer";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
 
 export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
-  title: "Legal Connect",
+  title: {
+    default: "Legal Connect | Describe your legal issue once",
+    template: "%s | Legal Connect",
+  },
   description: "Legal Connect — fast, private legal intake and attorney matching",
   icons: {
     icon: [
@@ -20,13 +23,25 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#08111f",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} antialiased flex flex-col min-h-screen`}>
+    <html lang="en" className={geist.variable}>
+      <body className="flex min-h-screen flex-col">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:font-semibold focus:text-ink focus:shadow-lg"
+        >
+          Skip to content
+        </a>
         <AuthProvider>
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+          <SiteFooter />
         </AuthProvider>
       </body>
     </html>

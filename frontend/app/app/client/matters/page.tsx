@@ -3,7 +3,10 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { apiGet } from '@/lib/api';
-import { ChevronRight, AlertCircle } from 'lucide-react';
+import { AlertCircle, Briefcase, ChevronRight, Plus } from 'lucide-react';
+import { ClientLayout } from '@/components/ClientLayout';
+import { DashboardLoadingSkeleton } from '@/components/DashboardLoadingSkeleton';
+import { EmptyState, PageHeader, StatusBadge } from '@/components/ui/Page';
 
 interface Matter {
   id: string;
@@ -45,88 +48,60 @@ export default function MattersPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return 'bg-gray-100 text-gray-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'matching':
-        return 'bg-blue-100 text-blue-800';
-      case 'open':
-        return 'bg-green-100 text-green-800';
-      case 'closed':
-        return 'bg-gray-100 text-gray-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="p-6">
-        <h1 className="text-3xl font-bold mb-6">My Matters</h1>
-        <p className="text-lctextsecondary">Loading matters...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">My Matters</h1>
+    <ClientLayout>
+      <PageHeader
+        title="My matters"
+        description="Every legal matter you have started, and where each one stands."
+        actions={
+          <Link href="/intake" className="btn btn-primary">
+            <Plus size={18} /> New matter
+          </Link>
+        }
+      />
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg text-red-700 text-sm">
+        <div role="alert" className="notice notice-error mb-6">
+          <AlertCircle size={18} className="mt-0.5 flex-none" />
           {error}
         </div>
       )}
 
-      {matters.length === 0 ? (
-        <div className="bg-white border border-lcborder rounded-lg p-12 text-center">
-          <AlertCircle size={48} className="mx-auto text-lctextsecondary mb-4 opacity-30" />
-          <p className="text-lctextsecondary mb-4">No matters yet</p>
-          <Link href="/intake" className="text-lcaccent-client hover:opacity-80 font-medium">
-            Start a new legal intake →
-          </Link>
-        </div>
+      {loading ? (
+        <DashboardLoadingSkeleton />
+      ) : matters.length === 0 ? (
+        <EmptyState
+          icon={Briefcase}
+          title="No matters yet"
+          text="Start with a short intake. We screen for conflicts and match you with an available attorney."
+          action={{ label: 'Start a new legal intake', href: '/intake' }}
+        />
       ) : (
-        <div className="space-y-3">
-          {matters.map(matter => (
-            <Link
-              key={matter.id}
-              href={`/app/client/matters/${matter.id}`}
-              className="block bg-white border border-lcborder rounded-lg p-4 hover:shadow-md transition group"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg text-lctextprimary group-hover:text-lcaccent-client transition truncate">
-                    {matter.title}
-                  </h3>
-                  <p className="text-sm text-lctextsecondary mt-1 line-clamp-2">
-                    {matter.description}
-                  </p>
-                  <div className="flex items-center gap-3 mt-3 flex-wrap">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(matter.status)}`}>
-                      {matter.status}
-                    </span>
-                    <span className="text-xs text-lctextsecondary">
-                      {new Date(matter.created_at).toLocaleDateString()}
-                    </span>
-                    {matter.attorney && (
-                      <span className="text-xs text-lctextsecondary bg-gray-50 px-2 py-1 rounded">
-                        {matter.attorney.user.first_name} {matter.attorney.user.last_name}
-                      </span>
-                    )}
+        <ul className="space-y-3">
+          {matters.map((matter) => (
+            <li key={matter.id}>
+              <Link href={`/app/client/matters/${matter.id}`} className="card card-hover group block p-5 md:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="truncate text-[1.1rem] font-semibold text-ink transition-colors group-hover:text-blue-600">{matter.title}</h2>
+                    <p className="mt-1.5 line-clamp-2 text-[0.95rem] leading-relaxed text-mute">{matter.description}</p>
+                    <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                      <StatusBadge status={matter.status} />
+                      <span className="text-sm text-mute">{new Date(matter.created_at).toLocaleDateString()}</span>
+                      {matter.attorney && (
+                        <span className="text-sm font-medium text-ink">
+                          {matter.attorney.user.first_name} {matter.attorney.user.last_name}
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  <ChevronRight size={20} className="mt-1 flex-none text-mute transition-transform group-hover:translate-x-1" />
                 </div>
-                <ChevronRight size={20} className="text-lctextsecondary flex-shrink-0 mt-1 group-hover:translate-x-1 transition" />
-              </div>
-            </Link>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
-    </div>
+    </ClientLayout>
   );
 }

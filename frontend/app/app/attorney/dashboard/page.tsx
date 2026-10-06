@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { AttorneyLayout } from '@/components/AttorneyLayout';
-import { Inbox, Calendar, Scale } from 'lucide-react';
+import Link from 'next/link';
+import { AlertCircle, CalendarDays, ChevronRight, Inbox, Scale, Users, Wallet } from 'lucide-react';
+import { EmptyState, PageHeader, SectionTitle, StatCard, StatusBadge } from '@/components/ui/Page';
 import { apiGet } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { DashboardLoadingSkeleton } from '@/components/DashboardLoadingSkeleton';
@@ -44,121 +46,98 @@ export default function AttorneyDashboardPage(): React.ReactNode {
     loadDashboard();
   }, [user]);
 
+  const activeMatters = matters.filter((m) => m.status === 'active');
+
   return (
     <AttorneyLayout>
       {loading ? (
         <DashboardLoadingSkeleton />
       ) : (
         <div>
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-2">Your Dashboard</h1>
-          <p className="text-lg text-lctextattorneysecondary">Manage referrals, cases, and appointments.</p>
-        </div>
+          <PageHeader title="Your dashboard" description="Manage referrals, cases and appointments." />
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">{error}</div>}
-
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-lcbgattorneysecondary rounded-lg p-6 border border-lcborderattorney shadow-sm">
-            <p className="text-lctextattorneysecondary text-sm font-medium mb-3">New Referrals</p>
-            <p className="text-5xl font-bold text-lcaccentattorney">{loading ? '-' : stats.referrals}</p>
-            <p className="text-lctextattorneysecondary text-xs mt-2">Total available</p>
-          </div>
-          <div className="bg-lcbgattorneysecondary rounded-lg p-6 border border-lcborderattorney shadow-sm">
-            <p className="text-lctextattorneysecondary text-sm font-medium mb-3">Active Cases</p>
-            <p className="text-5xl font-bold text-lcaccentattorney">{loading ? '-' : stats.active}</p>
-            <p className="text-lctextattorneysecondary text-xs mt-2">Currently active</p>
-          </div>
-          <div className="bg-lcbgattorneysecondary rounded-lg p-6 border border-lcborderattorney shadow-sm">
-            <p className="text-lctextattorneysecondary text-sm font-medium mb-3">Earnings</p>
-            <p className="text-5xl font-bold text-lcaccentattorney">${loading ? '-' : stats.earnings}</p>
-            <p className="text-lctextattorneysecondary text-xs mt-2">This month</p>
-          </div>
-        </div>
-
-        {/* New Referral Requests */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">New Referral Requests</h2>
-          {matters.length === 0 ? (
-            <div className="bg-lcbgattorneysecondary border-2 border-dashed border-lcborderattorney rounded-lg p-12 text-center">
-              <div className="flex justify-center mb-4"><Inbox size={48} strokeWidth={1.5} className="text-lctextattorneysecondary" /></div>
-              <p className="text-lg text-lctextattorney font-medium mb-2">No new referrals</p>
-              <p className="text-lctextattorneysecondary">New client referrals that match your practice area will appear here.</p>
+          {error && (
+            <div role="alert" className="notice notice-error mb-6">
+              <AlertCircle size={18} className="mt-0.5 flex-none" />
+              {error}
             </div>
-          ) : (
-            <div className="space-y-4">
-              {matters.map(m => (
-                <div key={m.id} className="bg-lcbgattorneysecondary border border-lcborderattorney rounded-lg p-6 hover:shadow-md transition">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-lg text-lctextattorney">{m.title}</h3>
-                      <p className="text-lctextattorneysecondary text-sm">Client: {m.client}</p>
+          )}
+
+          <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+            <StatCard label="New referrals" value={stats.referrals} icon={Inbox} />
+            <StatCard label="Active cases" value={stats.active} icon={Users} tone="green" />
+            <StatCard label="Earnings this month" value={`$${stats.earnings}`} icon={Wallet} />
+          </div>
+
+          <section className="mb-12">
+            <SectionTitle>New referral requests</SectionTitle>
+            {matters.length === 0 ? (
+              <EmptyState icon={Inbox} title="No new referrals" text="New client referrals that match your practice area will appear here." />
+            ) : (
+              <ul className="space-y-3">
+                {matters.map((m) => (
+                  <li key={m.id} className="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="truncate font-semibold text-ink">{m.title}</h3>
+                      <p className="mt-1 text-sm text-mute">Client: {m.client}</p>
                     </div>
-                    <a href={`/matters/${m.id}`} className="px-4 py-2 bg-lcaccentattorney text-white rounded-lg font-medium hover:opacity-90 transition">
+                    <a href={`/matters/${m.id}`} className="btn btn-blue btn-sm flex-none">
                       Review
                     </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
-        {/* Today's Appointments */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Today's Schedule</h2>
-          {appointments.length === 0 ? (
-            <div className="bg-lcbgattorneysecondary border-2 border-dashed border-lcborderattorney rounded-lg p-12 text-center">
-              <div className="flex justify-center mb-4"><Calendar size={48} strokeWidth={1.5} className="text-lctextattorneysecondary" /></div>
-              <p className="text-lg text-lctextattorney font-medium mb-2">No appointments today</p>
-              <p className="text-lctextattorneysecondary">Your scheduled appointments will appear here.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {appointments.map(a => (
-                <div key={a.id} className="bg-lcbgattorneysecondary border border-lcborderattorney rounded-lg p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-lctextattorney">{a.client_name || 'Client'}</p>
-                      <p className="text-lctextattorneysecondary text-sm">{new Date(a.date).toLocaleString()}</p>
-                    </div>
-                    <a href={`/appointments/${a.id}`} className="px-4 py-2 border border-lcborderattorney rounded-lg text-lctextattorney hover:bg-lcbgattorney transition">
-                      View
+          <section className="mb-12">
+            <SectionTitle>Today&apos;s schedule</SectionTitle>
+            {appointments.length === 0 ? (
+              <EmptyState icon={CalendarDays} title="No appointments today" text="Your scheduled appointments will appear here." />
+            ) : (
+              <ul className="space-y-3">
+                {appointments.map((a) => (
+                  <li key={a.id}>
+                    <a href={`/appointments/${a.id}`} className="card card-hover group flex items-center justify-between gap-4 p-5">
+                      <div className="flex min-w-0 items-center gap-4">
+                        <span className="grid h-12 w-12 flex-none place-items-center rounded-xl bg-blue-50 text-blue-600">
+                          <CalendarDays size={22} />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-ink">{a.client_name || 'Client'}</p>
+                          <p className="text-sm text-mute">{new Date(a.date).toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <ChevronRight size={20} className="flex-none text-mute transition-transform group-hover:translate-x-1" />
                     </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
-        {/* Active Cases */}
-        <section>
-          <h2 className="text-2xl font-bold mb-6">Active Cases</h2>
-          {matters.filter(m => m.status === 'active').length === 0 ? (
-            <div className="bg-lcbgattorneysecondary border-2 border-dashed border-lcborderattorney rounded-lg p-12 text-center">
-              <div className="flex justify-center mb-4"><Scale size={48} strokeWidth={1.5} className="text-lctextattorneysecondary" /></div>
-              <p className="text-lg text-lctextattorney font-medium mb-2">No active cases yet</p>
-              <p className="text-lctextattorneysecondary">Once you accept referrals, they'll be listed here with client information and case status.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {matters.filter(m => m.status === 'active').map(m => (
-                <div key={m.id} className="bg-lcbgattorneysecondary border border-lcborderattorney rounded-lg p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-lg text-lctextattorney">{m.title}</h3>
-                      <p className="text-lctextattorneysecondary text-sm">Status: {m.status}</p>
+          <section>
+            <SectionTitle>Active cases</SectionTitle>
+            {activeMatters.length === 0 ? (
+              <EmptyState icon={Scale} title="No active cases yet" text="Once you accept referrals, they will be listed here with client information and case status." />
+            ) : (
+              <ul className="space-y-3">
+                {activeMatters.map((m) => (
+                  <li key={m.id} className="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="truncate font-semibold text-ink">{m.title}</h3>
+                      <div className="mt-2">
+                        <StatusBadge status={m.status} />
+                      </div>
                     </div>
-                    <a href={`/matters/${m.id}`} className="px-4 py-2 border border-lcborderattorney rounded-lg text-lctextattorney hover:bg-lcbgattorney transition">
-                      View Details
+                    <a href={`/matters/${m.id}`} className="btn btn-outline btn-sm flex-none">
+                      View details
                     </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </div>
       )}
     </AttorneyLayout>

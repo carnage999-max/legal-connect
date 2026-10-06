@@ -3,7 +3,11 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { apiGet, apiPost } from '@/lib/api';
-import { ArrowLeft, X, CheckCircle2, AlertCircle, Calendar, User } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CalendarDays } from 'lucide-react';
+import { ClientLayout } from '@/components/ClientLayout';
+import { DashboardLoadingSkeleton } from '@/components/DashboardLoadingSkeleton';
+import { StatusBadge } from '@/components/ui/Page';
+import { Spinner } from '@/components/ui/Spinner';
 
 interface Matter {
   id: string;
@@ -84,226 +88,172 @@ export default function MatterDetailPage({ params }: { params: Promise<{ id: str
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return 'bg-gray-100 text-gray-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'matching':
-        return 'bg-blue-100 text-blue-800';
-      case 'open':
-        return 'bg-green-100 text-green-800';
-      case 'closed':
-        return 'bg-gray-100 text-gray-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const back = (
+    <Link href="/app/client/matters" className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-blue-600 hover:underline">
+      <ArrowLeft size={18} /> All matters
+    </Link>
+  );
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-lctextsecondary">Loading matter details...</p>
-      </div>
-    );
-  }
-
-  if (error && !matter) {
-    return (
-      <div className="p-6 max-w-2xl mx-auto">
-        <Link href="/app/client/dashboard" className="flex items-center gap-2 text-lcaccent-client hover:opacity-80 mb-6">
-          <ArrowLeft size={20} />
-          Back to Dashboard
-        </Link>
-        <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-700">
-          {error}
-        </div>
-      </div>
+      <ClientLayout>
+        <DashboardLoadingSkeleton />
+      </ClientLayout>
     );
   }
 
   if (!matter) {
     return (
-      <div className="p-6 max-w-2xl mx-auto">
-        <Link href="/app/client/dashboard" className="flex items-center gap-2 text-lcaccent-client hover:opacity-80 mb-6">
-          <ArrowLeft size={20} />
-          Back to Dashboard
-        </Link>
-        <p className="text-lctextsecondary">Matter not found</p>
-      </div>
+      <ClientLayout>
+        {back}
+        {error ? (
+          <div role="alert" className="notice notice-error">
+            <AlertCircle size={18} className="mt-0.5 flex-none" />
+            {error}
+          </div>
+        ) : (
+          <p className="text-mute">Matter not found.</p>
+        )}
+      </ClientLayout>
     );
   }
 
-  return (
-    <div className="p-6 max-w-4xl mx-auto">
-      {/* Back Link */}
-      <Link href="/app/client/dashboard" className="flex items-center gap-2 text-lcaccent-client hover:opacity-80 mb-6 transition">
-        <ArrowLeft size={20} />
-        Back to Dashboard
-      </Link>
+  const stamp = (d: string) =>
+    `${new Date(d).toLocaleDateString()} at ${new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{matter.title}</h1>
-            <div className="flex items-center gap-3">
-              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(matter.status)}`}>
-                {matter.status}
-              </span>
-              <span className="text-sm text-lctextsecondary">
-                Created {new Date(matter.created_at).toLocaleDateString()}
-              </span>
-            </div>
+  return (
+    <ClientLayout>
+      {back}
+
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0">
+          <h1 className="title-2">{matter.title}</h1>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <StatusBadge status={matter.status} />
+            <span className="text-sm text-mute">Created {new Date(matter.created_at).toLocaleDateString()}</span>
           </div>
-          {matter.status !== 'closed' && matter.status !== 'cancelled' && (
-            <button
-              onClick={() => setShowCloseConfirm(true)}
-              className="px-4 py-2 text-sm font-medium text-red-700 border border-red-300 rounded-lg hover:bg-red-50 transition"
-            >
-              Close Matter
-            </button>
-          )}
         </div>
+        {matter.status !== 'closed' && matter.status !== 'cancelled' && (
+          <button onClick={() => setShowCloseConfirm(true)} className="btn btn-outline btn-sm flex-none !border-[#fecdca] !text-[#b42318] hover:!bg-[#fef3f2]">
+            Close matter
+          </button>
+        )}
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg text-red-700 text-sm">
+        <div role="alert" className="notice notice-error mb-6">
+          <AlertCircle size={18} className="mt-0.5 flex-none" />
           {error}
         </div>
       )}
 
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Description */}
-          <div className="bg-white border border-lcborder rounded-lg p-6">
-            <h2 className="text-lg font-semibold mb-4">Description</h2>
-            <p className="text-lctextsecondary leading-relaxed">{matter.description}</p>
-          </div>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="space-y-6">
+          <section className="card p-6">
+            <h2 className="title-3">Description</h2>
+            <p className="mt-3 whitespace-pre-line leading-relaxed text-mute">{matter.description}</p>
+          </section>
 
-          {/* Details */}
-          <div className="bg-white border border-lcborder rounded-lg p-6">
-            <h2 className="text-lg font-semibold mb-4">Case Details</h2>
-            <div className="space-y-4">
+          <section className="card p-6">
+            <h2 className="title-3">Case details</h2>
+            <dl className="mt-4 grid gap-5 sm:grid-cols-2">
               <div>
-                <label className="text-sm font-medium text-lctextsecondary">Matter Type</label>
-                <p className="text-lctextprimary capitalize">{matter.matter_type?.replace(/_/g, ' ')}</p>
+                <dt className="text-sm font-medium text-mute">Matter type</dt>
+                <dd className="mt-1 font-medium capitalize text-ink">{matter.matter_type?.replace(/_/g, ' ')}</dd>
               </div>
               {matter.practice_area && (
                 <div>
-                  <label className="text-sm font-medium text-lctextsecondary">Practice Area</label>
-                  <p className="text-lctextprimary">{matter.practice_area.name}</p>
+                  <dt className="text-sm font-medium text-mute">Practice area</dt>
+                  <dd className="mt-1 font-medium text-ink">{matter.practice_area.name}</dd>
                 </div>
               )}
               {matter.jurisdiction && (
                 <div>
-                  <label className="text-sm font-medium text-lctextsecondary">Jurisdiction</label>
-                  <p className="text-lctextprimary">{matter.jurisdiction}</p>
+                  <dt className="text-sm font-medium text-mute">Jurisdiction</dt>
+                  <dd className="mt-1 font-medium text-ink">{matter.jurisdiction}</dd>
                 </div>
               )}
-            </div>
-          </div>
+            </dl>
+          </section>
 
-          {/* Attorney Info */}
           {matter.attorney && (
-            <div className="bg-white border border-lcborder rounded-lg p-6">
-              <h2 className="text-lg font-semibold mb-4">Assigned Attorney</h2>
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-lcaccent-attorney rounded-full flex items-center justify-center text-white font-semibold">
-                  {matter.attorney.user.first_name?.[0]}{matter.attorney.user.last_name?.[0]}
-                </div>
-                <div>
-                  <p className="font-medium text-lctextprimary">
+            <section className="card p-6">
+              <h2 className="title-3">Your attorney</h2>
+              <div className="mt-4 flex items-center gap-4">
+                <span className="grid h-14 w-14 flex-none place-items-center rounded-full bg-gradient-to-br from-blue-600 to-green-600 font-semibold text-white">
+                  {matter.attorney.user.first_name?.[0]}
+                  {matter.attorney.user.last_name?.[0]}
+                </span>
+                <div className="min-w-0">
+                  <p className="font-semibold text-ink">
                     {matter.attorney.user.first_name} {matter.attorney.user.last_name}
                   </p>
-                  <a href={`mailto:${matter.attorney.user.email}`} className="text-sm text-lcaccent-attorney hover:opacity-80">
+                  <a href={`mailto:${matter.attorney.user.email}`} className="block truncate text-sm font-medium text-blue-600 hover:underline">
                     {matter.attorney.user.email}
                   </a>
                 </div>
               </div>
-            </div>
+            </section>
           )}
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Quick Info */}
-          <div className="bg-white border border-lcborder rounded-lg p-6">
-            <h3 className="font-semibold mb-4">Status</h3>
-            <div className="space-y-3">
+        <aside className="space-y-6">
+          <section className="card p-6">
+            <h2 className="title-3">Status</h2>
+            <dl className="mt-4 space-y-4">
               <div>
-                <p className="text-xs text-lctextsecondary uppercase tracking-wide mb-1">Current Status</p>
-                <p className="font-medium capitalize text-lctextprimary">{matter.status}</p>
+                <dt className="text-sm text-mute">Current status</dt>
+                <dd className="mt-1.5"><StatusBadge status={matter.status} /></dd>
               </div>
               {matter.next_action_date && (
                 <div>
-                  <p className="text-xs text-lctextsecondary uppercase tracking-wide mb-1 flex items-center gap-2">
-                    <Calendar size={14} />
-                    Next Action
-                  </p>
-                  <p className="font-medium text-lctextprimary">
-                    {new Date(matter.next_action_date).toLocaleDateString()}
-                  </p>
+                  <dt className="flex items-center gap-1.5 text-sm text-mute"><CalendarDays size={14} /> Next action</dt>
+                  <dd className="mt-1 font-medium text-ink">{new Date(matter.next_action_date).toLocaleDateString()}</dd>
                 </div>
               )}
-            </div>
-          </div>
+            </dl>
+          </section>
 
-          {/* Timeline */}
-          <div className="bg-white border border-lcborder rounded-lg p-6">
-            <h3 className="font-semibold mb-4">Timeline</h3>
-            <div className="space-y-2 text-sm">
+          <section className="card p-6">
+            <h2 className="title-3">Timeline</h2>
+            <dl className="mt-4 space-y-4 text-sm">
               <div>
-                <p className="text-lctextsecondary">Created</p>
-                <p className="text-lctextprimary font-medium">
-                  {new Date(matter.created_at).toLocaleDateString()} at {new Date(matter.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
+                <dt className="text-mute">Created</dt>
+                <dd className="mt-0.5 font-medium text-ink">{stamp(matter.created_at)}</dd>
               </div>
               <div>
-                <p className="text-lctextsecondary">Last Updated</p>
-                <p className="text-lctextprimary font-medium">
-                  {new Date(matter.updated_at).toLocaleDateString()} at {new Date(matter.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
+                <dt className="text-mute">Last updated</dt>
+                <dd className="mt-0.5 font-medium text-ink">{stamp(matter.updated_at)}</dd>
               </div>
-            </div>
-          </div>
-        </div>
+            </dl>
+          </section>
+        </aside>
       </div>
 
-      {/* Close Matter Modal */}
       {showCloseConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md">
-            <div className="flex items-center gap-3 mb-4">
-              <AlertCircle size={24} className="text-red-600" />
-              <h3 className="text-lg font-semibold">Close Matter?</h3>
+        <div className="fixed inset-0 z-[60] grid place-items-center bg-black/55 p-4" role="dialog" aria-modal="true" aria-labelledby="close-title">
+          <div className="rise-in w-full max-w-md rounded-[20px] bg-white p-6 shadow-2xl">
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-full bg-[#fef3f2] text-[#b42318]">
+                <AlertCircle size={22} />
+              </span>
+              <h2 id="close-title" className="title-3">Close this matter?</h2>
             </div>
-            <p className="text-lctextsecondary mb-6">
-              Are you sure you want to close this matter? This action cannot be undone. You will still have access to view the matter and its history.
+            <p className="mt-4 leading-relaxed text-mute">
+              This cannot be undone. You will still be able to view the matter and its history.
             </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowCloseConfirm(false)}
-                className="flex-1 px-4 py-2 border border-lcborder rounded-lg text-lctextprimary hover:bg-gray-50 transition"
-              >
+            <div className="mt-6 flex gap-3">
+              <button onClick={() => setShowCloseConfirm(false)} className="btn btn-outline flex-1">
                 Cancel
               </button>
-              <button
-                onClick={handleCloseMatter}
-                disabled={closing}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition"
-              >
-                {closing ? 'Closing...' : 'Close Matter'}
+              <button onClick={handleCloseMatter} disabled={closing} className="btn btn-danger flex-1">
+                {closing && <Spinner />}
+                {closing ? 'Closing…' : 'Close matter'}
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </ClientLayout>
   );
 }
