@@ -119,7 +119,7 @@ export default function MatterDetailPage({ params }: { params: Promise<{ id: str
   }
 
   const stamp = (d: string) =>
-    `${new Date(d).toLocaleDateString()} at ${new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    `${new Date(d).toLocaleDateString('en-US')} at ${new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
 
   return (
     <ClientLayout>
@@ -130,7 +130,7 @@ export default function MatterDetailPage({ params }: { params: Promise<{ id: str
           <h1 className="title-2">{matter.title}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <StatusBadge status={matter.status} />
-            <span className="text-sm text-mute">Created {new Date(matter.created_at).toLocaleDateString()}</span>
+            <span className="text-sm text-mute">Created {new Date(matter.created_at).toLocaleDateString('en-US')}</span>
           </div>
         </div>
         {matter.status !== 'closed' && matter.status !== 'cancelled' && (
@@ -208,7 +208,7 @@ export default function MatterDetailPage({ params }: { params: Promise<{ id: str
               {matter.next_action_date && (
                 <div>
                   <dt className="flex items-center gap-1.5 text-sm text-mute"><CalendarDays size={14} /> Next action</dt>
-                  <dd className="mt-1 font-medium text-ink">{new Date(matter.next_action_date).toLocaleDateString()}</dd>
+                  <dd className="mt-1 font-medium text-ink">{new Date(matter.next_action_date).toLocaleDateString('en-US')}</dd>
                 </div>
               )}
             </dl>

@@ -129,7 +129,7 @@ export default function ClientDashboardPage(): React.ReactNode {
                         </span>
                         <div className="min-w-0">
                           <p className="truncate font-semibold text-ink">{a.attorney}</p>
-                          <p className="text-sm text-mute">{new Date(a.date).toLocaleDateString()}</p>
+                          <p className="text-sm text-mute">{new Date(a.date).toLocaleDateString('en-US')}</p>
                         </div>
                       </div>
                       <ChevronRight size={20} className="flex-none text-mute transition-transform group-hover:translate-x-1" />

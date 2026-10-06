@@ -13,7 +13,7 @@ server {
     }
 
     # Uploaded files live on the server. Avatars are public; everything else
-    # (legal documents, ID and licence scans, message attachments) is private and is only
+    # (legal documents, ID and license scans, message attachments) is private and is only
     # delivered by the API through short-lived signed links.
     location ^~ /media/avatars/ {
         alias /mnt/data/media/legal-connect/avatars/;

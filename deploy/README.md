@@ -98,7 +98,7 @@ docker compose up -d --build     # in backend/ and/or frontend/
 
 Files are stored on the server in `/mnt/data/media/legal-connect` (mounted at `/app/media`), like
 `liberty-social`. Back this folder up with the database. nginx serves only `/media/avatars/`
-publicly; legal documents, ID and licence scans and message attachments return 404 from nginx
+publicly; legal documents, ID and license scans and message attachments return 404 from nginx
 and are delivered by the API through signed links that expire after an hour.
 
 ## Notes

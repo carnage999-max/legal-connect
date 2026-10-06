@@ -87,7 +87,7 @@ export default function MattersPage() {
                     <p className="mt-1.5 line-clamp-2 text-[0.95rem] leading-relaxed text-mute">{matter.description}</p>
                     <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
                       <StatusBadge status={matter.status} />
-                      <span className="text-sm text-mute">{new Date(matter.created_at).toLocaleDateString()}</span>
+                      <span className="text-sm text-mute">{new Date(matter.created_at).toLocaleDateString('en-US')}</span>
                       {matter.attorney && (
                         <span className="text-sm font-medium text-ink">
                           {matter.attorney.user.first_name} {matter.attorney.user.last_name}
