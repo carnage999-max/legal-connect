@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { AlertCircle, CheckCircle2, Scale, User } from 'lucide-react';
+import { AlertCircle, CheckCircle2, FileText, Lock, Mail, Scale, ShieldCheck, User } from 'lucide-react';
+import { IconField } from '@/components/ui/IconField';
 import { apiPost } from '@/lib/api';
 import { AuthShell } from '@/components/AuthShell';
 import { PasswordField } from '@/components/ui/PasswordField';
@@ -75,7 +76,11 @@ export default function SignupPage() {
       title="Create your account"
       subtitle="Start your intake, track your matters and message your attorney in one place."
       asideTitle="One account. One intake. The right attorney."
-      asidePoints={['Describe your matter once', 'Conflicts are screened before anyone is contacted', 'Your information stays in your control']}
+      asidePoints={[
+        { icon: FileText, text: 'Describe your matter once' },
+        { icon: ShieldCheck, text: 'Conflicts are screened before anyone is contacted' },
+        { icon: Lock, text: 'Your information stays in your control' },
+      ]}
       asideImage={{
         src: '/problem-to-solution.jpeg',
         alt: 'On the left, a stressed man at a laptop surrounded by rejected requests. On the right, the same man shaking hands with an attorney. Legal Connect and its four steps sit between them.',
@@ -139,20 +144,11 @@ export default function SignupPage() {
         </fieldset>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label htmlFor="firstName" className="label">First name</label>
-            <input id="firstName" type="text" name="firstName" autoComplete="given-name" value={formData.firstName} onChange={handleChange} placeholder="John" className="field" />
-          </div>
-          <div>
-            <label htmlFor="lastName" className="label">Last name</label>
-            <input id="lastName" type="text" name="lastName" autoComplete="family-name" value={formData.lastName} onChange={handleChange} placeholder="Doe" className="field" />
-          </div>
+          <IconField label="First name" icon={User} id="firstName" type="text" name="firstName" autoComplete="given-name" value={formData.firstName} onChange={handleChange} placeholder="John" />
+          <IconField label="Last name" icon={User} id="lastName" type="text" name="lastName" autoComplete="family-name" value={formData.lastName} onChange={handleChange} placeholder="Doe" />
         </div>
 
-        <div>
-          <label htmlFor="email" className="label">Email</label>
-          <input id="email" type="email" name="email" autoComplete="email" value={formData.email} onChange={handleChange} placeholder="john@example.com" className="field" />
-        </div>
+        <IconField label="Email" icon={Mail} id="email" type="email" name="email" autoComplete="email" value={formData.email} onChange={handleChange} placeholder="john@example.com" />
 
         <PasswordField label="Password" name="password" autoComplete="new-password" value={formData.password} onChange={handleChange} placeholder="At least 8 characters" hint="Use at least 8 characters." />
         <PasswordField label="Confirm password" name="confirmPassword" autoComplete="new-password" value={formData.confirmPassword} onChange={handleChange} placeholder="Repeat your password" />

@@ -1,4 +1,13 @@
 import Link from 'next/link';
+import {
+  AlertCircle,
+  CheckCircle2,
+  CircleDashed,
+  Clock,
+  CircleDot,
+  XCircle,
+  type LucideIcon,
+} from 'lucide-react';
 
 /** Title row at the top of every portal page. */
 export function PageHeader({
@@ -11,10 +20,10 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
+    <div className="mb-10 flex flex-col gap-5 md:mb-12 md:flex-row md:items-end md:justify-between">
       <div className="min-w-0">
-        <h1 className="title-2">{title}</h1>
-        {description && <p className="mt-2 max-w-2xl text-[1.02rem] leading-relaxed text-mute">{description}</p>}
+        <h1 className="title-1 !text-[clamp(2rem,4vw,3rem)]">{title}</h1>
+        {description && <p className="mt-3 max-w-2xl text-[1.1rem] leading-relaxed text-mute">{description}</p>}
       </div>
       {actions && <div className="flex flex-none flex-wrap gap-3">{actions}</div>}
     </div>
@@ -26,24 +35,19 @@ export function StatCard({
   label,
   value,
   icon: Icon,
-  tone = 'blue',
 }: {
   label: string;
   value: React.ReactNode;
-  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  icon?: LucideIcon;
   tone?: 'blue' | 'green';
 }) {
   return (
-    <div className="card p-5 md:p-6">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-medium text-mute">{label}</p>
-        {Icon && (
-          <span className={`grid h-9 w-9 place-items-center rounded-lg ${tone === 'green' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
-            <Icon size={18} />
-          </span>
-        )}
+    <div className="card p-6 md:p-7">
+      <div className="flex items-center justify-between gap-3 text-mute">
+        <p className="text-[0.95rem] font-medium">{label}</p>
+        {Icon && <Icon size={22} strokeWidth={1.75} />}
       </div>
-      <p className="tnum mt-3 text-4xl font-bold tracking-tight text-ink">{value}</p>
+      <p className="tnum mt-5 text-5xl font-semibold tracking-tight text-ink">{value}</p>
     </div>
   );
 }
@@ -55,20 +59,18 @@ export function EmptyState({
   text,
   action,
 }: {
-  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  icon: LucideIcon;
   title: string;
   text?: string;
   action?: { label: string; href: string };
 }) {
   return (
-    <div className="rounded-[18px] border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-paper)] px-6 py-12 text-center md:py-14">
-      <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[color:var(--surface,#fff)] text-blue-600 shadow-[var(--shadow-soft)]">
-        <Icon size={26} strokeWidth={1.6} />
-      </span>
-      <p className="mt-5 text-lg font-semibold text-ink">{title}</p>
-      {text && <p className="mx-auto mt-1.5 max-w-md text-[0.97rem] leading-relaxed text-mute">{text}</p>}
+    <div className="card px-6 py-14 text-center md:py-16">
+      <Icon size={34} strokeWidth={1.5} className="mx-auto text-mute" />
+      <p className="mt-5 text-xl font-semibold tracking-tight text-ink">{title}</p>
+      {text && <p className="mx-auto mt-2 max-w-md text-[1rem] leading-relaxed text-mute">{text}</p>}
       {action && (
-        <Link href={action.href} className="btn btn-primary mt-6">
+        <Link href={action.href} className="btn btn-primary mt-7">
           {action.label}
         </Link>
       )}
@@ -76,26 +78,37 @@ export function EmptyState({
   );
 }
 
-/** Maps a free-text status from the API to a badge color. */
+/** Maps a free-text status from the API to colored text and a library icon. */
 export function StatusBadge({ status }: { status?: string | null }) {
   const raw = (status || 'unknown').toString();
   const s = raw.toLowerCase();
-  const tone = /(active|open|accepted|connected|complete|paid|confirmed|verified|approved|signed|executed)/.test(s)
-    ? 'badge-green'
-    : /(pending|draft|new|review|scheduled|submitted|sent)/.test(s)
-      ? 'badge-amber'
-      : /(declin|reject|conflict|overdue|fail|cancel|expired)/.test(s)
-        ? 'badge-red'
-        : /(closed|archived|unknown)/.test(s)
-          ? ''
-          : 'badge-blue';
-  return <span className={`badge ${tone} capitalize`}>{raw.replace(/_/g, ' ')}</span>;
+  let tone = 'badge-blue';
+  let Icon: LucideIcon = CircleDot;
+  if (/(active|open|accepted|connected|complete|paid|confirmed|verified|approved|signed|executed)/.test(s)) {
+    tone = 'badge-green';
+    Icon = CheckCircle2;
+  } else if (/(pending|draft|new|review|scheduled|submitted|sent)/.test(s)) {
+    tone = 'badge-amber';
+    Icon = Clock;
+  } else if (/(declin|reject|conflict|overdue|fail|cancel|expired)/.test(s)) {
+    tone = 'badge-red';
+    Icon = XCircle;
+  } else if (/(closed|archived|unknown)/.test(s)) {
+    tone = '';
+    Icon = CircleDashed;
+  }
+  return (
+    <span className={`badge ${tone} capitalize`}>
+      <Icon size={15} strokeWidth={2} aria-hidden />
+      {raw.replace(/_/g, ' ')}
+    </span>
+  );
 }
 
 export function SectionTitle({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
   return (
     <div className="mb-5 flex items-center justify-between gap-3">
-      <h2 className="title-3 text-[1.35rem]">{children}</h2>
+      <h2 className="text-[1.6rem] font-semibold tracking-tight">{children}</h2>
       {action}
     </div>
   );
@@ -104,6 +117,7 @@ export function SectionTitle({ children, action }: { children: React.ReactNode; 
 export function ErrorNotice({ children }: { children: React.ReactNode }) {
   return (
     <div role="alert" className="notice notice-error mb-6">
+      <AlertCircle size={18} className="mt-0.5 flex-none" />
       {children}
     </div>
   );

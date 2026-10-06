@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, Briefcase, CheckCircle2, EyeOff, KeyRound, Mail } from "lucide-react";
+import { IconField } from "@/components/ui/IconField";
 import { apiPost } from "@/lib/api";
 import { AuthShell } from "@/components/AuthShell";
 import { Spinner } from "@/components/ui/Spinner";
@@ -35,7 +36,11 @@ export default function ForgotPasswordPage() {
       title="Forgot your password?"
       subtitle="Enter the email on your account and we will send you a link to choose a new one."
       asideTitle="Back in your account in a minute."
-      asidePoints={["The link is single-use", "We never show whether an email has an account", "Your matters are untouched"]}
+      asidePoints={[
+        { icon: KeyRound, text: "The link can be used only once" },
+        { icon: EyeOff, text: "We never reveal whether an email has an account" },
+        { icon: Briefcase, text: "Your matters are untouched" },
+      ]}
       footer={
         <p>
           Remembered it?{" "}
@@ -46,21 +51,17 @@ export default function ForgotPasswordPage() {
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label htmlFor="email" className="label">
-            Email address
-          </label>
-          <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="field"
-            required
-          />
-        </div>
+        <IconField
+          label="Email address"
+          icon={Mail}
+          id="email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
         {status !== "idle" && message && (
           <div

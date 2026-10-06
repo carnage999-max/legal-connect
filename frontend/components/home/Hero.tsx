@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { ProductPanel, type StageIndex } from './ProductPanel';
 
 const STEP_MS = 3600;
@@ -74,8 +75,9 @@ export function Hero() {
           className="tick-in mt-9 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center"
           style={{ '--d': '0.6s' } as React.CSSProperties}
         >
-          <Link href="/intake" className="btn btn-primary btn-lg">
+          <Link href="/intake" className="btn btn-primary btn-lg group">
             Start Legal Intake
+            <ArrowRight size={19} className="transition-transform group-hover:translate-x-0.5" />
           </Link>
           <Link href="/attorneys/apply" className="link-arrow justify-center text-lg">
             I&apos;m an attorney <span aria-hidden>›</span>

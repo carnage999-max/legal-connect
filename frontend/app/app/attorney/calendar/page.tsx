@@ -132,7 +132,7 @@ export default function AttorneyCalendarPage(): React.ReactNode {
                         onClick={() => setSelectedSlot(on ? null : slot)}
                         aria-pressed={on}
                         className={`w-full rounded-2xl border p-4 text-left transition-all ${
-                          on ? 'border-blue-500 bg-blue-50 shadow-[0_0_0_3px_rgb(30_127_214/0.18)]' : 'border-hairline bg-[color:var(--surface,#fff)] hover:border-blue-400'
+                          on ? 'border-blue-500 bg-[color:var(--card-bg,#f5f5f7)] shadow-[0_0_0_3px_rgb(30_127_214/0.18)]' : 'border-transparent bg-[color:var(--card-bg,#f5f5f7)] hover:bg-[color:var(--card-bg-hover,#ececf0)]'
                         }`}
                       >
                         <span className="block font-semibold text-ink">{new Date(slot.date).toLocaleDateString('en-US')}</span>

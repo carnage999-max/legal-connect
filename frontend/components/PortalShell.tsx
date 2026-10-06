@@ -3,14 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogOut, Menu, X } from 'lucide-react';
+import { LogOut, Menu, X, type LucideIcon } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
 
 export type PortalNavItem = {
   label: string;
   href: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
 };
 
 /**
@@ -55,7 +55,7 @@ export function PortalShell({
     };
   }, [open]);
 
-  const shell = dark ? 'dark-surface bg-navy-900 text-ink' : 'bg-paper text-ink';
+  const shell = dark ? 'dark-surface black-surface bg-black text-ink' : 'bg-white text-ink';
 
   if (!user) {
     return (
@@ -82,7 +82,7 @@ export function PortalShell({
   }
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-  const accent = dark ? 'bg-blue-500/15 text-blue-600' : 'bg-green-50 text-green-700';
+  const accent = dark ? 'bg-white/10 text-ink' : 'bg-black/[0.05] text-ink';
   const initials = (user.username || 'U').trim().charAt(0).toUpperCase();
 
   const navList = (
@@ -94,11 +94,11 @@ export function PortalShell({
             key={href}
             href={href}
             aria-current={active ? 'page' : undefined}
-            className={`flex min-h-11 items-center gap-3 rounded-xl px-3 text-[0.95rem] font-medium transition-colors ${
+            className={`flex min-h-11 items-center gap-3 rounded-2xl px-3.5 text-[0.95rem] font-medium transition-colors ${
               active ? `${accent} font-semibold` : 'text-mute hover:bg-[color:var(--color-paper)] hover:text-ink'
             }`}
           >
-            <Icon size={19} className="flex-none" />
+            <Icon size={20} strokeWidth={1.75} className="flex-none" />
             {label}
           </Link>
         );
@@ -111,7 +111,7 @@ export function PortalShell({
       <div className="flex items-center gap-3 px-1">
         <span
           className={`grid h-10 w-10 flex-none place-items-center rounded-full text-sm font-bold text-white ${
-            dark ? 'bg-[#2b7fd6]' : 'bg-[#1e8e3e]'
+            dark ? 'bg-white/15' : 'bg-ink'
           }`}
         >
           {initials}
@@ -163,7 +163,7 @@ export function PortalShell({
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu" id="portal-menu">
           <button aria-label="Close menu" className="absolute inset-0 bg-black/55" onClick={() => setOpen(false)} />
-          <div className={`rise-in absolute inset-y-0 right-0 flex w-[min(86vw,320px)] flex-col gap-6 bg-[color:var(--surface,#fff)] p-5 shadow-2xl ${dark ? 'dark-surface' : ''}`}>
+          <div className={`rise-in absolute inset-y-0 right-0 flex w-[min(86vw,320px)] flex-col gap-6 bg-[color:var(--surface,#fff)] p-5 shadow-2xl ${dark ? 'dark-surface black-surface' : ''}`}>
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-mute">{portalLabel}</span>
               <button aria-label="Close menu" onClick={() => setOpen(false)} className="grid h-11 w-11 place-items-center rounded-xl text-ink hover:bg-[color:var(--color-paper)]">

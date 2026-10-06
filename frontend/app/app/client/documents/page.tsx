@@ -129,7 +129,7 @@ export default function ClientDocumentsPage(): React.ReactNode {
           <h2 className="title-3">Upload a document</h2>
           <label
             htmlFor="file-input"
-            className="block cursor-pointer rounded-2xl border-2 border-dashed border-[#c5cfdc] p-8 text-center transition-colors hover:border-blue-500 hover:bg-blue-50"
+            className="block cursor-pointer rounded-2xl border-2 border-dashed border-[#c7c7cc] p-8 text-center transition-colors hover:border-blue-500 hover:bg-white"
           >
             <Upload size={30} className="mx-auto mb-3 text-blue-600" />
             <span className="block font-semibold text-ink">Choose a file to upload</span>
@@ -182,7 +182,7 @@ export default function ClientDocumentsPage(): React.ReactNode {
             {documents.map((doc) => (
               <li key={doc.id} className="card flex items-center justify-between gap-4 p-5">
                 <div className="flex min-w-0 items-center gap-4">
-                  <span className="grid h-12 w-12 flex-none place-items-center rounded-xl bg-blue-50 text-blue-600">
+                  <span className="flex-none text-mute">
                     <FileText size={22} />
                   </span>
                   <div className="min-w-0">

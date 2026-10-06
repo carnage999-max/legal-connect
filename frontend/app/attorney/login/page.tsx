@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, CalendarCheck, Inbox, Mail, MessageSquare } from 'lucide-react';
+import { IconField } from '@/components/ui/IconField';
 import { AuthShell } from '@/components/AuthShell';
 import { PasswordField } from '@/components/ui/PasswordField';
 import { Spinner } from '@/components/ui/Spinner';
@@ -31,7 +32,11 @@ export default function AttorneyLoginPage(): React.ReactNode {
       title="Welcome, Counselor"
       subtitle="Access your referrals, clients, appointments and billing."
       asideTitle="Screened matters, ready for your review."
-      asidePoints={['New requests arrive with structured details', 'Accept or decline on your schedule', 'Message clients without leaving the platform']}
+      asidePoints={[
+        { icon: Inbox, text: 'New requests arrive with structured details' },
+        { icon: CalendarCheck, text: 'Accept or decline on your schedule' },
+        { icon: MessageSquare, text: 'Message clients without leaving the platform' },
+      ]}
       asideImage={{
         src: '/attorney-with-client.jpeg',
         alt: 'An attorney speaking with a client, with a network of attorney profiles and the Legal Connect logo beside them.',
@@ -61,21 +66,17 @@ export default function AttorneyLoginPage(): React.ReactNode {
           </div>
         )}
 
-        <div>
-          <label htmlFor="username" className="label">
-            Email address
-          </label>
-          <input
-            id="username"
-            type="text"
-            inputMode="email"
-            autoComplete="username"
-            value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-            className="field"
-            placeholder="you@firm.com"
-          />
-        </div>
+        <IconField
+          label="Email address"
+          icon={Mail}
+          id="username"
+          type="text"
+          inputMode="email"
+          autoComplete="username"
+          value={formData.username}
+          onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+          placeholder="you@firm.com"
+        />
 
         <PasswordField
           label="Password"

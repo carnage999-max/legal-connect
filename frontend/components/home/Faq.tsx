@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Plus } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 
@@ -42,6 +43,14 @@ export function Faq() {
       <div className="site-container grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
         <Reveal>
           <h2 className="title-1">Common questions.</h2>
+          <Image
+            src="/potential-client-browsing-legal-connect.jpeg"
+            alt="Over the shoulder of a woman using a laptop that shows the Legal Connect steps: describe, screen, match and connect."
+            width={1672}
+            height={941}
+            sizes="320px"
+            className="mt-10 h-auto w-full max-w-[320px] rounded-3xl"
+          />
         </Reveal>
 
         <Reveal className="border-b border-hairline" delay={0.08}>
